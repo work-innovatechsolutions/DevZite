@@ -1,13 +1,10 @@
 import { NextResponse } from 'next/server';
 import { adminDb } from '@/lib/firebase/admin';
 
-const SUPER_ADMIN_EMAILS = [
-  'souvikgon377@gmail.com',
-  'souvik@devzite.com',
-  'alex@devzite.com',
-  'elena@devzite.com',
-  'admin@devzite.com',
-];
+const SUPER_ADMIN_EMAILS = (process.env.SUPER_ADMIN_EMAILS || '')
+  .split(',')
+  .map((email) => email.trim().toLowerCase())
+  .filter(Boolean);
 
 export async function POST(req: Request) {
   try {
