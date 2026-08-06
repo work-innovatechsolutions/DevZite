@@ -14,36 +14,42 @@ export function SceneIdentity() {
       id="scene-identity"
       data-scene="identity"
       className="section-padding relative overflow-hidden"
-      aria-label="About us identity"
+      aria-label="Identity and Manifesto"
     >
       <div className="container-site relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Left copy */}
+          {/* Left Manifesto */}
           <div className="lg:col-span-7">
             <BlurReveal>
               <span className="text-xs font-mono text-[#3B82F6] uppercase tracking-widest">
-                / 01 — Identity & Philosophy
+                / 01 — Identity
               </span>
             </BlurReveal>
 
             <TextReveal
-              text="We believe the internet deserves better."
-              className="text-display-lg font-display font-black text-[#F8FAFC] mt-4 mb-6 leading-tight"
+              text="We don't build websites."
+              className="text-display-lg font-display font-black text-[#F8FAFC] mt-4 mb-2 leading-none"
               delay={0.2}
               stagger={0.04}
             />
+            <TextReveal
+              text="We engineer digital experiences."
+              className="text-display-lg font-display font-black gradient-text mb-6 leading-none"
+              delay={0.4}
+              stagger={0.04}
+            />
 
-            <BlurReveal delay={0.35}>
+            <BlurReveal delay={0.55}>
               <p className="text-base sm:text-lg text-[#94A3B8] leading-relaxed mb-6">
                 Not everything that loads fast looks good. Not everything that looks good loads fast.{' '}
-                <GradientText>We refuse to choose.</GradientText> Every project we build is engineered like an interactive product launch — visually striking, accessible, and blindingly fast.
+                <GradientText>We refuse to choose.</GradientText> Every project we craft is engineered like a living operating system — visually striking, accessible, and blindingly fast.
               </p>
             </BlurReveal>
 
-            <BlurReveal delay={0.45}>
+            <BlurReveal delay={0.65}>
               <div className="p-6 rounded-2xl glass border border-[rgba(255,255,255,0.08)] mb-8 bg-[rgba(59,130,246,0.02)]">
                 <p className="text-sm text-[#F8FAFC] italic font-serif leading-relaxed">
-                  &ldquo;We don&apos;t make websites. We craft digital worlds. We build as if every pixel is a promise to someone.&rdquo;
+                  &ldquo;We craft digital worlds. We build as if every pixel is a promise to someone.&rdquo;
                 </p>
                 <span className="text-xs font-mono text-[#3B82F6] mt-3 block">
                   — Innovatech Solutions Brand Manifesto
@@ -58,7 +64,7 @@ export function SceneIdentity() {
                 { icon: '⚡', title: 'Speed is Feature', desc: 'Performance is never sacrificed for visuals.' },
                 { icon: '✦', title: 'Details are Design', desc: 'Hidden touches build long-term memorability.' },
               ].map((p, i) => (
-                <BlurReveal key={p.title} delay={0.55 + i * 0.08}>
+                <BlurReveal key={p.title} delay={0.75 + i * 0.08}>
                   <div className="glass rounded-xl p-5 hover:border-[rgba(59,130,246,0.3)] transition-all duration-300">
                     <span className="text-2xl mb-2 block">{p.icon}</span>
                     <h3 className="font-display font-bold text-[#F8FAFC] text-sm mb-1">{p.title}</h3>

@@ -5,13 +5,14 @@ import { PremiumCursor } from '@/components/cursor/PremiumCursor';
 import { CommandPalette } from '@/components/command/CommandPalette';
 import { BackgroundSystem } from '@/components/transitions/BackgroundSystem';
 
-// All 9 Narrative Scenes
+// All Narrative Scenes
 import { SceneArrival } from '@/components/scenes/SceneArrival';
 import { SceneIdentity } from '@/components/scenes/SceneIdentity';
 import { SceneProblems } from '@/components/scenes/SceneProblems';
 import { SceneProcess } from '@/components/scenes/SceneProcess';
 import { SceneProof } from '@/components/scenes/SceneProof';
 import { SceneNumbers } from '@/components/scenes/SceneNumbers';
+import { SceneAIWorkflow } from '@/components/scenes/SceneAIWorkflow';
 import { SceneVoices } from '@/components/scenes/SceneVoices';
 import { SceneGallery } from '@/components/scenes/SceneGallery';
 import { SceneInvitation } from '@/components/scenes/SceneInvitation';
@@ -26,13 +27,14 @@ export default function HomePage() {
       <BackgroundSystem />
       <Navbar />
 
-      {/* 9 Narrative Scenes */}
+      {/* Narrative Homepage Scenes */}
       <SceneArrival />
       <SceneIdentity />
       <SceneProblems />
       <SceneProcess />
       <SceneProof />
       <SceneNumbers />
+      <SceneAIWorkflow />
       <SceneVoices />
       <SceneGallery />
       <SceneInvitation />
