@@ -14,16 +14,31 @@ const firebaseConfig = {
   measurementId:     process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase (singleton — safe for Next.js hot reload)
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const hasFirebaseClientConfig = Boolean(
+  firebaseConfig.apiKey &&
+  firebaseConfig.authDomain &&
+  firebaseConfig.projectId &&
+  firebaseConfig.storageBucket &&
+  firebaseConfig.messagingSenderId &&
+  firebaseConfig.appId,
+);
 
-export const auth      = getAuth(app);
-export const db        = getFirestore(app);
-export const storage   = getStorage(app);
+const shouldEnableAnalytics = process.env.NEXT_PUBLIC_ENABLE_FIREBASE_ANALYTICS === 'true';
+
+// Initialize Firebase (singleton — safe for Next.js hot reload)
+const app = hasFirebaseClientConfig
+  ? getApps().length
+    ? getApp()
+    : initializeApp(firebaseConfig)
+  : undefined;
+
+export const auth      = app ? getAuth(app) : undefined;
+export const db        = app ? getFirestore(app) : undefined;
+export const storage   = app ? getStorage(app) : undefined;
 
 // Analytics only runs on the client
 export async function getAnalyticsInstance() {
-  if (await isSupported()) {
+  if (app && shouldEnableAnalytics && firebaseConfig.measurementId && await isSupported()) {
     return getAnalytics(app);
   }
   return null;
