@@ -3,10 +3,7 @@ import Image from 'next/image';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { BlurReveal } from '@/components/motion';
-import { adminDb } from '@/lib/firebase/admin';
 import { ArrowUpRight, Zap } from 'lucide-react';
-
-export const revalidate = 0; // Dynamic server fetching — instant sync with Admin Panel!
 
 type ProjectCard = {
   slug: string;
@@ -18,7 +15,7 @@ type ProjectCard = {
   image: string;
 };
 
-const DEFAULT_PROJECTS = [
+const DEFAULT_PROJECTS: ProjectCard[] = [
   {
     slug: 'abjee-travel',
     title: 'ABjee Travel',
@@ -57,53 +54,9 @@ const DEFAULT_PROJECTS = [
   },
 ];
 
-const fallbackTech = ['Next.js 15', 'TypeScript', 'Tailwind'];
-const fallbackImage = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80';
-
-function asText(value: unknown, fallback: string) {
-  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
-}
-
-function asImageSrc(value: unknown) {
-  if (typeof value !== 'string') {
-    return fallbackImage;
-  }
-
-  const src = value.trim();
-  if (!src) {
-    return fallbackImage;
-  }
-
-  if (src.startsWith('/') || src.startsWith('data:image/')) {
-    return src;
-  }
-
-  try {
-    const url = new URL(src);
-    return url.protocol === 'https:' || url.protocol === 'http:' ? src : fallbackImage;
-  } catch {
-    return fallbackImage;
-  }
-}
-
-function asTechList(value: unknown) {
-  if (Array.isArray(value)) {
-    const items = value.filter((item): item is string => typeof item === 'string' && Boolean(item.trim()));
-    return items.length ? items.map((item) => item.trim()) : fallbackTech;
-  }
-
-  if (typeof value === 'string') {
-    const items = value
-      .split(',')
-      .map((item) => item.trim())
-      .filter(Boolean);
-    return items.length ? items : fallbackTech;
-  }
-
-  return fallbackTech;
-}
-
 async function getFirestoreProjects() {
+  return DEFAULT_PROJECTS;
+  /*
   try {
     const snap = await adminDb.collection('projects').get();
     if (!snap.empty) {
@@ -123,6 +76,7 @@ async function getFirestoreProjects() {
   } catch (err) {
     console.error('Error fetching Firestore projects for /projects page:', err);
   }
+  */
   return DEFAULT_PROJECTS;
 }
 
