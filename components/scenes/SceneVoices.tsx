@@ -6,7 +6,7 @@ const TESTIMONIALS_ROW1 = [
   {
     author: 'Alexander Wright',
     role: 'CTO, Nexus AI',
-    quote: 'The performance optimization and GSAP animations Innovatech built brought our series-A platform to life.',
+    quote: 'The performance optimization and GSAP animations DevZite built brought our series-A platform to life.',
     rating: 5,
     avatar: 'AW',
     accentColor: '#3B82F6',
@@ -14,7 +14,7 @@ const TESTIMONIALS_ROW1 = [
   {
     author: 'Elena Rostova',
     role: 'Head of Product, Aura Health',
-    quote: 'Our mobile user retention jumped 38% after releasing the new Android app built by Innovatech.',
+    quote: 'Our mobile user retention jumped 38% after releasing the new Android app built by DevZite.',
     rating: 5,
     avatar: 'ER',
     accentColor: '#06B6D4',
@@ -41,7 +41,7 @@ const TESTIMONIALS_ROW2 = [
   {
     author: 'David Miller',
     role: 'Managing Director, Orbit Digital',
-    quote: "Innovatech doesn't act like a vendor. They operate like a core technical co-founder team.",
+    quote: "DevZite doesn't act like a vendor. They operate like a core technical co-founder team.",
     rating: 5,
     avatar: 'DM',
     accentColor: '#10B981',
@@ -65,7 +65,7 @@ const TESTIMONIALS_ROW2 = [
   {
     author: 'Priya Nair',
     role: 'CEO, Flourish Health',
-    quote: 'Our Lighthouse score went from 62 to 98 after Innovatech overhauled our Next.js architecture.',
+    quote: 'Our Lighthouse score went from 62 to 98 after DevZite overhauled our Next.js architecture.',
     rating: 5,
     avatar: 'PN',
     accentColor: '#A855F7',

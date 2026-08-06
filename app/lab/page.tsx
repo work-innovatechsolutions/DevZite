@@ -53,7 +53,7 @@ export default function LabPage() {
           <div className="max-w-3xl mb-16">
             <BlurReveal>
               <span className="text-xs font-mono text-[#06B6D4] uppercase tracking-widest">
-                / Innovatech R&D Lab
+                / DevZite R&D Lab
               </span>
             </BlurReveal>
 

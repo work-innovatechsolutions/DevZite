@@ -1,5 +1,5 @@
 /**
- * Global TypeScript types for Innovatech Solutions
+ * Global TypeScript types for DevZite
  */
 
 // ─── Firebase / Auth ────────────────────────────────────────────────────────

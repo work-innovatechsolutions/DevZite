@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const title = searchParams.get('title') || 'Digital Experiences That People Remember';
-    const category = searchParams.get('category') || 'Innovatech Solutions';
+    const category = searchParams.get('category') || 'DevZite';
 
     return new ImageResponse(
       (
@@ -71,7 +71,7 @@ export async function GET(request: Request) {
             }}
           >
             <span style={{ color: '#94A3B8', fontSize: '18px' }}>
-              innovatechsolutions.com
+              devzite.com
             </span>
             <span style={{ color: '#3B82F6', fontSize: '18px', fontWeight: 'bold' }}>
               Next.js 15 · GSAP · R3F

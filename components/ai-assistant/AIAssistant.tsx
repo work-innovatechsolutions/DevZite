@@ -14,7 +14,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: '1',
     sender: 'bot',
-    text: 'Hello! I am Innovatech AI. Ask me about our services, pricing estimates, tech stack, or project timelines.',
+    text: 'Hello! I am DevZite AI. Ask me about our services, pricing estimates, tech stack, or project timelines.',
   },
 ];
 
@@ -40,7 +40,7 @@ export function AIAssistant() {
 
     // Generate automated response
     setTimeout(() => {
-      let reply = 'Thank you for asking! For custom requirements, you can fill out our project brief form or email hello@innovatechsolutions.com.';
+      let reply = 'Thank you for asking! For custom requirements, you can fill out our project brief form or email hello@devzite.com.';
       const q = query.toLowerCase();
 
       if (q.includes('cost') || q.includes('price') || q.includes('pricing')) {
@@ -88,7 +88,7 @@ export function AIAssistant() {
                 <Sparkles size={16} />
               </div>
               <div>
-                <h4 className="font-display font-bold text-sm text-[#F8FAFC]">Innovatech AI Lead Assistant</h4>
+                <h4 className="font-display font-bold text-sm text-[#F8FAFC]">DevZite AI Lead Assistant</h4>
                 <span className="text-[10px] font-mono text-[#06B6D4]">● Online · Instant Guidance</span>
               </div>
             </div>

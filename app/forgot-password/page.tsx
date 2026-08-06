@@ -26,7 +26,7 @@ export default function ForgotPasswordPage() {
             <div className="rounded-3xl glass p-8 sm:p-10 border border-[rgba(255,255,255,0.08)] shadow-2xl">
               <div className="text-center mb-8">
                 <div className="relative w-12 h-12 mx-auto mb-4">
-                  <Image src="/logo.png" alt="Innovatech" fill sizes="48px" className="object-contain" />
+                  <Image src="/logo.png" alt="DevZite" fill sizes="48px" className="object-contain" />
                 </div>
                 <h1 className="font-display font-bold text-2xl text-[#F8FAFC]">
                   Reset Password
@@ -55,7 +55,7 @@ export default function ForgotPasswordPage() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="user@innovatech.com"
+                      placeholder="user@devzite.com"
                       required
                       className="w-full px-4 py-3 rounded-xl glass text-sm text-[#F8FAFC] placeholder-[#475569] outline-none focus:border-[#3B82F6]"
                     />

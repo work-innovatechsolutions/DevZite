@@ -11,7 +11,7 @@ const BLOG_POSTS = [
     category: 'Engineering',
     readTime: '6 min read',
     date: 'Aug 4, 2026',
-    author: 'Innovatech Engineering Team',
+    author: 'DevZite Engineering Team',
     icon: '⚡',
   },
   {
@@ -59,7 +59,7 @@ export default function BlogIndexPage() {
 
             <BlurReveal delay={0.35}>
               <p className="text-lg text-[#94A3B8] leading-relaxed">
-                Technical articles, architecture breakdowns, AI experiments, and design system governance from the team at Innovatech Solutions.
+                Technical articles, architecture breakdowns, AI experiments, and design system governance from the team at DevZite.
               </p>
             </BlurReveal>
           </div>

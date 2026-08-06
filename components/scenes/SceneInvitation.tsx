@@ -98,8 +98,8 @@ export function SceneInvitation() {
                   </span>
                   <div>
                     <span className="text-xs font-mono text-[#64748B] block">Email Us</span>
-                    <a href="mailto:hello@innovatechsolutions.com" className="text-[#F8FAFC] font-semibold hover:text-[#3B82F6]">
-                      hello@innovatechsolutions.com
+                    <a href="mailto:hello@devzite.com" className="text-[#F8FAFC] font-semibold hover:text-[#3B82F6]">
+                      hello@devzite.com
                     </a>
                   </div>
                 </div>

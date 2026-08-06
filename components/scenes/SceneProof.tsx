@@ -17,7 +17,7 @@ const FEATURED_PROJECTS = [
     ],
     tech: ['Next.js 15', 'TypeScript', 'Tailwind CSS', 'Firebase', 'GSAP'],
     client: 'Nexus AI Inc.',
-    review: '"Innovatech Solutions delivered a product that looks like Apple designed it and loads like Google built it."',
+    review: '"DevZite delivered a product that looks like Apple designed it and loads like Google built it."',
     slug: 'nexus-ai-studio',
     gradient: 'from-[#3B82F6] to-[#06B6D4]',
   },
@@ -33,7 +33,7 @@ const FEATURED_PROJECTS = [
     ],
     tech: ['Android Native', 'React 19', 'Firebase Realtime', 'Tailwind', 'Motion'],
     client: 'Aura Health Ltd.',
-    review: '"Working with Innovatech was the best agency experience of my 12-year tech career. Highly recommended."',
+    review: '"Working with DevZite was the best agency experience of my 12-year tech career. Highly recommended."',
     slug: 'aura-fitness',
     gradient: 'from-[#8B5CF6] to-[#3B82F6]',
   },
@@ -182,7 +182,7 @@ export function SceneProof() {
                           <span className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]" />
                           <span className="w-2.5 h-2.5 rounded-full bg-[#27C93F]" />
                           <span className="text-[10px] font-mono text-[#64748B] ml-2">
-                            https://{project.slug}.innovatech.com
+                            https://{project.slug}.devzite.com
                           </span>
                         </div>
                         {/* Content preview */}

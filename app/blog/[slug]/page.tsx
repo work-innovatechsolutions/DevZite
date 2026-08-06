@@ -17,7 +17,7 @@ const POST_CONTENTS: Record<string, {
     category: 'Engineering',
     date: 'Aug 4, 2026',
     readTime: '6 min read',
-    author: 'Innovatech Engineering Lead',
+    author: 'DevZite Engineering Lead',
     sections: [
       {
         heading: '1. The Tension Between Motion & Latency',

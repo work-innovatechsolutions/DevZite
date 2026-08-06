@@ -22,6 +22,14 @@ export default function LoginPage() {
   const router = useRouter();
   const { signInWithEmail, signInWithGoogle, logout } = useAuth();
 
+  const readJsonSafe = async (res: Response) => {
+    try {
+      return await res.json();
+    } catch {
+      return null;
+    }
+  };
+
   const handleBootstrapAdmin = async (targetEmail: string) => {
     if (!targetEmail) return;
     setLoading(true);
@@ -31,14 +39,14 @@ export default function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: targetEmail, name: targetEmail.split('@')[0] }),
       });
-      const data = await res.json();
-      if (data.success) {
+      const data = await readJsonSafe(res);
+      if (res.ok && data?.success) {
         sessionStorage.setItem('devzite_admin_auth', 'true');
         setUnauthorizedEmail('');
         setErrorMsg('');
         router.push('/admin/dashboard');
       } else {
-        setErrorMsg(data.error || 'Failed to authorize admin account.');
+        setErrorMsg(data?.error || 'Failed to authorize admin account.');
       }
     } catch {
       setErrorMsg('Error authorizing admin account.');
@@ -65,10 +73,10 @@ export default function LoginPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email }),
         });
-        const verifyData = await verifyRes.json();
+        const verifyData = await readJsonSafe(verifyRes);
 
-        if (!verifyData.authorized) {
-          setErrorMsg(verifyData.error || `Access Denied: Account (${email}) is not an authorized Admin.`);
+        if (!verifyRes.ok || !verifyData?.authorized) {
+          setErrorMsg(verifyData?.error || `Access Denied: Account (${email}) is not an authorized Admin.`);
           setUnauthorizedEmail(email);
           setLoading(false);
           return;
@@ -117,10 +125,10 @@ export default function LoginPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: userEmail }),
         });
-        const verifyData = await verifyRes.json();
+        const verifyData = await readJsonSafe(verifyRes);
 
-        if (!verifyData.authorized) {
-          setErrorMsg(verifyData.error || `Access Denied: Google Account (${userEmail}) is not an authorized Admin.`);
+        if (!verifyRes.ok || !verifyData?.authorized) {
+          setErrorMsg(verifyData?.error || `Access Denied: Google Account (${userEmail}) is not an authorized Admin.`);
           setUnauthorizedEmail(userEmail);
           await logout();
           sessionStorage.removeItem('devzite_admin_auth');

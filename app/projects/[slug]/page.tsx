@@ -48,7 +48,7 @@ const CASE_STUDIES: Record<string, {
     review: {
       author: 'Alexander Wright',
       role: 'CTO, Nexus AI',
-      quote: 'Innovatech Solutions delivered a product that looks like Apple designed it and loads like Google built it.',
+      quote: 'DevZite delivered a product that looks like Apple designed it and loads like Google built it.',
     },
   },
   'aura-fitness': {
@@ -79,7 +79,7 @@ const CASE_STUDIES: Record<string, {
     review: {
       author: 'Elena Rostova',
       role: 'Head of Product, Aura Health',
-      quote: 'Our mobile user retention jumped 38% after releasing the new Android app built by Innovatech.',
+      quote: 'Our mobile user retention jumped 38% after releasing the new Android app built by DevZite.',
     },
   },
   'lumina-cloud': {

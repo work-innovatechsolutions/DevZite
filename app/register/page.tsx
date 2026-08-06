@@ -29,7 +29,7 @@ export default function RegisterPage() {
             <div className="rounded-3xl glass p-8 sm:p-10 border border-[rgba(255,255,255,0.08)] shadow-2xl">
               <div className="text-center mb-8">
                 <div className="relative w-12 h-12 mx-auto mb-4">
-                  <Image src="/logo.png" alt="Innovatech" fill sizes="48px" className="object-contain" />
+                  <Image src="/logo.png" alt="DevZite" fill sizes="48px" className="object-contain" />
                 </div>
                 <h1 className="font-display font-bold text-2xl text-[#F8FAFC]">
                   Create Account

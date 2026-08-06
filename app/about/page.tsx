@@ -25,7 +25,7 @@ export default function AboutPage() {
 
             <BlurReveal delay={0.35}>
               <p className="text-lg text-[#94A3B8] leading-relaxed">
-                Innovatech Solutions was founded on a simple premise: web applications should be blindingly fast, visually unforgettable, and engineered to scale seamlessly.
+                DevZite was founded on a simple premise: web applications should be blindingly fast, visually unforgettable, and engineered to scale seamlessly.
               </p>
             </BlurReveal>
           </div>
@@ -37,7 +37,7 @@ export default function AboutPage() {
                 Our Brand Manifesto
               </h2>
               <p className="text-base text-[#F8FAFC] italic font-serif leading-relaxed space-y-3">
-                &ldquo;We don&apos;t make websites. We craft digital worlds. Not everything that loads fast looks good. Not everything that looks good loads fast. We refuse to choose. We are Innovatech Solutions. We build both.&rdquo;
+                &ldquo;We don&apos;t make websites. We craft digital worlds. Not everything that loads fast looks good. Not everything that looks good loads fast. We refuse to choose. We are DevZite. We build both.&rdquo;
               </p>
             </div>
           </BlurReveal>
