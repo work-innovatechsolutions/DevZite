@@ -110,11 +110,14 @@ export default function RootLayout({
         {/* Noise grain texture overlay */}
         <div className="noise-overlay" aria-hidden="true" />
 
-        {/* Aurora background */}
+        {/* Aurora background — 4 animated orbs */}
         <div className="aurora-bg" aria-hidden="true">
           <div className="aurora-blob aurora-blob-1" />
           <div className="aurora-blob aurora-blob-2" />
+          <div className="aurora-blob aurora-blob-3" />
+          <div className="aurora-blob aurora-blob-4" />
         </div>
+
 
         <Providers>
           <main id="main-content">

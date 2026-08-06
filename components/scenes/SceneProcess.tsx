@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { BlurReveal, TextReveal } from '@/components/motion';
+import { BlurReveal, WordReveal } from '@/components/motion';
 
 const HolographicCube = dynamic(() => import('@/components/three/HolographicCube'), {
   ssr: false,
@@ -64,11 +64,10 @@ export function SceneProcess() {
               </span>
             </BlurReveal>
 
-            <TextReveal
-              text="From initial concept to edge deployment."
-              className="text-display-md font-display font-black text-[#F8FAFC] mt-3"
-              delay={0.2}
-            />
+            <h2 className="text-display-md font-display font-black text-[#F8FAFC] mt-4">
+              <WordReveal text="From initial concept" delay={0.15} stagger={0.04} className="block" />
+              <WordReveal text="to edge deployment." delay={0.32} stagger={0.04} className="block gradient-text-blue" wordClassName="gradient-text-blue" />
+            </h2>
           </div>
 
           <BlurReveal delay={0.3}>
@@ -82,7 +81,7 @@ export function SceneProcess() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           {PROCESS_STEPS.map((step, i) => (
             <BlurReveal key={step.step} delay={0.2 + i * 0.1}>
-              <div className="flex flex-col justify-between h-full rounded-2xl glass p-6 border border-[rgba(255,255,255,0.08)] hover:border-[rgba(59,130,246,0.3)] transition-all duration-300 relative group">
+              <div className="flex flex-col justify-between h-full rounded-2xl glass-card p-6 relative group">
                 <div>
                   {/* Step number badge */}
                   <div className="flex items-center justify-between mb-4">

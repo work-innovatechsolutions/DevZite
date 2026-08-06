@@ -4,8 +4,9 @@ import { PageLoader } from '@/components/loader/PageLoader';
 import { PremiumCursor } from '@/components/cursor/PremiumCursor';
 import { CommandPalette } from '@/components/command/CommandPalette';
 import { BackgroundSystem } from '@/components/transitions/BackgroundSystem';
+import { ScrollProgress } from '@/components/ui/ScrollProgress';
 
-// All Narrative Scenes
+// Narrative Scenes
 import { SceneArrival } from '@/components/scenes/SceneArrival';
 import { SceneIdentity } from '@/components/scenes/SceneIdentity';
 import { SceneProblems } from '@/components/scenes/SceneProblems';
@@ -13,6 +14,7 @@ import { SceneProcess } from '@/components/scenes/SceneProcess';
 import { SceneProof } from '@/components/scenes/SceneProof';
 import { SceneNumbers } from '@/components/scenes/SceneNumbers';
 import { SceneAIWorkflow } from '@/components/scenes/SceneAIWorkflow';
+import { SceneStatistics } from '@/components/scenes/SceneStatistics';
 import { SceneVoices } from '@/components/scenes/SceneVoices';
 import { SceneGallery } from '@/components/scenes/SceneGallery';
 import { SceneInvitation } from '@/components/scenes/SceneInvitation';
@@ -20,14 +22,15 @@ import { SceneInvitation } from '@/components/scenes/SceneInvitation';
 export default function HomePage() {
   return (
     <>
-      {/* Infrastructure & Global UI */}
+      {/* ── Global UI Infrastructure ── */}
+      <ScrollProgress />
       <PageLoader />
       <PremiumCursor />
       <CommandPalette />
       <BackgroundSystem />
       <Navbar />
 
-      {/* Narrative Homepage Scenes */}
+      {/* ── Narrative Homepage (11 cinematic scenes) ── */}
       <SceneArrival />
       <SceneIdentity />
       <SceneProblems />
@@ -35,11 +38,12 @@ export default function HomePage() {
       <SceneProof />
       <SceneNumbers />
       <SceneAIWorkflow />
+      <SceneStatistics />
       <SceneVoices />
       <SceneGallery />
       <SceneInvitation />
 
-      {/* Global Footer */}
+      {/* ── Footer ── */}
       <Footer />
     </>
   );

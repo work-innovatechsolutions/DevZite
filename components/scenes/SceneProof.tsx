@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { BlurReveal, TextReveal, CountUp } from '@/components/motion';
+import { BlurReveal, WordReveal, CountUp } from '@/components/motion';
 import { useCursorState } from '@/providers/CursorProvider';
 
 const FEATURED_PROJECTS = [
@@ -74,11 +74,10 @@ export function SceneProof() {
               </span>
             </BlurReveal>
 
-            <TextReveal
-              text="Real work. Real numbers. Real impact."
-              className="text-display-md font-display font-black text-[#F8FAFC] mt-3"
-              delay={0.2}
-            />
+            <h2 className="text-display-md font-display font-black text-[#F8FAFC] mt-4">
+              <WordReveal text="Real work. Real numbers." delay={0.15} stagger={0.04} className="block" />
+              <WordReveal text="Real impact." delay={0.35} stagger={0.06} className="block gradient-text" wordClassName="gradient-text" />
+            </h2>
           </div>
 
           <BlurReveal delay={0.3}>

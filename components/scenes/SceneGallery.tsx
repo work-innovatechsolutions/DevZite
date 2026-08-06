@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { BlurReveal, TextReveal } from '@/components/motion';
+import { BlurReveal, WordReveal } from '@/components/motion';
 import { useCursorState } from '@/providers/CursorProvider';
 
 const GALLERY_ITEMS = [
@@ -46,11 +46,11 @@ export function SceneGallery() {
               </span>
             </BlurReveal>
 
-            <TextReveal
-              text="Explore our recent digital creations."
-              className="text-display-md font-display font-black text-[#F8FAFC] mt-3"
-              delay={0.2}
-            />
+            <h2 className="text-display-md font-display font-black text-[#F8FAFC] mt-4">
+              <WordReveal text="Explore our recent" delay={0.15} stagger={0.05} className="block" />
+              <WordReveal text="digital creations." delay={0.3} stagger={0.05} className="block gradient-text" wordClassName="gradient-text" />
+            </h2>
+
           </div>
 
           {/* Filter Tabs */}

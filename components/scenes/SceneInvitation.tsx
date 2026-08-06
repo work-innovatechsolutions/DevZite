@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useDropzone } from 'react-dropzone';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BlurReveal, TextReveal } from '@/components/motion';
+import { BlurReveal, WordReveal } from '@/components/motion';
 import { useCursorState } from '@/providers/CursorProvider';
 
 const contactSchema = z.object({
@@ -79,11 +79,10 @@ export function SceneInvitation() {
               </span>
             </BlurReveal>
 
-            <TextReveal
-              text="Let's build something extraordinary together."
-              className="text-display-md font-display font-black text-[#F8FAFC] mt-3 mb-6"
-              delay={0.2}
-            />
+            <h2 className="text-display-md font-display font-black text-[#F8FAFC] mt-4 mb-6">
+              <WordReveal text="Let's build something" delay={0.15} stagger={0.05} className="block" />
+              <WordReveal text="extraordinary together." delay={0.33} stagger={0.05} className="block gradient-text" wordClassName="gradient-text" />
+            </h2>
 
             <BlurReveal delay={0.35}>
               <p className="text-base text-[#94A3B8] leading-relaxed mb-8">
