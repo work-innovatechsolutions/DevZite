@@ -4,9 +4,19 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { BlurReveal } from '@/components/motion';
 import { adminDb } from '@/lib/firebase/admin';
-import { ArrowUpRight, Zap, Layers } from 'lucide-react';
+import { ArrowUpRight, Zap } from 'lucide-react';
 
 export const revalidate = 0; // Dynamic server fetching — instant sync with Admin Panel!
+
+type ProjectCard = {
+  slug: string;
+  title: string;
+  category: string;
+  description: string;
+  metrics: string;
+  tech: string[];
+  image: string;
+};
 
 const DEFAULT_PROJECTS = [
   {
@@ -47,20 +57,44 @@ const DEFAULT_PROJECTS = [
   },
 ];
 
+const fallbackTech = ['Next.js 15', 'TypeScript', 'Tailwind'];
+const fallbackImage = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80';
+
+function asText(value: unknown, fallback: string) {
+  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
+}
+
+function asTechList(value: unknown) {
+  if (Array.isArray(value)) {
+    const items = value.filter((item): item is string => typeof item === 'string' && Boolean(item.trim()));
+    return items.length ? items.map((item) => item.trim()) : fallbackTech;
+  }
+
+  if (typeof value === 'string') {
+    const items = value
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+    return items.length ? items : fallbackTech;
+  }
+
+  return fallbackTech;
+}
+
 async function getFirestoreProjects() {
   try {
     const snap = await adminDb.collection('projects').get();
     if (!snap.empty) {
-      return snap.docs.map((doc) => {
+      return snap.docs.map((doc): ProjectCard => {
         const data = doc.data();
         return {
           slug: doc.id,
-          title: data.name || data.title || doc.id,
-          category: data.category || 'Engineering Case',
-          description: data.summary || data.description || 'High-performance digital engineering product.',
+          title: asText(data.name || data.title, doc.id),
+          category: asText(data.category, 'Engineering Case'),
+          description: asText(data.summary || data.description, 'High-performance digital engineering product.'),
           metrics: `Lighthouse: ${data.lighthouseScore || 99}/100 · ${data.status || 'Live Production'}`,
-          tech: data.techStack || data.tech || ['Next.js 15', 'TypeScript', 'Tailwind'],
-          image: data.image || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80',
+          tech: asTechList(data.techStack || data.tech),
+          image: asText(data.image, fallbackImage),
         };
       });
     }
