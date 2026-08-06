@@ -64,6 +64,28 @@ function asText(value: unknown, fallback: string) {
   return typeof value === 'string' && value.trim() ? value.trim() : fallback;
 }
 
+function asImageSrc(value: unknown) {
+  if (typeof value !== 'string') {
+    return fallbackImage;
+  }
+
+  const src = value.trim();
+  if (!src) {
+    return fallbackImage;
+  }
+
+  if (src.startsWith('/') || src.startsWith('data:image/')) {
+    return src;
+  }
+
+  try {
+    const url = new URL(src);
+    return url.protocol === 'https:' || url.protocol === 'http:' ? src : fallbackImage;
+  } catch {
+    return fallbackImage;
+  }
+}
+
 function asTechList(value: unknown) {
   if (Array.isArray(value)) {
     const items = value.filter((item): item is string => typeof item === 'string' && Boolean(item.trim()));
@@ -94,7 +116,7 @@ async function getFirestoreProjects() {
           description: asText(data.summary || data.description, 'High-performance digital engineering product.'),
           metrics: `Lighthouse: ${data.lighthouseScore || 99}/100 · ${data.status || 'Live Production'}`,
           tech: asTechList(data.techStack || data.tech),
-          image: asText(data.image, fallbackImage),
+          image: asImageSrc(data.image),
         };
       });
     }
