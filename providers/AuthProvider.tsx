@@ -12,6 +12,9 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase/client';
 
+const authUnavailableError =
+  'Firebase Auth is not configured. Set NEXT_PUBLIC_FIREBASE_* environment variables.';
+
 interface AuthContextType {
   user: User | null;
   loading: boolean;
@@ -35,6 +38,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
@@ -43,19 +51,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signInWithEmail = (email: string, pass: string) => {
+    if (!auth) {
+      return Promise.reject(new Error(authUnavailableError));
+    }
+
     return signInWithEmailAndPassword(auth, email, pass);
   };
 
   const registerWithEmail = (email: string, pass: string) => {
+    if (!auth) {
+      return Promise.reject(new Error(authUnavailableError));
+    }
+
     return createUserWithEmailAndPassword(auth, email, pass);
   };
 
   const signInWithGoogle = () => {
+    if (!auth) {
+      return Promise.reject(new Error(authUnavailableError));
+    }
+
     const provider = new GoogleAuthProvider();
     return signInWithPopup(auth, provider);
   };
 
   const logout = () => {
+    if (!auth) {
+      return Promise.resolve();
+    }
+
     return firebaseSignOut(auth);
   };
 

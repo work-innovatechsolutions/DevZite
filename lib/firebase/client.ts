@@ -3,30 +3,39 @@ import { getAnalytics, isSupported as isAnalyticsSupported, type Analytics } fro
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getAuth, type Auth } from 'firebase/auth';
 
-const getPublicEnv = (key: string, fallback: string): string => {
-  const value = process.env[key];
-  return value || fallback;
-};
-
 const firebaseConfig = {
-  apiKey: getPublicEnv('NEXT_PUBLIC_FIREBASE_API_KEY', 'missing-api-key'),
-  authDomain: getPublicEnv('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN', 'missing-project.firebaseapp.com'),
-  projectId: getPublicEnv('NEXT_PUBLIC_FIREBASE_PROJECT_ID', 'missing-project-id'),
-  storageBucket: getPublicEnv('NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET', 'missing-project.appspot.com'),
-  messagingSenderId: getPublicEnv('NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID', '000000000000'),
-  appId: getPublicEnv('NEXT_PUBLIC_FIREBASE_APP_ID', '1:000000000000:web:missingappid'),
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase App (Singleton Pattern)
-const app: FirebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const hasFirebaseClientConfig = Boolean(
+  firebaseConfig.apiKey &&
+  firebaseConfig.authDomain &&
+  firebaseConfig.projectId &&
+  firebaseConfig.storageBucket &&
+  firebaseConfig.messagingSenderId &&
+  firebaseConfig.appId,
+);
+
+// Initialize Firebase only when public config exists.
+const app: FirebaseApp | undefined = hasFirebaseClientConfig
+  ? !getApps().length
+    ? initializeApp(firebaseConfig)
+    : getApp()
+  : undefined;
 
 // Client Services
-export const db: Firestore = getFirestore(app);
-export const auth: Auth = getAuth(app);
+export const db: Firestore | undefined = app ? getFirestore(app) : undefined;
+export const auth: Auth | undefined = app ? getAuth(app) : undefined;
+export const isFirebaseClientConfigured = hasFirebaseClientConfig;
 
 let analytics: Analytics | undefined = undefined;
-if (typeof window !== 'undefined') {
+if (app && typeof window !== 'undefined' && firebaseConfig.measurementId) {
   isAnalyticsSupported().then((supported) => {
     if (supported) {
       analytics = getAnalytics(app);
