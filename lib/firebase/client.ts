@@ -3,22 +3,18 @@ import { getAnalytics, isSupported as isAnalyticsSupported, type Analytics } fro
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getAuth, type Auth } from 'firebase/auth';
 
-const getRequiredPublicEnv = (key: string): string => {
+const getPublicEnv = (key: string, fallback: string): string => {
   const value = process.env[key];
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${key}`);
-  }
-
-  return value;
+  return value || fallback;
 };
 
 const firebaseConfig = {
-  apiKey: getRequiredPublicEnv('NEXT_PUBLIC_FIREBASE_API_KEY'),
-  authDomain: getRequiredPublicEnv('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN'),
-  projectId: getRequiredPublicEnv('NEXT_PUBLIC_FIREBASE_PROJECT_ID'),
-  storageBucket: getRequiredPublicEnv('NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET'),
-  messagingSenderId: getRequiredPublicEnv('NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID'),
-  appId: getRequiredPublicEnv('NEXT_PUBLIC_FIREBASE_APP_ID'),
+  apiKey: getPublicEnv('NEXT_PUBLIC_FIREBASE_API_KEY', 'missing-api-key'),
+  authDomain: getPublicEnv('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN', 'missing-project.firebaseapp.com'),
+  projectId: getPublicEnv('NEXT_PUBLIC_FIREBASE_PROJECT_ID', 'missing-project-id'),
+  storageBucket: getPublicEnv('NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET', 'missing-project.appspot.com'),
+  messagingSenderId: getPublicEnv('NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID', '000000000000'),
+  appId: getPublicEnv('NEXT_PUBLIC_FIREBASE_APP_ID', '1:000000000000:web:missingappid'),
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
