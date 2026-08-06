@@ -22,6 +22,8 @@ const hasFirebaseClientConfig = Boolean(
   firebaseConfig.appId,
 );
 
+const shouldEnableAnalytics = process.env.NEXT_PUBLIC_ENABLE_FIREBASE_ANALYTICS === 'true';
+
 // Initialize Firebase only when public config exists.
 const app: FirebaseApp | undefined = hasFirebaseClientConfig
   ? !getApps().length
@@ -35,7 +37,7 @@ export const auth: Auth | undefined = app ? getAuth(app) : undefined;
 export const isFirebaseClientConfigured = hasFirebaseClientConfig;
 
 let analytics: Analytics | undefined = undefined;
-if (app && typeof window !== 'undefined' && firebaseConfig.measurementId) {
+if (app && shouldEnableAnalytics && typeof window !== 'undefined' && firebaseConfig.measurementId) {
   isAnalyticsSupported().then((supported) => {
     if (supported) {
       analytics = getAnalytics(app);
