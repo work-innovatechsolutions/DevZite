@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { DollarSign, Plus, Check, Edit2, Trash2, Sparkles, X, Tag, Percent } from 'lucide-react';
+import { DollarSign, Plus, Check, Edit2, Trash2, Sparkles, X, Tag, Percent, Globe } from 'lucide-react';
 
 interface PricingPlan {
   id: string;
@@ -21,9 +21,23 @@ interface Coupon {
   active: boolean;
 }
 
+interface CurrencySetting {
+  currency: 'USD' | 'INR';
+  symbol: '$' | '₹';
+  rate: number;
+}
+
 export default function AdminPricingPage() {
   const [plans, setPlans] = useState<PricingPlan[]>([]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
+
+  // Currency Settings State
+  const [currencySetting, setCurrencySetting] = useState<CurrencySetting>({
+    currency: 'USD',
+    symbol: '$',
+    rate: 1,
+  });
+  const [currencyLoading, setCurrencyLoading] = useState(false);
 
   // Modals state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -78,9 +92,49 @@ export default function AdminPricingPage() {
       }
     }
 
+    async function fetchCurrency() {
+      try {
+        const res = await fetch('/api/currency');
+        const data = await res.json();
+        if (data.success && data.data) {
+          setCurrencySetting({
+            currency: data.data.currency || 'USD',
+            symbol: data.data.symbol || '$',
+            rate: data.data.rate || 1,
+          });
+        }
+      } catch (err) {
+        console.warn('Currency fetch notice:', err);
+      }
+    }
+
     fetchPricing();
     fetchCoupons();
+    fetchCurrency();
   }, []);
+
+  const handleCurrencyToggle = async (newCurrency: 'USD' | 'INR') => {
+    setCurrencyLoading(true);
+    const updatedSetting: CurrencySetting = {
+      currency: newCurrency,
+      symbol: newCurrency === 'INR' ? '₹' : '$',
+      rate: newCurrency === 'INR' ? 86 : 1,
+    };
+
+    setCurrencySetting(updatedSetting);
+
+    try {
+      await fetch('/api/currency', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedSetting),
+      });
+    } catch (err) {
+      console.error('Error updating currency setting:', err);
+    } finally {
+      setCurrencyLoading(false);
+    }
+  };
 
   const handleOpenCreateModal = (planToEdit?: PricingPlan) => {
     if (planToEdit) {
@@ -156,7 +210,6 @@ export default function AdminPricingPage() {
     }
   };
 
-  // Coupon Handlers
   const handleOpenCouponModal = () => {
     setCode('');
     setDiscountPercent(20);
@@ -219,20 +272,50 @@ export default function AdminPricingPage() {
         <div>
           <div className="flex items-center gap-2 text-xs font-mono text-[#3B82F6] font-semibold mb-1">
             <DollarSign size={16} />
-            <span>DEVZITE / PRICING & COUPONS CMS</span>
+            <span>DEVZITE / PRICING & CURRENCY CMS</span>
           </div>
           <h1 className="text-3xl font-display font-black text-[#0F172A] dark:text-[#F8FAFC]">
-            Pricing Plans & Promo Coupons
+            Pricing Plans & Global Currency
           </h1>
           <p className="text-sm font-body text-[#475569] dark:text-[#94A3B8] mt-1">
-            Manage public pricing tier cards (Starter, Pro, Enterprise) and active promotional discount coupons.
+            Manage public pricing tier cards, currency conversion (USD/INR), and active promo coupons.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Currency Changer Control */}
+          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-[rgba(15,23,42,0.05)] dark:bg-[rgba(255,255,255,0.05)] border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.1)]">
+            <div className="flex items-center gap-1 px-2 py-1 text-xs font-mono font-bold text-[#64748B]">
+              <Globe size={14} className="text-[#3B82F6]" />
+              <span>Currency:</span>
+            </div>
+            <button
+              onClick={() => handleCurrencyToggle('USD')}
+              disabled={currencyLoading}
+              className={`px-3 py-1.5 rounded-xl font-mono text-xs font-bold transition-all cursor-pointer ${
+                currencySetting.currency === 'USD'
+                  ? 'bg-[#3B82F6] text-white shadow-md'
+                  : 'text-[#64748B] hover:text-[#0F172A] dark:hover:text-[#F8FAFC]'
+              }`}
+            >
+              USD ($)
+            </button>
+            <button
+              onClick={() => handleCurrencyToggle('INR')}
+              disabled={currencyLoading}
+              className={`px-3 py-1.5 rounded-xl font-mono text-xs font-bold transition-all cursor-pointer ${
+                currencySetting.currency === 'INR'
+                  ? 'bg-[#10B981] text-white shadow-md'
+                  : 'text-[#64748B] hover:text-[#0F172A] dark:hover:text-[#F8FAFC]'
+              }`}
+            >
+              INR (₹)
+            </button>
+          </div>
+
           <button
             onClick={handleOpenCouponModal}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#10B981]/10 text-[#10B981] hover:bg-[#10B981] hover:text-white border border-[#10B981]/30 font-mono text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#10B981]/10 text-[#10B981] hover:bg-[#10B981] hover:text-white border border-[#10B981]/30 font-mono text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm"
           >
             <Tag size={14} />
             <span>Add Promo Coupon</span>
@@ -246,6 +329,18 @@ export default function AdminPricingPage() {
             Create Pricing Tier
           </button>
         </div>
+      </div>
+
+      {/* ── Active Currency Setting Banner ── */}
+      <div className="p-4 rounded-2xl bg-[#3B82F6]/10 border border-[#3B82F6]/25 flex items-center justify-between font-mono text-xs text-[#3B82F6]">
+        <div className="flex items-center gap-2">
+          <Globe size={16} />
+          <span>
+            Active Display Currency: <strong>{currencySetting.currency} ({currencySetting.symbol})</strong>
+            {currencySetting.currency === 'INR' ? ' — Conversion Rate: $1 = ₹86' : ' — Standard USD Rates'}
+          </span>
+        </div>
+        <span className="text-[11px] opacity-75 font-semibold">Live Synced to Website</span>
       </div>
 
       {/* ── Active Promotional Coupons Section ── */}

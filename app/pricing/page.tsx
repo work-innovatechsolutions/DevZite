@@ -9,7 +9,7 @@ import { BlurReveal } from '@/components/motion';
 import { Check, Sparkles, ArrowRight, Zap, Tag, CheckCircle2, AlertCircle, X, Star } from 'lucide-react';
 import NumberFlow from '@number-flow/react';
 import { db } from '@/lib/firebase/client';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, doc } from 'firebase/firestore';
 
 interface PricingPlan {
   id: string;
@@ -29,9 +29,22 @@ interface Coupon {
   active: boolean;
 }
 
+interface CurrencySetting {
+  currency: 'USD' | 'INR';
+  symbol: '$' | '₹';
+  rate: number;
+}
+
 export default function PricingPage() {
   const [plans, setPlans] = useState<PricingPlan[]>([]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
+
+  // Live Currency state
+  const [currencySetting, setCurrencySetting] = useState<CurrencySetting>({
+    currency: 'USD',
+    symbol: '$',
+    rate: 1,
+  });
 
   // Coupon redemption state
   const [couponInput, setCouponInput] = useState('');
@@ -70,19 +83,36 @@ export default function PricingPage() {
       }
     }
 
+    async function loadCurrency() {
+      try {
+        const res = await fetch('/api/currency');
+        const data = await res.json();
+        if (data.success && data.data) {
+          setCurrencySetting({
+            currency: data.data.currency || 'USD',
+            symbol: data.data.symbol || '$',
+            rate: data.data.rate || 1,
+          });
+        }
+      } catch (err) {
+        console.warn('Currency fetch active:', err);
+      }
+    }
+
     loadPricing();
     loadCoupons();
+    loadCurrency();
 
     if (db) {
       try {
-        const unsub = onSnapshot(
+        const unsubPricing = onSnapshot(
           collection(db, 'pricing'),
           (snapshot) => {
             if (!snapshot.empty) {
               const ORDER = ['starter', 'pro', 'premium', 'custom'];
-              const firestorePlans = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
+              const firestorePlans = snapshot.docs.map((d) => ({
+                id: d.id,
+                ...d.data(),
               })) as PricingPlan[];
 
               const sorted = firestorePlans.sort((a: any, b: any) => {
@@ -95,7 +125,26 @@ export default function PricingPage() {
           },
           () => {}
         );
-        return () => unsub();
+
+        const unsubCurrency = onSnapshot(
+          doc(db, 'settings', 'currency'),
+          (snapshot) => {
+            if (snapshot.exists()) {
+              const data = snapshot.data();
+              setCurrencySetting({
+                currency: data.currency || 'USD',
+                symbol: data.symbol || '$',
+                rate: data.rate || 1,
+              });
+            }
+          },
+          () => {}
+        );
+
+        return () => {
+          unsubPricing();
+          unsubCurrency();
+        };
       } catch (e) {
         // Ignored
       }
@@ -148,6 +197,13 @@ export default function PricingPage() {
     return isNaN(num) ? null : num;
   };
 
+  const formatPriceDisplay = (basePrice: number) => {
+    const rate = currencySetting.rate || 1;
+    const converted = Math.round(basePrice * rate);
+    const sym = currencySetting.symbol || '$';
+    return `${sym}${converted.toLocaleString()}`;
+  };
+
   return (
     <>
       <Navbar />
@@ -171,7 +227,8 @@ export default function PricingPage() {
 
             <BlurReveal delay={0.3}>
               <p className="text-lg sm:text-xl text-[#334155] dark:text-[#CBD5E1] leading-relaxed font-body font-medium mb-8">
-                Choose the engineering tier that matches your product scope. Controlled live from the Devzite Studio Admin Panel.
+                Choose the engineering tier that matches your product scope. Displayed in{' '}
+                <strong className="text-[#3B82F6] font-bold">{currencySetting.currency} ({currencySetting.symbol})</strong>.
               </p>
             </BlurReveal>
 
@@ -243,14 +300,19 @@ export default function PricingPage() {
             </BlurReveal>
           </div>
 
-          {/* Pricing Grid with Congested Pricing Design & Smooth NumberFlow */}
+          {/* Pricing Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 items-stretch mb-20 w-full">
             {plans.map((p, index) => {
-              const numericVal = getNumericPrice(p.price);
-              const hasDiscount = appliedCoupon && numericVal !== null;
-              const discountedVal = hasDiscount
-                ? Math.round(numericVal * (1 - appliedCoupon.discountPercent / 100))
-                : numericVal;
+              const numericUSD = getNumericPrice(p.price);
+              const rate = currencySetting.rate || 1;
+
+              const baseConvertedVal = numericUSD !== null ? Math.round(numericUSD * rate) : null;
+              const hasDiscount = appliedCoupon && baseConvertedVal !== null;
+              const finalConvertedVal = hasDiscount
+                ? Math.round(baseConvertedVal * (1 - appliedCoupon.discountPercent / 100))
+                : baseConvertedVal;
+
+              const originalPriceDisplay = baseConvertedVal !== null ? formatPriceDisplay(numericUSD!) : p.price;
 
               return (
                 <BlurReveal key={p.id} delay={0.15 + index * 0.1}>
@@ -277,14 +339,14 @@ export default function PricingPage() {
                         {p.name}
                       </h2>
 
-                      {/* NumberFlow Price Block with Constant Height */}
+                      {/* NumberFlow Price Block with Dynamic Currency Formatting */}
                       <div className="min-h-[72px] flex flex-col justify-end my-4">
                         <div className="flex flex-wrap items-baseline gap-2">
-                          {numericVal !== null ? (
+                          {finalConvertedVal !== null ? (
                             <div className="flex flex-col">
                               {hasDiscount ? (
                                 <span className="text-xs font-mono text-[#EF4444] line-through font-bold h-4">
-                                  {p.price}
+                                  {originalPriceDisplay}
                                 </span>
                               ) : (
                                 <span className="text-xs font-mono opacity-0 h-4 font-bold select-none">
@@ -295,10 +357,10 @@ export default function PricingPage() {
                               <div className="flex items-baseline gap-1.5">
                                 <span className={`text-3xl sm:text-4xl font-display font-black tracking-tight ${hasDiscount ? 'text-[#10B981]' : 'text-[#0F172A] dark:text-[#F8FAFC]'}`}>
                                   <NumberFlow
-                                    value={discountedVal!}
+                                    value={finalConvertedVal}
                                     format={{
                                       style: 'currency',
-                                      currency: 'USD',
+                                      currency: currencySetting.currency,
                                       minimumFractionDigits: 0,
                                       maximumFractionDigits: 0,
                                     }}
