@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
-import { adminDb } from '@/lib/firebase/admin';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 const FALLBACK_PROJECTS = [
   {
@@ -38,25 +40,34 @@ const FALLBACK_PROJECTS = [
     techStack: ['React 19', 'TypeScript', 'Serverless'],
     image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80',
   },
+  {
+    slug: 'omnitrade-mobile-app',
+    title: 'OmniTrade Mobile Software',
+    name: 'OmniTrade Mobile Software',
+    category: 'Native Android App',
+    description: 'Native Android trading suite with low-latency order execution and biometric authentication.',
+    summary: 'Native Android trading suite with low-latency order execution and biometric authentication.',
+    lighthouseScore: 97,
+    status: 'In Development',
+    techStack: ['Kotlin', 'Jetpack Compose', 'Clean Arch'],
+    image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80',
+  },
 ];
-
-function errorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Unexpected Firebase Admin error';
-}
 
 export async function GET() {
   try {
-    const snap = await adminDb.collection('projects').get();
-    const projects = snap.docs.map((doc) => ({ slug: doc.id, ...doc.data() }));
-    return NextResponse.json({ success: true, data: projects });
-  } catch (error: unknown) {
-    console.error('API /api/projects GET Error:', error);
-    return NextResponse.json({
-      success: true,
-      data: FALLBACK_PROJECTS,
-      warning: errorMessage(error),
-    });
+    const { adminDb, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
+    if (isFirebaseAdminConfigured) {
+      const snap = await adminDb.collection('projects').get();
+      if (!snap.empty) {
+        const projects = snap.docs.map((doc) => ({ slug: doc.id, ...doc.data() }));
+        return NextResponse.json({ success: true, data: projects });
+      }
+    }
+  } catch (err) {
+    console.warn('API /api/projects fallback active:', err);
   }
+  return NextResponse.json({ success: true, data: FALLBACK_PROJECTS });
 }
 
 export async function POST(req: Request) {
@@ -66,11 +77,15 @@ export async function POST(req: Request) {
     if (!slug) {
       return NextResponse.json({ success: false, error: 'Project slug is required' }, { status: 400 });
     }
+    const { adminDb, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
+    if (!isFirebaseAdminConfigured) {
+      return NextResponse.json({ success: false, error: 'Firebase Admin environment variables missing' }, { status: 500 });
+    }
     await adminDb.collection('projects').doc(slug).set({ slug, ...data }, { merge: true });
     return NextResponse.json({ success: true, message: 'Project saved successfully' });
   } catch (error: unknown) {
-    console.error('API /api/projects POST Error:', error);
-    return NextResponse.json({ success: false, error: errorMessage(error) }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Error saving project';
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
 
@@ -81,10 +96,14 @@ export async function DELETE(req: Request) {
     if (!slug) {
       return NextResponse.json({ success: false, error: 'Project slug parameter required' }, { status: 400 });
     }
+    const { adminDb, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
+    if (!isFirebaseAdminConfigured) {
+      return NextResponse.json({ success: false, error: 'Firebase Admin environment variables missing' }, { status: 500 });
+    }
     await adminDb.collection('projects').doc(slug).delete();
     return NextResponse.json({ success: true, message: 'Project deleted successfully' });
   } catch (error: unknown) {
-    console.error('API /api/projects DELETE Error:', error);
-    return NextResponse.json({ success: false, error: errorMessage(error) }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Error deleting project';
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
