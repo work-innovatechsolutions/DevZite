@@ -5,13 +5,20 @@ import { getAuth, type Auth } from 'firebase-admin/auth';
 const requiredKeys = ['FIREBASE_PROJECT_ID', 'FIREBASE_CLIENT_EMAIL', 'FIREBASE_PRIVATE_KEY'] as const;
 const missingKeys = requiredKeys.filter((key) => !process.env[key]);
 
+let initError: string | undefined;
+
 const createUnavailableProxy = <T>(serviceName: string): T => {
   return new Proxy(
     {},
     {
       get() {
+        if (missingKeys.length) {
+          throw new Error(
+            `${serviceName} unavailable: missing Firebase Admin env vars (${missingKeys.join(', ')}).`,
+          );
+        }
         throw new Error(
-          `${serviceName} unavailable: missing Firebase Admin env vars (${missingKeys.join(', ')}).`,
+          `${serviceName} unavailable: Firebase Admin SDK failed to initialize (${initError || 'Unknown error'}).`,
         );
       },
     },
@@ -27,7 +34,10 @@ if (!missingKeys.length) {
     const projectId = process.env.FIREBASE_PROJECT_ID as string;
     const clientEmail = process.env.FIREBASE_CLIENT_EMAIL as string;
     const rawPrivateKey = process.env.FIREBASE_PRIVATE_KEY as string;
-    const privateKey = rawPrivateKey.replace(/\\n/g, '\n');
+    const privateKey = rawPrivateKey
+      .trim()
+      .replace(/^["']|["']$/g, '')
+      .replace(/\\n/g, '\n');
 
     adminApp = !getApps().length
       ? initializeApp({
@@ -41,7 +51,8 @@ if (!missingKeys.length) {
 
     adminDbInstance = getFirestore(adminApp);
     adminAuthInstance = getAuth(adminApp);
-  } catch (error) {
+  } catch (error: any) {
+    initError = error?.message || String(error);
     console.error('Firebase Admin initialization failed:', error);
   }
 }
@@ -50,3 +61,4 @@ export const adminDb: Firestore = adminDbInstance || createUnavailableProxy<Fire
 export const adminAuth: Auth = adminAuthInstance || createUnavailableProxy<Auth>('Auth');
 export const isFirebaseAdminConfigured = Boolean(adminApp && adminDbInstance && adminAuthInstance);
 export { adminApp };
+
