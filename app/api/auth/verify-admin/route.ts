@@ -1,11 +1,6 @@
 import { NextResponse } from 'next/server';
 import { adminDb, isFirebaseAdminConfigured } from '@/lib/firebase/admin';
 
-const DEFAULT_SUPER_ADMIN_EMAILS = [
-  'work.innovatechsolutions@gmail.com',
-  'souvikgon377@gmail.com',
-];
-
 export async function POST(req: Request) {
   try {
     const { email } = await req.json();
@@ -15,32 +10,28 @@ export async function POST(req: Request) {
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // 1. Check seed super admin emails (env var + fallback list)
+    // 1. Check Super Admin Emails configured in environment variables
     const envSuperAdmins = (process.env.SUPER_ADMIN_EMAILS || '')
       .split(',')
       .map((e) => e.trim().toLowerCase())
       .filter(Boolean);
 
-    const allowedSuperAdmins = Array.from(
-      new Set([...DEFAULT_SUPER_ADMIN_EMAILS, ...envSuperAdmins])
-    );
-
-    if (allowedSuperAdmins.includes(cleanEmail)) {
+    if (envSuperAdmins.includes(cleanEmail)) {
       return NextResponse.json({ authorized: true, role: 'Super Admin' });
     }
 
-    // 2. Check if Firebase Admin SDK is configured before querying Firestore
+    // 2. Check if Firebase Admin SDK is configured to query Firestore
     if (!isFirebaseAdminConfigured) {
       return NextResponse.json(
         {
           authorized: false,
-          error: `Access Denied: (${cleanEmail}) is not a designated Super Admin, and Firebase Admin SDK server environment variables are missing on Vercel.`,
+          error: `Server Configuration Error: Firebase Admin SDK environment variables (FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY) are missing in Vercel. Please set them in Vercel Project Settings to enable Firestore admin checks.`,
         },
-        { status: 403 }
+        { status: 500 }
       );
     }
 
-    // 3. Query Firestore admin_managers collection
+    // 3. Query Firestore admin_managers collection for authorized admin documents
     const snap = await adminDb.collection('admin_managers').where('email', '==', cleanEmail).get();
 
     if (!snap.empty) {
@@ -48,20 +39,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ authorized: true, role: manager.role || 'Admin Manager' });
     }
 
-    // 4. Email not found in Admin Roster
+    // 4. Email not found in Firestore admin_managers collection
     return NextResponse.json(
       {
         authorized: false,
-        error: `Access Denied: The account (${cleanEmail}) is not an authorized Devzite Studio Admin.`,
+        error: `Access Denied: Account (${cleanEmail}) is not listed in the Firestore admin_managers collection or SUPER_ADMIN_EMAILS.`,
       },
       { status: 403 }
     );
   } catch (error: any) {
     console.error('API /api/auth/verify-admin Error:', error);
     return NextResponse.json(
-      { authorized: false, error: error?.message || 'Server error verifying admin' },
+      { authorized: false, error: error?.message || 'Server error verifying admin account' },
       { status: 500 }
     );
   }
 }
+
 
