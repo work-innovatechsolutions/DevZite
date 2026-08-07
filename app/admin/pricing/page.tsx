@@ -412,16 +412,18 @@ export default function AdminPricingPage() {
             };
 
             const numVal = getNum(p.price);
-            const isRawINR = p.currency === 'INR' || p.price.includes('₹') || (!p.price.includes('$') && p.currency !== 'USD');
+            const isTierExplicitINR = p.currency === 'INR' || p.price.includes('₹');
+            const isTierExplicitUSD = p.currency === 'USD' || p.price.includes('$');
+            const isPlanINR = isTierExplicitINR || (!isTierExplicitUSD && numVal !== null && numVal > 2000 && !p.price.includes('$'));
             const inrRate = currencySetting.rate || 86;
 
             let displayPrice = p.price;
             if (numVal !== null) {
               if (currencySetting.currency === 'INR') {
-                const converted = isRawINR ? numVal : Math.round(numVal * inrRate);
+                const converted = isPlanINR ? numVal : Math.round(numVal * inrRate);
                 displayPrice = `₹${converted.toLocaleString()}`;
               } else {
-                const converted = isRawINR ? Math.round(numVal / inrRate) : numVal;
+                const converted = isPlanINR ? Math.round(numVal / inrRate) : numVal;
                 displayPrice = `$${converted.toLocaleString()}`;
               }
             }

@@ -307,17 +307,20 @@ export default function PricingPage() {
               const numericVal = getNumericPrice(p.price);
               const activeCurrency = currencySetting.currency;
               
-              // Plan is in INR if explicit p.currency === 'INR', or contains '₹', or doesn't contain '$'
-              const isPlanINR = p.currency === 'INR' || p.price.includes('₹') || (!p.price.includes('$') && p.currency !== 'USD');
+              // Determine whether this specific tier was originally set in INR or USD
+              const isTierExplicitINR = p.currency === 'INR' || p.price.includes('₹');
+              const isTierExplicitUSD = p.currency === 'USD' || p.price.includes('$');
+              // Standard baseline in our database: if raw number is < 1000 without $ symbol, it's USD, if >= 1000 without $, check explicit currency
+              const isPlanINR = isTierExplicitINR || (!isTierExplicitUSD && numericVal !== null && numericVal > 2000 && !p.price.includes('$'));
               const inrRate = currencySetting.rate || 86;
 
               let baseConvertedVal: number | null = null;
               if (numericVal !== null) {
                 if (activeCurrency === 'INR') {
-                  // Displaying in INR: if plan is stored in INR, use numericVal; if plan is stored in USD, multiply by inrRate
+                  // Active mode is INR: if plan was stored in USD (e.g. 2499 or 5999 or 999), multiply by 86
                   baseConvertedVal = isPlanINR ? numericVal : Math.round(numericVal * inrRate);
                 } else {
-                  // Displaying in USD: if plan is stored in INR, divide by inrRate; if plan is stored in USD, use numericVal
+                  // Active mode is USD: if plan was stored in INR (e.g. 9999 or 19999 INR), divide by 86
                   baseConvertedVal = isPlanINR ? Math.round(numericVal / inrRate) : numericVal;
                 }
               }
