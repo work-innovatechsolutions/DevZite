@@ -175,11 +175,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 280 }}
-              className="relative w-4/5 max-w-xs bg-white dark:bg-[#0C0D14] h-full p-6 flex flex-col justify-between shadow-2xl border-r border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] overflow-y-auto z-10"
+              className="relative w-4/5 max-w-xs bg-white dark:bg-[#0C0D14] h-full p-6 flex flex-col justify-between shadow-2xl border-r border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] overflow-y-auto z-10 font-body"
             >
               <div>
                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)]">
-                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#3B82F6]">
+                  <span className="text-xs font-display font-bold uppercase tracking-wider text-[#3B82F6]">
                     Admin Suite Menu
                   </span>
                   <button
@@ -204,7 +204,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         <Link
                           href={item.href}
                           onClick={() => setMobileMenuOpen(false)}
-                          className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-mono font-medium transition-all ${
+                          className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-body font-semibold transition-all ${
                             isActive
                               ? 'bg-[#3B82F6] text-white font-bold shadow-[0_0_16px_rgba(59,130,246,0.3)]'
                               : 'text-[#475569] dark:text-[#94A3B8] hover:text-[#0F172A] dark:hover:text-[#F8FAFC] hover:bg-[rgba(15,23,42,0.04)] dark:hover:bg-[rgba(255,255,255,0.04)]'
@@ -222,7 +222,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div className="pt-6 border-t border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] space-y-3 mt-6">
                 <button
                   onClick={handleLogout}
-                  className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-xs font-mono text-[#EF4444] hover:bg-[rgba(239,68,68,0.1)] transition-colors border border-[rgba(239,68,68,0.2)] font-semibold cursor-pointer"
+                  className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-xs font-body font-bold text-[#EF4444] hover:bg-[rgba(239,68,68,0.1)] transition-colors border border-[rgba(239,68,68,0.2)] cursor-pointer"
                 >
                   <span className="flex items-center gap-2">
                     <LogOut size={16} />
@@ -233,7 +233,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <Link
                   href="/"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-xs font-mono text-[#475569] dark:text-[#94A3B8] hover:text-[#3B82F6] transition-colors border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)]"
+                  className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-xs font-body font-bold text-[#475569] dark:text-[#94A3B8] hover:text-[#3B82F6] transition-colors border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)]"
                 >
                   <span className="flex items-center gap-2">
                     <ArrowUpRight size={16} />
@@ -247,7 +247,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </AnimatePresence>
 
       {/* ── Desktop Animated Sidebar (Visible on md+) ── */}
-      <aside className="w-64 border-r border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] bg-white dark:bg-[#0C0D14] p-6 flex flex-col justify-between shrink-0 hidden md:flex shadow-sm">
+      <aside className="w-64 border-r border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] bg-white dark:bg-[#0C0D14] p-6 flex flex-col justify-between shrink-0 hidden md:flex shadow-sm font-body">
         <div>
           {/* Logo Header */}
           <div className="flex items-center justify-between mb-8 pb-6 border-b border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)]">
@@ -277,7 +277,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <motion.div key={item.href} whileHover={{ x: 3 }} transition={{ duration: 0.15 }}>
                   <Link
                     href={item.href}
-                    className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-mono font-medium transition-all ${
+                    className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-body font-semibold transition-all ${
                       isActive
                         ? 'bg-[#3B82F6] text-white font-bold shadow-[0_0_16px_rgba(59,130,246,0.3)]'
                         : 'text-[#475569] dark:text-[#94A3B8] hover:text-[#0F172A] dark:hover:text-[#F8FAFC] hover:bg-[rgba(15,23,42,0.04)] dark:hover:bg-[rgba(255,255,255,0.04)]'
@@ -294,8 +294,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Footer Actions */}
         <div className="pt-6 border-t border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] space-y-3">
-          <div className="flex items-center justify-between text-xs font-mono text-[#64748B]">
-            <span className="flex items-center gap-1.5 text-xs text-[#10B981]">
+          <div className="flex items-center justify-between text-xs font-body text-[#64748B]">
+            <span className="flex items-center gap-1.5 text-xs text-[#10B981] font-mono">
               <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
               v3.0 Production
             </span>
@@ -304,7 +304,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           <button
             onClick={handleLogout}
-            className="flex items-center justify-between w-full px-3 py-2 rounded-xl text-xs font-mono text-[#EF4444] hover:bg-[rgba(239,68,68,0.1)] transition-colors border border-[rgba(239,68,68,0.2)] font-semibold cursor-pointer mb-2"
+            className="flex items-center justify-between w-full px-3 py-2 rounded-xl text-xs font-body text-[#EF4444] hover:bg-[rgba(239,68,68,0.1)] transition-colors border border-[rgba(239,68,68,0.2)] font-bold cursor-pointer mb-2"
           >
             <span className="flex items-center gap-2">
               <LogOut size={14} />
@@ -314,7 +314,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           <Link
             href="/"
-            className="flex items-center justify-between w-full px-3 py-2 rounded-xl text-xs font-mono text-[#475569] dark:text-[#94A3B8] hover:text-[#3B82F6] transition-colors border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)]"
+            className="flex items-center justify-between w-full px-3 py-2 rounded-xl text-xs font-body text-[#475569] dark:text-[#94A3B8] hover:text-[#3B82F6] transition-colors border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] font-semibold"
           >
             <span className="flex items-center gap-2">
               <ArrowUpRight size={14} />
