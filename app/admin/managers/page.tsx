@@ -101,7 +101,19 @@ export default function AdminManagersPage() {
 
     setLoading(true);
     try {
-      await fetch(`/api/managers?id=${deletingManager.id}`, { method: 'DELETE' });
+      const targetId = deletingManager.id;
+      const targetEmail = deletingManager.email;
+
+      setManagers((prev) =>
+        prev.filter(
+          (m) => m.id !== targetId && m.email?.toLowerCase() !== targetEmail?.toLowerCase()
+        )
+      );
+
+      await fetch(
+        `/api/managers?id=${encodeURIComponent(targetId)}&email=${encodeURIComponent(targetEmail || '')}`,
+        { method: 'DELETE' }
+      );
       setDeletingManager(null);
       await loadManagers();
     } catch (err) {

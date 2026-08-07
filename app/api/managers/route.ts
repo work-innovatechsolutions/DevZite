@@ -1,4 +1,10 @@
 import { NextResponse } from 'next/server';
+import {
+  getDeletedManagerIds,
+  getDeletedUserEmails,
+  markManagerDeleted,
+  getUserRoleOverride,
+} from '@/lib/persistentStore';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -38,6 +44,9 @@ const FALLBACK_MANAGERS = [
 
 export async function GET() {
   try {
+    const deletedIds = getDeletedManagerIds();
+    const deletedEmails = getDeletedUserEmails();
+
     const { adminDb, adminAuth, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
     
     let registeredAdminUsers: any[] = [];
@@ -69,6 +78,15 @@ export async function GET() {
     const managersList: any[] = [];
     const addedEmails = new Set<string>();
 
+    const isDeleted = (id: string, email: string) => {
+      const cleanId = (id || '').toLowerCase();
+      const cleanEmail = (email || '').toLowerCase();
+      if (deletedIds.has(cleanId) || deletedEmails.has(cleanEmail)) return true;
+      const override = getUserRoleOverride(cleanEmail);
+      if (override === 'User') return true;
+      return false;
+    };
+
     if (isFirebaseAdminConfigured) {
       // 1. Fetch admin_managers collection
       try {
@@ -77,7 +95,8 @@ export async function GET() {
           snap.docs.forEach((doc) => {
             const data = doc.data();
             const cleanEmail = (data.email || '').toLowerCase();
-            if (cleanEmail && !addedEmails.has(cleanEmail) && data.role !== 'User') {
+            const docId = doc.id.toLowerCase();
+            if (cleanEmail && !addedEmails.has(cleanEmail) && data.role !== 'User' && !isDeleted(docId, cleanEmail)) {
               addedEmails.add(cleanEmail);
               const realPhoto = authPhotoMap.get(cleanEmail);
               const realName = authNameMap.get(cleanEmail);
@@ -103,7 +122,8 @@ export async function GET() {
           userSnap.docs.forEach((doc) => {
             const data = doc.data();
             const cleanEmail = (data.email || '').toLowerCase();
-            if (cleanEmail && !addedEmails.has(cleanEmail)) {
+            const docId = doc.id.toLowerCase();
+            if (cleanEmail && !addedEmails.has(cleanEmail) && !isDeleted(docId, cleanEmail)) {
               addedEmails.add(cleanEmail);
               const realPhoto = authPhotoMap.get(cleanEmail);
               const realName = authNameMap.get(cleanEmail);
@@ -129,7 +149,7 @@ export async function GET() {
     // 3. Merge remaining in-memory admin users from Registered Users module
     registeredAdminUsers.forEach((u) => {
       const cleanEmail = u.email.toLowerCase();
-      if (!addedEmails.has(cleanEmail)) {
+      if (!addedEmails.has(cleanEmail) && !isDeleted(u.id, cleanEmail)) {
         addedEmails.add(cleanEmail);
         const realPhoto = authPhotoMap.get(cleanEmail);
         managersList.push({
@@ -148,7 +168,7 @@ export async function GET() {
     // 4. Merge fallback / static direct admins
     FALLBACK_MANAGERS.forEach((m) => {
       const cleanEmail = m.email.toLowerCase();
-      if (!addedEmails.has(cleanEmail)) {
+      if (!addedEmails.has(cleanEmail) && !isDeleted(m.id, cleanEmail)) {
         addedEmails.add(cleanEmail);
         const realPhoto = authPhotoMap.get(cleanEmail);
         managersList.push({
@@ -221,7 +241,6 @@ export async function POST(req: Request) {
 
         await adminDb.collection('admin_managers').doc(uid).set(docData, { merge: true });
 
-        // Also write to registered_users collection
         const docId = cleanEmail.replace(/[^a-zA-Z0-9_-]/g, '_');
         await adminDb.collection('registered_users').doc(docId).set(
           {
@@ -252,17 +271,39 @@ export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
-    if (!id) {
-      return NextResponse.json({ success: false, error: 'Manager id required' }, { status: 400 });
+    const email = searchParams.get('email');
+
+    if (!id && !email) {
+      return NextResponse.json({ success: false, error: 'Manager id or email required' }, { status: 400 });
     }
+
+    const cleanId = id || '';
+    const cleanEmail = email || '';
+
+    // Mark as deleted in persistent store
+    markManagerDeleted(cleanId, cleanEmail);
 
     try {
       const { adminDb, adminAuth, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
       if (isFirebaseAdminConfigured) {
-        await adminDb.collection('admin_managers').doc(id).delete();
-        try {
-          await adminAuth.deleteUser(id);
-        } catch (e) {}
+        if (cleanId) {
+          try {
+            await adminDb.collection('admin_managers').doc(cleanId).delete();
+          } catch {}
+          try {
+            await adminAuth.deleteUser(cleanId);
+          } catch {}
+        }
+
+        if (cleanEmail) {
+          const docId = cleanEmail.replace(/[^a-zA-Z0-9_-]/g, '_');
+          try {
+            await adminDb.collection('admin_managers').doc(docId).delete();
+          } catch {}
+          try {
+            await adminDb.collection('registered_users').doc(docId).delete();
+          } catch {}
+        }
       }
     } catch (adminErr) {
       console.warn('[managers DELETE] Firebase Admin notice:', adminErr);
