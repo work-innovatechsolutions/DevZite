@@ -59,7 +59,7 @@ export default function ServicesPage() {
       <main className="pt-32 pb-24 relative min-h-screen">
         <div className="container-site">
           {/* Header */}
-          <div className="max-w-3xl mb-16">
+          <div className="max-w-3xl mb-16 text-center mx-auto">
             <BlurReveal>
               <span className="text-xs font-mono text-[#3B82F6] uppercase tracking-widest font-semibold block mb-2">
                 / 01 — Services & Capabilities
