@@ -17,12 +17,14 @@ export interface UserRecord {
 const DIRECT_ADMINS = [
   'souvikgon377@gmail.com',
   'work.innovatechsolutions@gmail.com',
+  'sulagnaghosh363@gmail.com',
 ];
 
 // Persistent dynamic admin allowlist set for instant cross-route verification
 export const DYNAMIC_ADMIN_SET = new Set<string>([
   'souvikgon377@gmail.com',
   'work.innovatechsolutions@gmail.com',
+  'sulagnaghosh363@gmail.com',
 ]);
 
 // Fallback in-memory user registry for instant responsiveness
@@ -39,6 +41,16 @@ export let IN_MEMORY_USERS: UserRecord[] = [
   },
   {
     id: 'usr-2',
+    name: 'Sulagna Ghosh',
+    email: 'sulagnaghosh363@gmail.com',
+    avatar: 'https://lh3.googleusercontent.com/a/ACg8ocI8nJq3mwjfT83y94EkqnyOywLZJzcZMoKct-qtNGpimomph84=s96-c',
+    role: 'Admin',
+    status: 'Active',
+    lastLogin: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'usr-3',
     name: 'InnovaTech Solutions',
     email: 'work.innovatechsolutions@gmail.com',
     avatar: 'https://lh3.googleusercontent.com/a/ACg8ocJPzCC2IseBzh9OoyTFifH6iLyLsDRP0eAd2abiax7Jy3vPpQ=s96-c',

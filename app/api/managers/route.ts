@@ -16,6 +16,16 @@ const FALLBACK_MANAGERS = [
   },
   {
     id: 'mgr-admin-2',
+    name: 'Sulagna Ghosh',
+    email: 'sulagnaghosh363@gmail.com',
+    role: 'Admin',
+    status: 'Active (Firebase Auth)',
+    lastActive: 'Just Now',
+    avatar: 'https://lh3.googleusercontent.com/a/ACg8ocI8nJq3mwjfT83y94EkqnyOywLZJzcZMoKct-qtNGpimomph84=s96-c',
+    isRealAuth: true,
+  },
+  {
+    id: 'mgr-admin-3',
     name: 'Innovatech Solutions',
     email: 'work.innovatechsolutions@gmail.com',
     role: 'Admin',
