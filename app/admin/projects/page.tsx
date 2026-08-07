@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { FolderKanban, Plus, ExternalLink, Zap, Trash2, X, Upload, Image as ImageIcon } from 'lucide-react';
+import { FolderKanban, Plus, ExternalLink, Zap, Trash2, X, Upload, Image as ImageIcon, Edit3 } from 'lucide-react';
 
 interface ProjectItem {
   id?: string;
@@ -10,6 +10,7 @@ interface ProjectItem {
   name: string;
   category: string;
   status: string;
+  summary?: string;
   lighthouseScore: number;
   techStack: string[];
   url: string;
@@ -22,6 +23,7 @@ const DEFAULT_PROJECTS: ProjectItem[] = [
     name: 'Aura Studio Platform',
     category: 'Next.js 15 Platform',
     status: 'Live Production',
+    summary: 'Living web operating system built with modular component architecture, 60fps animations, and edge delivery.',
     lighthouseScore: 99,
     techStack: ['Next.js 15', 'Tailwind', 'GSAP', 'Lenis'],
     url: 'https://devzite.com',
@@ -32,6 +34,7 @@ const DEFAULT_PROJECTS: ProjectItem[] = [
     name: 'CyberPulse SaaS Dashboard',
     category: 'Full-Stack Web App',
     status: 'Active QA',
+    summary: 'Enterprise real-time analytics portal with WebSocket telemetry and serverless API backend.',
     lighthouseScore: 98,
     techStack: ['React 19', 'TypeScript', 'Serverless'],
     url: 'https://cyberpulse.io',
@@ -42,6 +45,7 @@ const DEFAULT_PROJECTS: ProjectItem[] = [
     name: 'OmniTrade Mobile Software',
     category: 'Native Android App',
     status: 'In Development',
+    summary: 'Native Android trading suite with low-latency order execution and biometric authentication.',
     lighthouseScore: 97,
     techStack: ['Kotlin', 'Jetpack Compose', 'Clean Arch'],
     url: 'https://omnitrade.app',
@@ -52,6 +56,7 @@ const DEFAULT_PROJECTS: ProjectItem[] = [
 export default function AdminProjectsPage() {
   const [projects, setProjects] = useState<ProjectItem[]>(DEFAULT_PROJECTS);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   // Form State
@@ -79,20 +84,46 @@ export default function AdminProjectsPage() {
     fetchProjects();
   }, []);
 
-  const handleCreateProject = async (e: React.FormEvent) => {
+  const openCreateModal = () => {
+    setEditingSlug(null);
+    setName('');
+    setCategory('Next.js 15 Web App');
+    setStatus('Live Production');
+    setScore(99);
+    setUrl('https://devzite.com');
+    setTech('Next.js 15, Tailwind, TypeScript');
+    setSummary('High-performance web application engineered for scale.');
+    setImage('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80');
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (project: ProjectItem) => {
+    setEditingSlug(project.slug);
+    setName(project.name || '');
+    setCategory(project.category || 'Next.js 15 Web App');
+    setStatus(project.status || 'Live Production');
+    setScore(project.lighthouseScore || 99);
+    setUrl(project.url || 'https://devzite.com');
+    setTech(Array.isArray(project.techStack) ? project.techStack.join(', ') : 'Next.js 15, Tailwind, TypeScript');
+    setSummary(project.summary || 'High-performance web application engineered for scale.');
+    setImage(project.image || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80');
+    setIsModalOpen(true);
+  };
+
+  const handleSaveProject = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name) return;
 
     setLoading(true);
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    const newPrj: any = {
-      slug,
+    const targetSlug = editingSlug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const projectData: any = {
+      slug: targetSlug,
       name,
       category,
       status,
       summary,
       lighthouseScore: Number(score),
-      techStack: tech.split(',').map((t) => t.trim()),
+      techStack: tech.split(',').map((t) => t.trim()).filter(Boolean),
       url,
       image: image || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80',
     };
@@ -101,14 +132,28 @@ export default function AdminProjectsPage() {
       await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPrj),
+        body: JSON.stringify(projectData),
       });
-      setProjects((prev) => [newPrj, ...prev.filter((p) => p.slug !== slug)]);
+
+      setProjects((prev) => {
+        const exists = prev.some((p) => p.slug === targetSlug);
+        if (exists) {
+          return prev.map((p) => (p.slug === targetSlug ? projectData : p));
+        }
+        return [projectData, ...prev];
+      });
+
       setIsModalOpen(false);
-      setName('');
+      setEditingSlug(null);
     } catch (err) {
       console.error('Error saving project via server API:', err);
-      setProjects((prev) => [newPrj, ...prev]);
+      setProjects((prev) => {
+        const exists = prev.some((p) => p.slug === targetSlug);
+        if (exists) {
+          return prev.map((p) => (p.slug === targetSlug ? projectData : p));
+        }
+        return [projectData, ...prev];
+      });
       setIsModalOpen(false);
     } finally {
       setLoading(false);
@@ -116,6 +161,7 @@ export default function AdminProjectsPage() {
   };
 
   const handleDeleteProject = async (slug: string) => {
+    if (!confirm('Are you sure you want to delete this project case?')) return;
     try {
       await fetch(`/api/projects?slug=${encodeURIComponent(slug)}`, { method: 'DELETE' });
       setProjects((prev) => prev.filter((p) => p.slug !== slug));
@@ -157,7 +203,6 @@ export default function AdminProjectsPage() {
         const ctx = canvas.getContext('2d');
         ctx?.drawImage(img, 0, 0, width, height);
 
-        // Ultra-compact compression to ~40KB JPEG data URL (instant Firestore write!)
         const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
         setImage(compressedDataUrl);
       };
@@ -178,12 +223,12 @@ export default function AdminProjectsPage() {
             Project Workbench
           </h1>
           <p className="text-sm font-body text-[#475569] dark:text-[#94A3B8] mt-1">
-            Manage deployed studio software, upload cover imagery, track performance scores, and publish case studies.
+            Manage deployed studio software, upload cover imagery, track performance scores, and edit case studies.
           </p>
         </div>
 
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={openCreateModal}
           className="btn-primary text-xs px-5 py-3 shadow-[0_0_20px_rgba(59,130,246,0.25)]"
         >
           <Plus size={16} />
@@ -229,6 +274,12 @@ export default function AdminProjectsPage() {
                 {p.name}
               </h3>
 
+              {p.summary && (
+                <p className="text-xs text-[#64748B] dark:text-[#94A3B8] font-body mb-4 line-clamp-2">
+                  {p.summary}
+                </p>
+              )}
+
               <div className="flex flex-wrap gap-2 mb-6">
                 {p.techStack?.map((t) => (
                   <span
@@ -248,19 +299,27 @@ export default function AdminProjectsPage() {
                 <span className="font-bold text-[#10B981]">{p.lighthouseScore || 99}/100</span>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <a
                   href={p.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-1 text-xs font-mono font-semibold text-[#3B82F6] hover:underline"
+                  className="flex items-center gap-1 text-xs font-mono font-semibold text-[#3B82F6] hover:underline mr-1"
                 >
                   <span>Live Demo</span>
                   <ExternalLink size={14} />
                 </a>
                 <button
+                  onClick={() => openEditModal(p)}
+                  className="p-1.5 rounded-lg text-[#3B82F6] hover:bg-[#3B82F6]/10 transition-colors"
+                  title="Edit Project"
+                >
+                  <Edit3 size={16} />
+                </button>
+                <button
                   onClick={() => handleDeleteProject(p.slug)}
                   className="p-1.5 rounded-lg text-[#EF4444] hover:bg-[rgba(239,68,68,0.1)] transition-colors"
+                  title="Delete Project"
                 >
                   <Trash2 size={16} />
                 </button>
@@ -270,7 +329,7 @@ export default function AdminProjectsPage() {
         ))}
       </div>
 
-      {/* Create Modal with Image Upload */}
+      {/* Create / Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md overflow-hidden">
           <div
@@ -279,14 +338,14 @@ export default function AdminProjectsPage() {
           >
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] sticky top-0 bg-white dark:bg-[#0C0D14] z-10">
               <h3 className="font-display font-bold text-xl text-[#0F172A] dark:text-[#F8FAFC]">
-                Create Project Case with Cover Image
+                {editingSlug ? 'Edit Project Case' : 'Create Project Case with Cover Image'}
               </h3>
               <button onClick={() => setIsModalOpen(false)} className="p-1.5 rounded-lg text-[#64748B] hover:text-[#0F172A] dark:hover:text-[#F8FAFC]">
                 <X size={20} />
               </button>
             </div>
 
-            <form onSubmit={handleCreateProject} className="space-y-5 text-xs font-mono">
+            <form onSubmit={handleSaveProject} className="space-y-5 text-xs font-mono">
               {/* Image Upload / URL Preview Box */}
               <div>
                 <label className="block text-[#475569] dark:text-[#94A3B8] mb-1.5 font-bold">
@@ -341,6 +400,40 @@ export default function AdminProjectsPage() {
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[#475569] dark:text-[#94A3B8] mb-1 font-bold">Status</label>
+                  <input
+                    type="text"
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] text-[#0F172A] dark:text-[#F8FAFC] outline-none focus:border-[#3B82F6]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[#475569] dark:text-[#94A3B8] mb-1 font-bold">Lighthouse Score</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={100}
+                    value={score}
+                    onChange={(e) => setScore(Number(e.target.value))}
+                    className="w-full px-4 py-2.5 rounded-xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] text-[#0F172A] dark:text-[#F8FAFC] outline-none focus:border-[#3B82F6]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[#475569] dark:text-[#94A3B8] mb-1 font-bold">Live Demo URL</label>
+                <input
+                  type="text"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] text-[#0F172A] dark:text-[#F8FAFC] outline-none focus:border-[#3B82F6]"
+                />
+              </div>
+
               <div>
                 <label className="block text-[#475569] dark:text-[#94A3B8] mb-1 font-bold">Project Summary / Description</label>
                 <textarea
@@ -367,16 +460,16 @@ export default function AdminProjectsPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="w-1/2 py-3 rounded-xl border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] text-[#475569] dark:text-[#94A3B8] font-bold hover:bg-[rgba(15,23,42,0.04)]"
+                  className="w-1/2 py-3 rounded-xl border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] text-[#475569] dark:text-[#94A3B8] font-bold hover:bg-[rgba(15,23,42,0.04)] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-1/2 py-3 rounded-xl bg-[#3B82F6] hover:bg-[#2563EB] text-white font-bold transition-colors shadow-md"
+                  className="w-1/2 py-3 rounded-xl bg-[#3B82F6] hover:bg-[#2563EB] text-white font-bold transition-colors shadow-md cursor-pointer"
                 >
-                  {loading ? 'Saving...' : 'Save Project Case'}
+                  {loading ? 'Saving...' : editingSlug ? 'Update Project' : 'Save Project Case'}
                 </button>
               </div>
             </form>
