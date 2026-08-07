@@ -227,7 +227,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 >
                   <span className="flex items-center gap-2">
                     <LogOut size={16} />
-                    Sign Out (Firebase)
+                    Sign Out
                   </span>
                 </button>
 
@@ -309,7 +309,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           >
             <span className="flex items-center gap-2">
               <LogOut size={14} />
-              Sign Out (Firebase)
+              Sign Out
             </span>
           </button>
 
