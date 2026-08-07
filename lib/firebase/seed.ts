@@ -1,5 +1,3 @@
-import { adminDb } from './admin';
-
 export const INITIAL_PROJECTS = [
   {
     slug: 'abjee-travel',
@@ -201,51 +199,52 @@ export const INITIAL_MANAGERS = [
 ];
 
 export async function seedFirestoreCollections() {
-  const batch = adminDb.batch();
+  try {
+    const { adminDb, isFirebaseAdminConfigured } = await import('./admin');
+    if (!isFirebaseAdminConfigured) return { success: false, error: 'Firebase Admin not configured' };
 
-  // 1. Projects Collection
-  for (const project of INITIAL_PROJECTS) {
-    const ref = adminDb.collection('projects').doc(project.slug);
-    batch.set(ref, project, { merge: true });
+    const batch = adminDb.batch();
+
+    for (const project of INITIAL_PROJECTS) {
+      const ref = adminDb.collection('projects').doc(project.slug);
+      batch.set(ref, project, { merge: true });
+    }
+
+    for (const plan of INITIAL_PRICING) {
+      const ref = adminDb.collection('pricing').doc(plan.id);
+      batch.set(ref, plan, { merge: true });
+    }
+
+    for (const lead of INITIAL_LEADS) {
+      const ref = adminDb.collection('leads').doc(lead.id);
+      batch.set(ref, lead, { merge: true });
+    }
+
+    for (const blog of INITIAL_BLOGS) {
+      const ref = adminDb.collection('blogs').doc(blog.slug);
+      batch.set(ref, blog, { merge: true });
+    }
+
+    for (const mgr of INITIAL_MANAGERS) {
+      const ref = adminDb.collection('admin_managers').doc(mgr.id);
+      batch.set(ref, mgr, { merge: true });
+    }
+
+    const configRef = adminDb.collection('system').doc('config');
+    batch.set(
+      configRef,
+      {
+        aiAssistantEnabled: true,
+        customCursorEnabled: true,
+        version: '3.0.0',
+        lastUpdated: new Date().toISOString(),
+      },
+      { merge: true }
+    );
+
+    await batch.commit();
+    return { success: true, message: 'Firestore collections initialized successfully!' };
+  } catch (err: any) {
+    return { success: false, error: err?.message };
   }
-
-  // 2. Pricing Collection
-  for (const plan of INITIAL_PRICING) {
-    const ref = adminDb.collection('pricing').doc(plan.id);
-    batch.set(ref, plan, { merge: true });
-  }
-
-  // 3. Leads Collection
-  for (const lead of INITIAL_LEADS) {
-    const ref = adminDb.collection('leads').doc(lead.id);
-    batch.set(ref, lead, { merge: true });
-  }
-
-  // 4. Blogs Collection
-  for (const blog of INITIAL_BLOGS) {
-    const ref = adminDb.collection('blogs').doc(blog.slug);
-    batch.set(ref, blog, { merge: true });
-  }
-
-  // 5. Admin Managers Collection
-  for (const mgr of INITIAL_MANAGERS) {
-    const ref = adminDb.collection('admin_managers').doc(mgr.id);
-    batch.set(ref, mgr, { merge: true });
-  }
-
-  // 6. System Config Collection
-  const configRef = adminDb.collection('system').doc('config');
-  batch.set(
-    configRef,
-    {
-      aiAssistantEnabled: true,
-      customCursorEnabled: true,
-      version: '3.0.0',
-      lastUpdated: new Date().toISOString(),
-    },
-    { merge: true }
-  );
-
-  await batch.commit();
-  return { success: true, message: 'Firestore collections initialized successfully!' };
 }
