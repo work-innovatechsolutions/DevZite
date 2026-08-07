@@ -42,7 +42,15 @@ export async function POST(req: Request) {
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // 2. Parse environment variable admin allowlists robustly
+    // 2. Check dynamic admin registry from registered_users API
+    try {
+      const { isDynamicAdmin } = await import('@/app/api/users/route');
+      if (isDynamicAdmin(cleanEmail)) {
+        return NextResponse.json({ authorized: true, role: 'Admin' }, { status: 200 });
+      }
+    } catch {}
+
+    // 3. Parse environment variable admin allowlists robustly
     const rawEnv = `${process.env.ADMIN_EMAILS || ''},${process.env.SUPER_ADMIN_EMAILS || ''}`;
     const envAdmins = rawEnv
       .split(',')
@@ -51,7 +59,7 @@ export async function POST(req: Request) {
 
     const allowedAdmins = Array.from(new Set([...DIRECT_ADMINS, ...envAdmins]));
 
-    // 3. Direct match against allowed admin list (FAST PATH)
+    // Direct match against allowed admin list (FAST PATH)
     if (allowedAdmins.includes(cleanEmail)) {
       return NextResponse.json({ authorized: true, role: 'Admin' }, { status: 200 });
     }
@@ -94,8 +102,3 @@ export async function POST(req: Request) {
     );
   }
 }
-
-
-
-
-

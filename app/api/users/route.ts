@@ -19,8 +19,14 @@ const DIRECT_ADMINS = [
   'work.innovatechsolutions@gmail.com',
 ];
 
+// Persistent dynamic admin allowlist set for instant cross-route verification
+export const DYNAMIC_ADMIN_SET = new Set<string>([
+  'souvikgon377@gmail.com',
+  'work.innovatechsolutions@gmail.com',
+]);
+
 // Fallback in-memory user registry for instant responsiveness
-let IN_MEMORY_USERS: UserRecord[] = [
+export let IN_MEMORY_USERS: UserRecord[] = [
   {
     id: 'usr-1',
     name: 'Souvik Gon',
@@ -42,6 +48,13 @@ let IN_MEMORY_USERS: UserRecord[] = [
     createdAt: new Date().toISOString(),
   },
 ];
+
+export function isDynamicAdmin(email: string): boolean {
+  if (!email) return false;
+  const clean = email.trim().toLowerCase();
+  if (DIRECT_ADMINS.includes(clean) || DYNAMIC_ADMIN_SET.has(clean)) return true;
+  return IN_MEMORY_USERS.some((u) => u.email.toLowerCase() === clean && u.role === 'Admin');
+}
 
 export async function GET() {
   try {
@@ -74,6 +87,9 @@ export async function GET() {
             const cleanEmail = (data.email || '').toLowerCase();
             const realPhoto = authPhotoMap.get(cleanEmail);
             const realName = authNameMap.get(cleanEmail);
+            const effectiveRole = isDynamicAdmin(cleanEmail) ? 'Admin' : (data.role || 'User');
+
+            if (effectiveRole === 'Admin') DYNAMIC_ADMIN_SET.add(cleanEmail);
 
             return {
               id: doc.id,
@@ -81,7 +97,7 @@ export async function GET() {
               name: realName || data.name || cleanEmail.split('@')[0],
               email: cleanEmail,
               avatar: realPhoto || (data.avatar && !data.avatar.includes('unsplash') ? data.avatar : `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanEmail}`),
-              role: data.role || (DIRECT_ADMINS.includes(cleanEmail) ? 'Admin' : 'User'),
+              role: effectiveRole,
               status: 'Active',
               lastLogin: data.lastLogin || new Date().toISOString(),
               createdAt: data.createdAt || new Date().toISOString(),
@@ -95,9 +111,11 @@ export async function GET() {
           const cleanEmail = u.email.toLowerCase();
           const realPhoto = authPhotoMap.get(cleanEmail);
           const realName = authNameMap.get(cleanEmail);
+          const effectiveRole = isDynamicAdmin(cleanEmail) ? 'Admin' : u.role;
           return {
             ...u,
             name: realName || u.name,
+            role: effectiveRole,
             avatar: realPhoto || (u.avatar && !u.avatar.includes('unsplash') ? u.avatar : `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanEmail}`),
           };
         });
@@ -131,7 +149,7 @@ export async function POST(req: Request) {
     let cleanAvatar = avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanEmail}`;
     const now = new Date().toISOString();
 
-    const isDefaultAdmin = DIRECT_ADMINS.includes(cleanEmail);
+    const isDefaultAdmin = isDynamicAdmin(cleanEmail);
     let assignedRole: 'Admin' | 'User' = isDefaultAdmin ? 'Admin' : 'User';
 
     // Try getting real photoURL from Firebase Auth if not passed
@@ -150,11 +168,12 @@ export async function POST(req: Request) {
     const existingIndex = IN_MEMORY_USERS.findIndex((u) => u.email.toLowerCase() === cleanEmail);
 
     if (existingIndex >= 0) {
-      assignedRole = IN_MEMORY_USERS[existingIndex].role;
+      assignedRole = isDynamicAdmin(cleanEmail) ? 'Admin' : IN_MEMORY_USERS[existingIndex].role;
       IN_MEMORY_USERS[existingIndex] = {
         ...IN_MEMORY_USERS[existingIndex],
         name: cleanName,
         avatar: cleanAvatar,
+        role: assignedRole,
         lastLogin: now,
       };
     } else {
@@ -179,11 +198,12 @@ export async function POST(req: Request) {
         const existingDoc = await userDocRef.get();
         if (existingDoc.exists) {
           const data = existingDoc.data();
-          assignedRole = data?.role || assignedRole;
+          assignedRole = isDynamicAdmin(cleanEmail) ? 'Admin' : (data?.role || assignedRole);
           await userDocRef.set(
             {
               name: cleanName,
               avatar: cleanAvatar,
+              role: assignedRole,
               lastLogin: now,
             },
             { merge: true }
@@ -228,6 +248,12 @@ export async function PATCH(req: Request) {
     }
 
     const cleanEmail = email.trim().toLowerCase();
+
+    if (role === 'Admin') {
+      DYNAMIC_ADMIN_SET.add(cleanEmail);
+    } else {
+      DYNAMIC_ADMIN_SET.delete(cleanEmail);
+    }
 
     // Update in-memory store
     const userItem = IN_MEMORY_USERS.find((u) => u.email.toLowerCase() === cleanEmail);
