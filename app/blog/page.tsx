@@ -72,19 +72,20 @@ export default function BlogIndexPage() {
           {/* Header */}
           <div className="max-w-3xl mb-16">
             <BlurReveal>
-              <span className="text-xs font-mono text-[#3B82F6] uppercase tracking-widest">
-                / Engineering Journal & Insights
+              <span className="text-xs font-mono text-[#3B82F6] uppercase tracking-widest font-semibold block mb-2">
+                / 05 — Journal & Insights
               </span>
             </BlurReveal>
 
-            <TextReveal
-              text="Deep dives into software craftsmanship."
-              className="text-display-lg font-display font-black text-[#F8FAFC] mt-4 mb-6"
-              delay={0.2}
-            />
+            <BlurReveal delay={0.15}>
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-display font-black tracking-tight text-[#0F172A] dark:text-[#F8FAFC] mb-4 leading-tight">
+                Deep dives into software{' '}
+                <span className="text-[#3B82F6] inline-block">craftsmanship.</span>
+              </h1>
+            </BlurReveal>
 
-            <BlurReveal delay={0.35}>
-              <p className="text-lg text-[#94A3B8] leading-relaxed">
+            <BlurReveal delay={0.3}>
+              <p className="text-lg sm:text-xl text-[#334155] dark:text-[#CBD5E1] leading-relaxed font-body font-medium">
                 Technical articles, architecture breakdowns, AI experiments, and design system governance from the team at DevZite.
               </p>
             </BlurReveal>

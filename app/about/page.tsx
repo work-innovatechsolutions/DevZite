@@ -12,19 +12,20 @@ export default function AboutPage() {
           {/* Header */}
           <div className="mb-16">
             <BlurReveal>
-              <span className="text-xs font-mono text-[#3B82F6] uppercase tracking-widest">
-                / Who We Are
+              <span className="text-xs font-mono text-[#3B82F6] uppercase tracking-widest font-semibold block mb-2">
+                / 07 — Who We Are & Manifesto
               </span>
             </BlurReveal>
 
-            <TextReveal
-              text="Architects of digital experiences that move people."
-              className="text-display-lg font-display font-black text-[#F8FAFC] mt-4 mb-6"
-              delay={0.2}
-            />
+            <BlurReveal delay={0.15}>
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-display font-black tracking-tight text-[#0F172A] dark:text-[#F8FAFC] mb-4 leading-tight">
+                Architects of digital experiences that{' '}
+                <span className="text-[#3B82F6] inline-block">move people.</span>
+              </h1>
+            </BlurReveal>
 
-            <BlurReveal delay={0.35}>
-              <p className="text-lg text-[#94A3B8] leading-relaxed">
+            <BlurReveal delay={0.3}>
+              <p className="text-lg sm:text-xl text-[#334155] dark:text-[#CBD5E1] leading-relaxed font-body font-medium">
                 DevZite was founded on a simple premise: web applications should be blindingly fast, visually unforgettable, and engineered to scale seamlessly.
               </p>
             </BlurReveal>

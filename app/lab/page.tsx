@@ -52,20 +52,21 @@ export default function LabPage() {
           {/* Header */}
           <div className="max-w-3xl mb-16">
             <BlurReveal>
-              <span className="text-xs font-mono text-[#06B6D4] uppercase tracking-widest">
-                / DevZite R&D Lab
+              <span className="text-xs font-mono text-[#3B82F6] uppercase tracking-widest font-semibold block mb-2">
+                / 06 — R&D Lab & Prototypes
               </span>
             </BlurReveal>
 
-            <TextReveal
-              text="Experiments, AI prototypes, and internal R&D."
-              className="text-display-lg font-display font-black text-[#F8FAFC] mt-4 mb-6"
-              delay={0.2}
-            />
+            <BlurReveal delay={0.15}>
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-display font-black tracking-tight text-[#0F172A] dark:text-[#F8FAFC] mb-4 leading-tight">
+                Experimental software and{' '}
+                <span className="text-[#3B82F6] inline-block">future R&D.</span>
+              </h1>
+            </BlurReveal>
 
-            <BlurReveal delay={0.35}>
-              <p className="text-lg text-[#94A3B8] leading-relaxed">
-                Welcome to Our Lab — a dedicated space where we explore cutting-edge WebGL shaders, automated AI video pipelines, open-source utilities, and speculative UX concepts.
+            <BlurReveal delay={0.3}>
+              <p className="text-lg sm:text-xl text-[#334155] dark:text-[#CBD5E1] leading-relaxed font-body font-medium">
+                Internal prototypes, 3D WebGL shaders, generative AI pipelines, and open-source tooling built at DevZite Studio.
               </p>
             </BlurReveal>
           </div>

@@ -96,23 +96,23 @@ export default async function ProjectsOverviewPage() {
       <main className="pt-32 pb-24 relative min-h-screen bg-[#F8FAFC] dark:bg-[#06070A]">
         <div className="container-site">
           {/* Header */}
-          <div className="max-w-3xl mb-12">
+          <div className="max-w-3xl mb-16">
             <BlurReveal>
               <span className="text-xs font-mono text-[#3B82F6] uppercase tracking-widest font-semibold block mb-2">
-                / 02 — Case Studies & Portfolio
+                / 02 — Work & Portfolio
               </span>
             </BlurReveal>
 
             <BlurReveal delay={0.15}>
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-display font-black tracking-tight text-[#0F172A] dark:text-[#F8FAFC] mb-4 leading-tight">
-                Engineered products that{' '}
-                <span className="text-[#3B82F6] inline-block">speak for themselves.</span>
+                Case studies of software{' '}
+                <span className="text-[#3B82F6] inline-block">built to last.</span>
               </h1>
             </BlurReveal>
 
             <BlurReveal delay={0.3}>
               <p className="text-lg sm:text-xl text-[#334155] dark:text-[#CBD5E1] leading-relaxed font-body font-medium">
-                Explore deep dives into our architecture choices, UI design systems, performance benchmarks, and client business outcomes. Managed live from the Devzite Studio Admin Panel.
+                Explore our recent digital products, web platforms, and mobile apps engineered with zero compromises.
               </p>
             </BlurReveal>
           </div>
