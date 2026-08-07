@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { adminDb, adminAuth, isFirebaseAdminConfigured } from '@/lib/firebase/admin';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 const DIRECT_ADMINS = [
   'souvikgon377@gmail.com',
   'work.innovatechsolutions@gmail.com',
