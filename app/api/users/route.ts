@@ -34,38 +34,7 @@ export const DYNAMIC_ADMIN_SET = new Set<string>([
   'clienttest@devzite.com',
 ]);
 
-export let IN_MEMORY_USERS: UserRecord[] = [
-  {
-    id: 'usr-1',
-    name: 'Souvik Gon',
-    email: 'souvikgon377@gmail.com',
-    avatar: 'https://lh3.googleusercontent.com/a/ACg8ocJKOArD0zDKe8P6czSkGtFq_ksqOOSvc1iyh1stunEVIb1E99n6qw=s96-c',
-    role: 'Admin',
-    status: 'Active',
-    lastLogin: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'usr-2',
-    name: 'Sulagna Ghosh',
-    email: 'sulagnaghosh363@gmail.com',
-    avatar: 'https://lh3.googleusercontent.com/a/ACg8ocI8nJq3mwjfT83y94EkqnyOywLZJzcZMoKct-qtNGpimomph84=s96-c',
-    role: 'Admin',
-    status: 'Active',
-    lastLogin: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'usr-3',
-    name: 'InnovaTech Solutions',
-    email: 'work.innovatechsolutions@gmail.com',
-    avatar: 'https://lh3.googleusercontent.com/a/ACg8ocJPzCC2IseBzh9OoyTFifH6iLyLsDRP0eAd2abiax7Jy3vPpQ=s96-c',
-    role: 'Admin',
-    status: 'Active',
-    lastLogin: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
-  },
-];
+export let IN_MEMORY_USERS: UserRecord[] = [];
 
 export function isDynamicAdmin(email: string): boolean {
   if (!email) return false;

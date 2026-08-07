@@ -10,38 +10,7 @@ import {
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const REGISTERED_USERS_SEED = [
-  {
-    id: 'souvikgon377_gmail_com',
-    name: 'Souvik Gon',
-    email: 'souvikgon377@gmail.com',
-    avatar: 'https://lh3.googleusercontent.com/a/ACg8ocJKOArD0zDKe8P6czSkGtFq_ksqOOSvc1iyh1stunEVIb1E99n6qw=s96-c',
-    role: 'Admin',
-    status: 'Active',
-    lastLogin: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'work_innovatechsolutions_gmail_com',
-    name: 'InnovaTech Solutions',
-    email: 'work.innovatechsolutions@gmail.com',
-    avatar: 'https://lh3.googleusercontent.com/a/ACg8ocJPzCC2IseBzh9OoyTFifH6iLyLsDRP0eAd2abiax7Jy3vPpQ=s96-c',
-    role: 'Admin',
-    status: 'Active',
-    lastLogin: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'sulagnaghosh363_gmail_com',
-    name: 'Sulagna Ghosh',
-    email: 'sulagnaghosh363@gmail.com',
-    avatar: 'https://lh3.googleusercontent.com/a/ACg8ocI8nJq3mwjfT83y94EkqnyOywLZJzcZMoKct-qtNGpimomph84=s96-c',
-    role: 'Admin',
-    status: 'Active',
-    lastLogin: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
-  },
-];
+const REGISTERED_USERS_SEED: any[] = [];
 
 export async function POST() {
   return handleSync();

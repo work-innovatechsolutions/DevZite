@@ -15,28 +15,7 @@ interface Manager {
   isRealAuth?: boolean;
 }
 
-const DEFAULT_MANAGERS: Manager[] = [
-  {
-    id: 'mgr-1',
-    name: 'Souvik Studio Lead',
-    email: 'souvik@devzite.com',
-    role: 'Admin',
-    status: 'Active (Firebase Auth)',
-    lastActive: 'Just Now',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    isRealAuth: true,
-  },
-  {
-    id: 'mgr-2',
-    name: 'Alex Rivera',
-    email: 'alex@devzite.com',
-    role: 'Lead Architect',
-    status: 'Active (Firebase Auth)',
-    lastActive: '2 hours ago',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    isRealAuth: true,
-  },
-];
+const DEFAULT_MANAGERS: Manager[] = [];
 
 export default function AdminManagersPage() {
   const [managers, setManagers] = useState<Manager[]>(DEFAULT_MANAGERS);

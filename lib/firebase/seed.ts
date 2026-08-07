@@ -168,35 +168,7 @@ export const INITIAL_BLOGS = [
   },
 ];
 
-export const INITIAL_MANAGERS = [
-  {
-    id: 'mgr-admin-1',
-    name: 'Souvik (Admin)',
-    email: 'souvikgon377@gmail.com',
-    role: 'Admin',
-    status: 'Active (Firebase Auth)',
-    lastActive: 'Just Now',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'mgr-2',
-    name: 'Alex Rivera',
-    email: 'alex@devzite.com',
-    role: 'Lead Architect',
-    status: 'Active (Firebase Auth)',
-    lastActive: '2 hours ago',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'mgr-3',
-    name: 'Elena Vance',
-    email: 'elena@devzite.com',
-    role: 'Client Operations',
-    status: 'Active (Firebase Auth)',
-    lastActive: 'Yesterday',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-  },
-];
+export const INITIAL_MANAGERS: any[] = [];
 
 export async function seedFirestoreCollections() {
   try {

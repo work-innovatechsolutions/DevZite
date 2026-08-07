@@ -9,38 +9,7 @@ import {
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const FALLBACK_MANAGERS = [
-  {
-    id: 'mgr-admin-1',
-    name: 'Souvik (Admin)',
-    email: 'souvikgon377@gmail.com',
-    role: 'Admin',
-    status: 'Active (Firebase Auth)',
-    lastActive: 'Just Now',
-    avatar: 'https://lh3.googleusercontent.com/a/ACg8ocJKOArD0zDKe8P6czSkGtFq_ksqOOSvc1iyh1stunEVIb1E99n6qw=s96-c',
-    isRealAuth: true,
-  },
-  {
-    id: 'mgr-admin-2',
-    name: 'Sulagna Ghosh',
-    email: 'sulagnaghosh363@gmail.com',
-    role: 'Admin',
-    status: 'Active (Firebase Auth)',
-    lastActive: 'Just Now',
-    avatar: 'https://lh3.googleusercontent.com/a/ACg8ocI8nJq3mwjfT83y94EkqnyOywLZJzcZMoKct-qtNGpimomph84=s96-c',
-    isRealAuth: true,
-  },
-  {
-    id: 'mgr-admin-3',
-    name: 'Innovatech Solutions',
-    email: 'work.innovatechsolutions@gmail.com',
-    role: 'Admin',
-    status: 'Active (Firebase Auth)',
-    lastActive: 'Just Now',
-    avatar: 'https://lh3.googleusercontent.com/a/ACg8ocJPzCC2IseBzh9OoyTFifH6iLyLsDRP0eAd2abiax7Jy3vPpQ=s96-c',
-    isRealAuth: true,
-  },
-];
+const FALLBACK_MANAGERS: any[] = [];
 
 export async function GET() {
   try {
