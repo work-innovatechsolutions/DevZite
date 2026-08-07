@@ -14,62 +14,10 @@ interface PricingPlan {
   features: string[];
 }
 
-const DEFAULT_PLANS: PricingPlan[] = [
-  {
-    id: 'starter',
-    name: 'Starter',
-    badge: 'Essential Build',
-    price: '$2,499',
-    billing: 'per project',
-    description: 'Perfect for startups needing a high-performance, conversion-focused digital presence.',
-    isPopular: false,
-    features: [
-      'Next.js 15 Web Application',
-      'Tailwind CSS v4 Responsive Design',
-      '99+ Lighthouse Performance Score',
-      'SEO & Meta Tags Optimization',
-      'Firebase Infrastructure Setup',
-      '1 Month Technical Warranty & Support',
-    ],
-  },
-  {
-    id: 'pro',
-    name: 'Pro Studio',
-    badge: 'Most Popular',
-    price: '$5,999',
-    billing: 'per project',
-    description: 'Complete full-stack web and mobile application suite for scaling tech brands.',
-    isPopular: true,
-    features: [
-      'Full-Stack Web + Native Mobile App',
-      'Custom UI/UX & Motion Design System',
-      '60fps GSAP & Framer Motion Animations',
-      'Firebase Admin CMS & Auth Control',
-      'Real-time WebSocket & API Architecture',
-      '3 Months Priority Support & Maintenance',
-    ],
-  },
-  {
-    id: 'premium',
-    name: 'Enterprise',
-    badge: 'Custom Architecture',
-    price: '$12,999',
-    billing: 'per project',
-    description: 'Dedicated studio engineering, custom 3D web experiences, and SLA guarantees.',
-    isPopular: false,
-    features: [
-      'Dedicated Studio Engineering Squad',
-      'Generative AI & LLM Workflow Integration',
-      'Custom 3D / R3F WebGL Visualizations',
-      'Enterprise Security & Compliance Audit',
-      '99.99% Uptime SLA Guarantee',
-      '24/7 Dedicated Retainer Support',
-    ],
-  },
-];
+const DEFAULT_PLANS: PricingPlan[] = [];
 
 export default function AdminPricingPage() {
-  const [plans, setPlans] = useState<PricingPlan[]>(DEFAULT_PLANS);
+  const [plans, setPlans] = useState<PricingPlan[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState<PricingPlan | null>(null);
   const [loading, setLoading] = useState(false);
