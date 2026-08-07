@@ -4,27 +4,23 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { BlurReveal, WordReveal } from '@/components/motion';
+import { BlurReveal } from '@/components/motion';
 import { Mail, MapPin, Clock, Send, CheckCircle2, ShieldCheck, MessageSquare, Phone } from 'lucide-react';
 
 const SERVICES_OPTIONS = [
-  'Starter Plan ($2,499)',
-  'Pro Studio Plan ($5,999)',
-  'Premium Architecture ($12,999)',
-  'Custom Enterprise Retainer',
   'Custom Web Engineering (Next.js 15)',
   'Full-Stack SaaS Web App',
   'Native Android / iOS Mobile App',
   'AI Video & Generative Media',
 ];
 
-const BUDGET_OPTIONS = [
-  '$2,499 - $5,000',
-  '$5,000 - $15,000',
-  '$15,000 - $30,000',
-  '$30,000 - $60,000',
-  '$60,000+',
-];
+interface PricingTier {
+  id: string;
+  name: string;
+  price: string;
+  badge?: string;
+  billing?: string;
+}
 
 function ContactFormContent() {
   const searchParams = useSearchParams();
@@ -35,21 +31,49 @@ function ContactFormContent() {
   const [phone, setPhone] = useState('');
   const [company, setCompany] = useState('');
   const [service, setService] = useState(SERVICES_OPTIONS[0]);
-  const [budget, setBudget] = useState(BUDGET_OPTIONS[1]);
+  const [budget, setBudget] = useState('');
   const [message, setMessage] = useState('');
 
+  const [pricingPlans, setPricingPlans] = useState<PricingTier[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  // Fetch live pricing cards from API to populate budget options
   useEffect(() => {
-    if (planParam) {
-      const matched = SERVICES_OPTIONS.find((s) => s.toLowerCase().includes(planParam.toLowerCase()));
-      if (matched) {
-        setService(matched);
-      } else {
-        setService(`${planParam} Plan Request`);
+    async function fetchPricing() {
+      try {
+        const res = await fetch('/api/pricing');
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          const ORDER = ['starter', 'pro', 'premium', 'custom'];
+          const sorted = data.data.sort((a: any, b: any) => {
+            const idxA = ORDER.indexOf(a.id);
+            const idxB = ORDER.indexOf(b.id);
+            return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
+          });
+          setPricingPlans(sorted);
+
+          // Default budget selection to the first pricing tier if not selected
+          const defaultPrice = `${sorted[0].name} (${sorted[0].price})`;
+          setBudget((prev) => prev || defaultPrice);
+
+          // If plan query parameter exists (e.g. ?plan=pro), select that plan's price
+          if (planParam) {
+            const matchedPlan = sorted.find(
+              (p) =>
+                p.id.toLowerCase() === planParam.toLowerCase() ||
+                p.name.toLowerCase().includes(planParam.toLowerCase())
+            );
+            if (matchedPlan) {
+              setBudget(`${matchedPlan.name} (${matchedPlan.price})`);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to load pricing cards for budget options:', err);
       }
     }
+    fetchPricing();
   }, [planParam]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -64,7 +88,7 @@ function ContactFormContent() {
       phone: phone || 'Not specified',
       company: company || 'Not specified',
       service,
-      budget,
+      budget: budget || 'Not selected',
       message: message || 'Inquiry sent via /contact page form.',
       status: 'New Inquiry',
       createdAt: new Date().toISOString(),
@@ -136,7 +160,7 @@ function ContactFormContent() {
                     </p>
                     <button
                       onClick={() => setSubmitted(false)}
-                      className="btn-primary text-xs px-6 py-3 mt-4"
+                      className="btn-primary text-xs px-6 py-3 mt-4 cursor-pointer"
                     >
                       Send Another Message
                     </button>
@@ -209,7 +233,7 @@ function ContactFormContent() {
                         <select
                           value={service}
                           onChange={(e) => setService(e.target.value)}
-                          className="w-full px-4 py-3.5 rounded-2xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] text-[#0F172A] dark:text-[#F8FAFC] text-sm outline-none focus:ring-2 focus:ring-[#3B82F6]/50 focus:border-[#3B82F6] font-body"
+                          className="w-full px-4 py-3.5 rounded-2xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] text-[#0F172A] dark:text-[#F8FAFC] text-sm outline-none focus:ring-2 focus:ring-[#3B82F6]/50 focus:border-[#3B82F6] font-body cursor-pointer"
                         >
                           {SERVICES_OPTIONS.map((opt) => (
                             <option key={opt} value={opt} className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">
@@ -221,18 +245,30 @@ function ContactFormContent() {
 
                       <div>
                         <label className="block text-xs font-mono font-bold text-[#475569] dark:text-[#94A3B8] uppercase tracking-wider mb-2">
-                          Estimated Budget
+                          Estimated Budget (From Pricing Cards)
                         </label>
                         <select
                           value={budget}
                           onChange={(e) => setBudget(e.target.value)}
-                          className="w-full px-4 py-3.5 rounded-2xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] text-[#0F172A] dark:text-[#F8FAFC] text-sm outline-none focus:ring-2 focus:ring-[#3B82F6]/50 focus:border-[#3B82F6] font-body"
+                          className="w-full px-4 py-3.5 rounded-2xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] text-[#0F172A] dark:text-[#F8FAFC] text-sm outline-none focus:ring-2 focus:ring-[#3B82F6]/50 focus:border-[#3B82F6] font-body cursor-pointer"
                         >
-                          {BUDGET_OPTIONS.map((opt) => (
-                            <option key={opt} value={opt} className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">
-                              {opt}
-                            </option>
-                          ))}
+                          {pricingPlans.length > 0 ? (
+                            pricingPlans.map((plan) => {
+                              const val = `${plan.name} (${plan.price})`;
+                              return (
+                                <option key={plan.id} value={val} className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">
+                                  {plan.name} — {plan.price} {plan.billing ? `(${plan.billing})` : ''}
+                                </option>
+                              );
+                            })
+                          ) : (
+                            <>
+                              <option value="Starter ($2,500)" className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">Starter — $2,500 (per project)</option>
+                              <option value="Pro Studio ($5,999)" className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">Pro Studio — $5,999 (per project)</option>
+                              <option value="Premium ($12,999)" className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">Premium — $12,999 (per project)</option>
+                              <option value="Custom (Custom Quote)" className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">Custom — Custom Quote (flexible scope)</option>
+                            </>
+                          )}
                         </select>
                       </div>
                     </div>
@@ -253,15 +289,15 @@ function ContactFormContent() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full py-4 rounded-2xl bg-[#3B82F6] hover:bg-[#2563EB] text-white text-xs font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(59,130,246,0.3)] transition-all cursor-pointer"
+                      className="btn-primary w-full py-4 text-sm font-bold shadow-[0_0_25px_rgba(59,130,246,0.3)] cursor-pointer"
                     >
                       {loading ? (
-                        <span>Transmitting Inquiry...</span>
+                        <span>Submitting Inquiry...</span>
                       ) : (
-                        <>
+                        <span className="flex items-center justify-center gap-2">
+                          <span>Submit Project Inquiry</span>
                           <Send size={16} />
-                          <span>Submit Project Request</span>
-                        </>
+                        </span>
                       )}
                     </button>
                   </form>
@@ -269,71 +305,65 @@ function ContactFormContent() {
               </div>
             </BlurReveal>
 
-            {/* ── Right Column: Studio Info & Channels (5 Cols) ── */}
+            {/* ── Right Column: Studio Contact Specs (5 Cols) ── */}
             <BlurReveal delay={0.45} className="lg:col-span-5 space-y-6">
-              <div className="rounded-3xl glass-card p-8 border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] bg-white dark:bg-[#0C0D14] shadow-xl">
-                <h3 className="font-display font-bold text-xl text-[#0F172A] dark:text-[#F8FAFC] mb-6 flex items-center gap-2">
-                  <MessageSquare size={20} className="text-[#3B82F6]" />
-                  <span>Direct Communication</span>
-                </h3>
+              {/* Studio Card */}
+              <div className="rounded-3xl glass-card p-8 border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] bg-white dark:bg-[#0C0D14] space-y-6">
+                <div className="flex items-center gap-3 pb-4 border-b border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)]">
+                  <div className="p-3 rounded-2xl bg-[rgba(59,130,246,0.1)] text-[#3B82F6]">
+                    <MessageSquare size={24} />
+                  </div>
+                  <div>
+                    <h4 className="font-display font-bold text-lg text-[#0F172A] dark:text-[#F8FAFC]">
+                      Direct Studio Desk
+                    </h4>
+                    <span className="text-xs font-mono text-[#10B981] font-semibold flex items-center gap-1.5 mt-0.5">
+                      <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
+                      Engineering Team Online
+                    </span>
+                  </div>
+                </div>
 
-                <div className="space-y-6 font-body text-sm">
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-[rgba(59,130,246,0.1)] border border-[rgba(59,130,246,0.2)] flex items-center justify-center text-[#3B82F6] shrink-0">
-                      <Mail size={18} />
-                    </div>
+                <div className="space-y-4 text-xs font-mono text-[#475569] dark:text-[#94A3B8]">
+                  <div className="flex items-start gap-3">
+                    <Mail size={16} className="text-[#3B82F6] shrink-0 mt-0.5" />
                     <div>
-                      <span className="text-xs font-mono text-[#64748B] block mb-0.5">Email Inquiry</span>
+                      <span className="block font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-0.5">Official Studio Inbox</span>
                       <a href="mailto:hello@devzite.com" className="font-bold text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#3B82F6] transition-colors">
                         hello@devzite.com
                       </a>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-[rgba(37,211,102,0.1)] border border-[rgba(37,211,102,0.25)] flex items-center justify-center text-[#25D366] shrink-0">
-                      <Phone size={18} />
-                    </div>
+                  <div className="flex items-start gap-3">
+                    <Clock size={16} className="text-[#3B82F6] shrink-0 mt-0.5" />
                     <div>
-                      <span className="text-xs font-mono text-[#64748B] block mb-0.5">WhatsApp Instant Chat</span>
-                      <a href="https://wa.me/15550000000" target="_blank" rel="noopener noreferrer" className="font-bold text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#25D366] transition-colors">
-                        Chat on WhatsApp →
-                      </a>
+                      <span className="block font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-0.5">Guaranteed SLA Response</span>
+                      <span>Within 2 hours (24/7 Global Support)</span>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-[rgba(139,92,246,0.1)] border border-[rgba(139,92,246,0.2)] flex items-center justify-center text-[#8B5CF6] shrink-0">
-                      <Clock size={18} />
-                    </div>
+                  <div className="flex items-start gap-3">
+                    <MapPin size={16} className="text-[#3B82F6] shrink-0 mt-0.5" />
                     <div>
-                      <span className="text-xs font-mono text-[#64748B] block mb-0.5">Response Guarantee</span>
-                      <span className="font-bold text-[#0F172A] dark:text-[#F8FAFC]">
-                        Under 2 Hours (Mon — Fri)
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-[rgba(6,182,212,0.1)] border border-[rgba(6,182,212,0.2)] flex items-center justify-center text-[#06B6D4] shrink-0">
-                      <MapPin size={18} />
-                    </div>
-                    <div>
-                      <span className="text-xs font-mono text-[#64748B] block mb-0.5">Studio Headquarters</span>
-                      <span className="font-bold text-[#0F172A] dark:text-[#F8FAFC]">
-                        San Francisco, CA & Global Remote
-                      </span>
+                      <span className="block font-bold text-[#0F172A] dark:text-[#F8FAFC] mb-0.5">Studio Headquarters</span>
+                      <span>Silicon Valley, CA · Remote Global Ops</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Security Card */}
-              <div className="rounded-3xl glass-card p-6 border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] bg-white dark:bg-[#0C0D14] flex items-center gap-3">
-                <ShieldCheck size={24} className="text-[#10B981] shrink-0" />
-                <p className="text-xs text-[#475569] dark:text-[#94A3B8] font-mono font-medium leading-relaxed">
-                  NDAs signed prior to deep dive calls. All project specifications strictly confidential.
-                </p>
+              {/* Warranty Card */}
+              <div className="rounded-3xl glass-card p-6 border border-[rgba(59,130,246,0.2)] bg-[rgba(59,130,246,0.03)] flex items-start gap-4">
+                <ShieldCheck size={28} className="text-[#3B82F6] shrink-0 mt-1" />
+                <div>
+                  <h5 className="font-display font-bold text-sm text-[#0F172A] dark:text-[#F8FAFC] mb-1">
+                    NDA & Code Guarantee
+                  </h5>
+                  <p className="text-xs text-[#475569] dark:text-[#94A3B8] font-body leading-relaxed">
+                    All project briefs are strictly protected under mutual NDA. You retain 100% IP ownership of all source code, assets, and deployment infrastructure.
+                  </p>
+                </div>
               </div>
             </BlurReveal>
           </div>
@@ -347,7 +377,7 @@ function ContactFormContent() {
 
 export default function ContactPage() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<div className="min-h-screen bg-[#06070A]" />}>
       <ContactFormContent />
     </Suspense>
   );
