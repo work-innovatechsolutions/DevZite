@@ -282,30 +282,37 @@ export default function PricingPage() {
                         {p.name}
                       </h2>
 
-                      <div className="flex flex-wrap items-baseline gap-2 my-4">
-                        {hasDiscount ? (
-                          <div className="flex flex-col">
-                            <span className="text-xs font-mono text-[#EF4444] line-through font-bold">
-                              {p.price}
-                            </span>
-                            <div className="flex items-baseline gap-1.5">
-                              <AnimatedPriceNumber
-                                value={finalPrice}
-                                startValue={p.price}
-                                className="text-3xl sm:text-4xl font-display font-black text-[#10B981] tracking-tight"
-                              />
-                              <span className="text-xs font-mono text-[#10B981] font-bold">
-                                ({appliedCoupon.discountPercent}% OFF)
+                      <div className="min-h-[72px] flex flex-col justify-end my-4">
+                        <div className="flex flex-wrap items-baseline gap-2">
+                          {hasDiscount ? (
+                            <div className="flex flex-col">
+                              <span className="text-xs font-mono text-[#EF4444] line-through font-bold h-4">
+                                {p.price}
                               </span>
+                              <div className="flex items-baseline gap-1.5">
+                                <AnimatedPriceNumber
+                                  value={finalPrice}
+                                  startValue={p.price}
+                                  className="text-3xl sm:text-4xl font-display font-black text-[#10B981] tracking-tight"
+                                />
+                                <span className="text-xs font-mono text-[#10B981] font-bold">
+                                  ({appliedCoupon.discountPercent}% OFF)
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                        ) : (
-                          <AnimatedPriceNumber
-                            value={p.price}
-                            className="text-3xl sm:text-4xl font-display font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight"
-                          />
-                        )}
-                        <span className="text-xs font-mono text-[#64748B] font-semibold">/ {p.billing}</span>
+                          ) : (
+                            <div className="flex flex-col">
+                              <span className="text-xs font-mono opacity-0 h-4 font-bold select-none">
+                                placeholder
+                              </span>
+                              <AnimatedPriceNumber
+                                value={p.price}
+                                className="text-3xl sm:text-4xl font-display font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight"
+                              />
+                            </div>
+                          )}
+                          <span className="text-xs font-mono text-[#64748B] font-semibold">/ {p.billing}</span>
+                        </div>
                       </div>
 
                       <p className="text-sm text-[#475569] dark:text-[#94A3B8] leading-relaxed mb-8 font-body font-medium">
