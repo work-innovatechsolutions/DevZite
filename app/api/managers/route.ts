@@ -15,7 +15,7 @@ export async function GET() {
         id: u.uid,
         name: u.displayName || (u.email ? u.email.split('@')[0] : 'Admin User'),
         email: u.email || 'no-email@devzite.com',
-        role: u.email?.toLowerCase().includes('souvik') ? 'Super Admin' : 'Firebase Verified Admin',
+        role: 'Admin',
         status: u.disabled ? 'Disabled' : 'Active (Firebase Auth)',
         lastActive: u.metadata.lastSignInTime ? new Date(u.metadata.lastSignInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just Now',
         avatar: u.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',

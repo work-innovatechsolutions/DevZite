@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { adminDb, isFirebaseAdminConfigured } from '@/lib/firebase/admin';
 
-const DIRECT_SUPER_ADMINS = [
+const DIRECT_ADMINS = [
   'souvikgon377@gmail.com',
   'work.innovatechsolutions@gmail.com',
 ];
@@ -15,16 +15,16 @@ export async function POST(req: Request) {
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // 1. Direct super admin authorization (hardcoded super admins + env var)
-    const envSuperAdmins = (process.env.SUPER_ADMIN_EMAILS || '')
+    // 1. Direct admin authorization
+    const envAdmins = (process.env.ADMIN_EMAILS || process.env.SUPER_ADMIN_EMAILS || '')
       .split(',')
       .map((e) => e.trim().toLowerCase())
       .filter(Boolean);
 
-    const allowedAdmins = Array.from(new Set([...DIRECT_SUPER_ADMINS, ...envSuperAdmins]));
+    const allowedAdmins = Array.from(new Set([...DIRECT_ADMINS, ...envAdmins]));
 
     if (allowedAdmins.includes(cleanEmail)) {
-      return NextResponse.json({ authorized: true, role: 'Super Admin' });
+      return NextResponse.json({ authorized: true, role: 'Admin' });
     }
 
     // 2. Check if Firebase Admin SDK is configured to query Firestore

@@ -29,7 +29,7 @@ export async function POST(req: Request) {
         id: uid,
         name: displayName,
         email: cleanEmail,
-        role: 'Super Admin',
+        role: 'Admin',
         status: 'Active (Firebase Auth)',
         lastActive: 'Just Now',
         avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',

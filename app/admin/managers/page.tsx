@@ -20,7 +20,7 @@ const DEFAULT_MANAGERS: Manager[] = [
     id: 'mgr-1',
     name: 'Souvik Studio Lead',
     email: 'souvik@devzite.com',
-    role: 'Super Admin',
+    role: 'Admin',
     status: 'Active (Firebase Auth)',
     lastActive: 'Just Now',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
@@ -48,7 +48,7 @@ export default function AdminManagersPage() {
   const [newName, setNewName] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('DevziteAdmin123!');
-  const [newRole, setNewRole] = useState('Super Admin');
+  const [newRole, setNewRole] = useState('Admin');
 
   async function loadManagers() {
     try {
@@ -293,7 +293,7 @@ export default function AdminManagersPage() {
                   onChange={(e) => setNewRole(e.target.value)}
                   className="w-full px-4 py-3 rounded-2xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] text-white text-sm outline-none focus:border-[#3B82F6]"
                 >
-                  <option value="Super Admin" className="bg-[#0C0D14] text-white">Super Admin</option>
+                  <option value="Admin" className="bg-[#0C0D14] text-white">Admin</option>
                   <option value="Lead Architect" className="bg-[#0C0D14] text-white">Lead Architect</option>
                   <option value="Client Operations" className="bg-[#0C0D14] text-white">Client Operations</option>
                 </select>

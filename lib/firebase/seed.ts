@@ -172,10 +172,10 @@ export const INITIAL_BLOGS = [
 
 export const INITIAL_MANAGERS = [
   {
-    id: 'mgr-super-1',
-    name: 'Souvik (Super Admin)',
+    id: 'mgr-admin-1',
+    name: 'Souvik (Admin)',
     email: 'souvikgon377@gmail.com',
-    role: 'Super Admin',
+    role: 'Admin',
     status: 'Active (Firebase Auth)',
     lastActive: 'Just Now',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
