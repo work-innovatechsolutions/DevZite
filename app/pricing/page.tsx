@@ -15,6 +15,7 @@ interface PricingPlan {
   id: string;
   name: string;
   badge: string;
+  currency?: 'USD' | 'INR';
   price: string;
   billing: string;
   description: string;
@@ -321,7 +322,7 @@ export default function PricingPage() {
 
               const hasDiscount = appliedCoupon && baseConvertedVal !== null;
               const finalConvertedVal = hasDiscount
-                ? Math.round(baseConvertedVal * (1 - appliedCoupon.discountPercent / 100))
+                ? Math.round(baseConvertedVal! * (1 - appliedCoupon.discountPercent / 100))
                 : baseConvertedVal;
 
               const symbolDisplay = currencySetting.symbol || '$';
