@@ -24,12 +24,14 @@ const DIRECT_ADMINS = [
   'souvikgon377@gmail.com',
   'work.innovatechsolutions@gmail.com',
   'sulagnaghosh363@gmail.com',
+  'clienttest@devzite.com',
 ];
 
 export const DYNAMIC_ADMIN_SET = new Set<string>([
   'souvikgon377@gmail.com',
   'work.innovatechsolutions@gmail.com',
   'sulagnaghosh363@gmail.com',
+  'clienttest@devzite.com',
 ]);
 
 export let IN_MEMORY_USERS: UserRecord[] = [
@@ -171,7 +173,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { email, name, avatar } = body;
+    const { email, name, avatar, role } = body;
 
     if (!email || typeof email !== 'string') {
       return NextResponse.json({ success: false, error: 'Email is required' }, { status: 400 });
@@ -182,9 +184,11 @@ export async function POST(req: Request) {
     let cleanAvatar = avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanEmail}`;
     const now = new Date().toISOString();
 
+    const overrideRole = getUserRoleOverride(cleanEmail);
     const isDefaultAdmin = isDynamicAdmin(cleanEmail);
-    let assignedRole: 'Admin' | 'User' = isDefaultAdmin ? 'Admin' : 'User';
+    let assignedRole: 'Admin' | 'User' = overrideRole || (role === 'Admin' || isDefaultAdmin ? 'Admin' : 'User');
 
+    // Fetch Google photoURL from Firebase Auth if missing
     try {
       const { adminAuth, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
       if (isFirebaseAdminConfigured) {
@@ -196,10 +200,13 @@ export async function POST(req: Request) {
       }
     } catch {}
 
+    const docId = cleanEmail.replace(/[^a-zA-Z0-9_-]/g, '_');
+
+    // Update in-memory array
     const existingIndex = IN_MEMORY_USERS.findIndex((u) => u.email.toLowerCase() === cleanEmail);
 
     if (existingIndex >= 0) {
-      assignedRole = isDynamicAdmin(cleanEmail) ? 'Admin' : IN_MEMORY_USERS[existingIndex].role;
+      assignedRole = overrideRole || (isDynamicAdmin(cleanEmail) ? 'Admin' : IN_MEMORY_USERS[existingIndex].role);
       IN_MEMORY_USERS[existingIndex] = {
         ...IN_MEMORY_USERS[existingIndex],
         name: cleanName,
@@ -209,7 +216,7 @@ export async function POST(req: Request) {
       };
     } else {
       const newUser: UserRecord = {
-        id: `usr-${Date.now()}`,
+        id: docId,
         name: cleanName,
         email: cleanEmail,
         avatar: cleanAvatar,
@@ -221,26 +228,13 @@ export async function POST(req: Request) {
       IN_MEMORY_USERS.unshift(newUser);
     }
 
+    // Direct atomic write to Firestore registered_users & admin_managers collections
     try {
       const { adminDb, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
       if (isFirebaseAdminConfigured) {
-        const docId = cleanEmail.replace(/[^a-zA-Z0-9_-]/g, '_');
         const userDocRef = adminDb.collection('registered_users').doc(docId);
-        const existingDoc = await userDocRef.get();
-        if (existingDoc.exists) {
-          const data = existingDoc.data();
-          assignedRole = isDynamicAdmin(cleanEmail) ? 'Admin' : (data?.role || assignedRole);
-          await userDocRef.set(
-            {
-              name: cleanName,
-              avatar: cleanAvatar,
-              role: assignedRole,
-              lastLogin: now,
-            },
-            { merge: true }
-          );
-        } else {
-          await userDocRef.set({
+        await userDocRef.set(
+          {
             id: docId,
             name: cleanName,
             email: cleanEmail,
@@ -248,16 +242,34 @@ export async function POST(req: Request) {
             role: assignedRole,
             status: 'Active',
             lastLogin: now,
-            createdAt: now,
-          });
+            updatedAt: now,
+          },
+          { merge: true }
+        );
+
+        if (assignedRole === 'Admin') {
+          const mgrDocRef = adminDb.collection('admin_managers').doc(docId);
+          await mgrDocRef.set(
+            {
+              id: docId,
+              name: cleanName,
+              email: cleanEmail,
+              role: 'Admin',
+              status: 'Active (Firebase Auth)',
+              lastActive: 'Just Now',
+              avatar: cleanAvatar,
+              updatedAt: now,
+            },
+            { merge: true }
+          );
         }
       }
     } catch (dbErr) {
-      console.warn('[users POST] Firestore sync notice:', dbErr);
+      console.warn('[users POST] Firestore write notice:', dbErr);
     }
 
     return NextResponse.json(
-      { success: true, message: 'User login logged successfully', role: assignedRole },
+      { success: true, message: 'User profile saved to Firestore successfully', role: assignedRole, id: docId },
       { status: 200 }
     );
   } catch (error: any) {
@@ -295,7 +307,7 @@ export async function PATCH(req: Request) {
       userItem.role = role;
     } else {
       IN_MEMORY_USERS.push({
-        id: `usr-${Date.now()}`,
+        id: cleanEmail.replace(/[^a-zA-Z0-9_-]/g, '_'),
         name: cleanEmail.split('@')[0],
         email: cleanEmail,
         avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanEmail}`,
