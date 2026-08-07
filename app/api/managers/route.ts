@@ -40,15 +40,19 @@ export async function GET() {
   try {
     const { adminDb, adminAuth, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
     
-    if (isFirebaseAdminConfigured) {
-      const authPhotoMap = new Map<string, string>();
-      const authNameMap = new Map<string, string>();
-      let authUsers: any[] = [];
+    let registeredAdminUsers: any[] = [];
+    try {
+      const { IN_MEMORY_USERS } = await import('@/app/api/users/route');
+      registeredAdminUsers = IN_MEMORY_USERS.filter((u) => u.role === 'Admin');
+    } catch {}
 
+    const authPhotoMap = new Map<string, string>();
+    const authNameMap = new Map<string, string>();
+
+    if (isFirebaseAdminConfigured) {
       try {
         const authList = await adminAuth.listUsers(100);
         if (authList?.users) {
-          authUsers = authList.users;
           authList.users.forEach((u) => {
             if (u.email) {
               const cleanEmail = u.email.toLowerCase();
@@ -60,49 +64,101 @@ export async function GET() {
       } catch (authErr) {
         console.warn('[managers GET] Firebase Auth listUsers notice:', authErr);
       }
+    }
 
-      const managersList: any[] = [];
+    const managersList: any[] = [];
+    const addedEmails = new Set<string>();
 
+    if (isFirebaseAdminConfigured) {
+      // 1. Fetch admin_managers collection
       try {
         const snap = await adminDb.collection('admin_managers').get();
         if (!snap.empty) {
           snap.docs.forEach((doc) => {
             const data = doc.data();
             const cleanEmail = (data.email || '').toLowerCase();
-            const realPhoto = authPhotoMap.get(cleanEmail);
-            const realName = authNameMap.get(cleanEmail);
+            if (cleanEmail && !addedEmails.has(cleanEmail) && data.role !== 'User') {
+              addedEmails.add(cleanEmail);
+              const realPhoto = authPhotoMap.get(cleanEmail);
+              const realName = authNameMap.get(cleanEmail);
 
-            managersList.push({
-              id: doc.id,
-              ...data,
-              name: realName || data.name,
-              avatar: realPhoto || (data.avatar && !data.avatar.includes('unsplash') ? data.avatar : `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanEmail}`),
-            });
+              managersList.push({
+                id: doc.id,
+                ...data,
+                name: realName || data.name || cleanEmail.split('@')[0],
+                email: cleanEmail,
+                avatar: realPhoto || (data.avatar && !data.avatar.includes('unsplash') ? data.avatar : `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanEmail}`),
+              });
+            }
           });
         }
       } catch (dbErr) {
-        console.warn('[managers GET] Firestore doc query notice:', dbErr);
+        console.warn('[managers GET] Firestore admin_managers notice:', dbErr);
       }
 
-      authUsers.forEach((u) => {
-        if (u.email && !managersList.some((m) => m.email?.toLowerCase() === u.email?.toLowerCase())) {
-          managersList.push({
-            id: u.uid,
-            name: u.displayName || u.email.split('@')[0],
-            email: u.email,
-            role: 'Admin',
-            status: u.disabled ? 'Disabled' : 'Active (Firebase Auth)',
-            lastActive: u.metadata?.lastSignInTime ? new Date(u.metadata.lastSignInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just Now',
-            avatar: u.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${u.email.toLowerCase()}`,
-            isRealAuth: true,
+      // 2. Fetch registered_users collection for any user assigned role === 'Admin'
+      try {
+        const userSnap = await adminDb.collection('registered_users').where('role', '==', 'Admin').get();
+        if (!userSnap.empty) {
+          userSnap.docs.forEach((doc) => {
+            const data = doc.data();
+            const cleanEmail = (data.email || '').toLowerCase();
+            if (cleanEmail && !addedEmails.has(cleanEmail)) {
+              addedEmails.add(cleanEmail);
+              const realPhoto = authPhotoMap.get(cleanEmail);
+              const realName = authNameMap.get(cleanEmail);
+
+              managersList.push({
+                id: doc.id,
+                name: realName || data.name || cleanEmail.split('@')[0],
+                email: cleanEmail,
+                role: 'Admin',
+                status: 'Active (Firebase Auth)',
+                lastActive: 'Just Now',
+                avatar: realPhoto || (data.avatar && !data.avatar.includes('unsplash') ? data.avatar : `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanEmail}`),
+                isRealAuth: true,
+              });
+            }
           });
         }
-      });
-
-      if (managersList.length > 0) {
-        return NextResponse.json({ success: true, data: managersList }, { status: 200 });
+      } catch (uDbErr) {
+        console.warn('[managers GET] Firestore registered_users notice:', uDbErr);
       }
     }
+
+    // 3. Merge remaining in-memory admin users from Registered Users module
+    registeredAdminUsers.forEach((u) => {
+      const cleanEmail = u.email.toLowerCase();
+      if (!addedEmails.has(cleanEmail)) {
+        addedEmails.add(cleanEmail);
+        const realPhoto = authPhotoMap.get(cleanEmail);
+        managersList.push({
+          id: u.id,
+          name: u.name,
+          email: cleanEmail,
+          role: 'Admin',
+          status: 'Active (Firebase Auth)',
+          lastActive: 'Just Now',
+          avatar: realPhoto || u.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanEmail}`,
+          isRealAuth: true,
+        });
+      }
+    });
+
+    // 4. Merge fallback / static direct admins
+    FALLBACK_MANAGERS.forEach((m) => {
+      const cleanEmail = m.email.toLowerCase();
+      if (!addedEmails.has(cleanEmail)) {
+        addedEmails.add(cleanEmail);
+        const realPhoto = authPhotoMap.get(cleanEmail);
+        managersList.push({
+          ...m,
+          avatar: realPhoto || m.avatar,
+        });
+      }
+    });
+
+    return NextResponse.json({ success: true, data: managersList }, { status: 200 });
   } catch (error: any) {
     console.warn('[managers GET] Exception caught, serving fallback:', error);
   }
@@ -164,6 +220,22 @@ export async function POST(req: Request) {
         };
 
         await adminDb.collection('admin_managers').doc(uid).set(docData, { merge: true });
+
+        // Also write to registered_users collection
+        const docId = cleanEmail.replace(/[^a-zA-Z0-9_-]/g, '_');
+        await adminDb.collection('registered_users').doc(docId).set(
+          {
+            id: docId,
+            name: name || cleanEmail.split('@')[0],
+            email: cleanEmail,
+            role: 'Admin',
+            status: 'Active',
+            avatar: photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanEmail}`,
+            lastLogin: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+          },
+          { merge: true }
+        );
       }
     } catch (adminErr) {
       console.warn('[managers POST] Firebase Admin dynamic import notice:', adminErr);
