@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { adminDb, adminAuth, isFirebaseAdminConfigured } from '@/lib/firebase/admin';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -18,35 +17,20 @@ export async function POST(req: Request) {
       const body = await req.json();
       email = body?.email;
 
-      // Extract email from ID token if provided
-      if (body?.idToken && isFirebaseAdminConfigured) {
+      // Try dynamic token verification if idToken provided
+      if (body?.idToken) {
         try {
-          const decoded = await adminAuth.verifyIdToken(body.idToken);
-          if (decoded.email) {
-            email = decoded.email;
+          const { adminAuth, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
+          if (isFirebaseAdminConfigured) {
+            const decoded = await adminAuth.verifyIdToken(body.idToken);
+            if (decoded.email) {
+              email = decoded.email;
+            }
           }
-        } catch (tokenErr) {
-          console.warn('verify-admin: ID token verification failed, falling back to body email:', tokenErr);
-        }
+        } catch {}
       }
     } catch {
       // Body empty or invalid JSON
-    }
-
-    // Also check Authorization header for Bearer token if available
-    const authHeader = req.headers.get('authorization');
-    if (authHeader?.startsWith('Bearer ') && isFirebaseAdminConfigured) {
-      const token = authHeader.substring(7).trim();
-      if (token) {
-        try {
-          const decoded = await adminAuth.verifyIdToken(token);
-          if (decoded.email) {
-            email = decoded.email;
-          }
-        } catch (tokenErr) {
-          console.warn('verify-admin: Authorization header token verification failed:', tokenErr);
-        }
-      }
     }
 
     if (!email || typeof email !== 'string') {
@@ -67,30 +51,26 @@ export async function POST(req: Request) {
 
     const allowedAdmins = Array.from(new Set([...DIRECT_ADMINS, ...envAdmins]));
 
-    // Debug log for non-production environments
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`[verify-admin] Verifying: ${cleanEmail} against allowed admins count: ${allowedAdmins.length}`);
-    }
-
-    // 3. Direct match against allowed admin list
+    // 3. Direct match against allowed admin list (FAST PATH)
     if (allowedAdmins.includes(cleanEmail)) {
       return NextResponse.json({ authorized: true, role: 'Admin' }, { status: 200 });
     }
 
-    // 4. Query Firestore admin_managers collection if Admin SDK is initialized
-    if (isFirebaseAdminConfigured) {
-      try {
+    // 4. Query Firestore admin_managers collection safely via dynamic import
+    try {
+      const { adminDb, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
+      if (isFirebaseAdminConfigured) {
         const snap = await adminDb.collection('admin_managers').where('email', '==', cleanEmail).get();
         if (!snap.empty) {
           const manager = snap.docs[0].data();
           return NextResponse.json({ authorized: true, role: manager.role || 'Admin' }, { status: 200 });
         }
-      } catch (dbErr) {
-        console.error('[verify-admin] Firestore admin_managers query failed:', dbErr);
       }
+    } catch (adminErr) {
+      console.warn('[verify-admin] Firebase Admin module query notice:', adminErr);
     }
 
-    // 5. Account not authorized in env list or Firestore
+    // 5. Account not authorized
     return NextResponse.json(
       {
         authorized: false,
@@ -106,6 +86,7 @@ export async function POST(req: Request) {
     );
   }
 }
+
 
 
 
