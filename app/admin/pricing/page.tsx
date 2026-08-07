@@ -412,7 +412,7 @@ export default function AdminPricingPage() {
             };
 
             const numVal = getNum(p.price);
-            const isRawINR = p.currency === 'INR' || p.price.includes('₹');
+            const isRawINR = p.currency === 'INR' || p.price.includes('₹') || (!p.price.includes('$') && p.currency !== 'USD');
             const inrRate = currencySetting.rate || 86;
 
             let displayPrice = p.price;

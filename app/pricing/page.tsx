@@ -306,16 +306,17 @@ export default function PricingPage() {
             {plans.map((p, index) => {
               const numericVal = getNumericPrice(p.price);
               const activeCurrency = currencySetting.currency;
-              const isRawINR = p.currency === 'INR' || p.price.includes('₹');
+              // Check if plan currency was set to INR or if symbol is ₹ or if raw string doesn't contain $
+              const isRawINR = p.currency === 'INR' || p.price.includes('₹') || (!p.price.includes('$') && p.currency !== 'USD');
               const inrRate = currencySetting.rate || 86;
 
               let baseConvertedVal: number | null = null;
               if (numericVal !== null) {
                 if (activeCurrency === 'INR') {
-                  // If global currency is INR: if price is already INR, use as is; otherwise multiply USD by inrRate
+                  // Global is INR: if raw is INR, use numericVal; if raw is USD, multiply by 86
                   baseConvertedVal = isRawINR ? numericVal : Math.round(numericVal * inrRate);
                 } else {
-                  // If global currency is USD: if price is in INR, divide by inrRate; otherwise use USD numericVal as is
+                  // Global is USD: if raw is INR, divide by 86; if raw is USD, use numericVal
                   baseConvertedVal = isRawINR ? Math.round(numericVal / inrRate) : numericVal;
                 }
               }
