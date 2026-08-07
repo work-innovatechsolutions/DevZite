@@ -57,7 +57,7 @@ const nextConfig: NextConfig = {
 
   // ─── Webpack / Transpile ────────────────────────────────────────────────
   transpilePackages: ['three'],
-  serverExternalPackages: ['firebase-admin'],
+  serverExternalPackages: ['firebase-admin', 'jose', 'jwks-rsa'],
 
   // ─── Output ─────────────────────────────────────────────────────────────
   poweredByHeader: false,
