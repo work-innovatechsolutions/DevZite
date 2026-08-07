@@ -405,37 +405,58 @@ export default function AdminPricingPage() {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {plans.map((p) => (
-            <div
-              key={p.id}
-              className={`glass-card rounded-3xl p-6 sm:p-8 border flex flex-col justify-between relative overflow-hidden transition-all bg-white dark:bg-[#0C0D14] ${
-                p.isPopular
-                  ? 'border-[#3B82F6] shadow-[0_0_30px_rgba(59,130,246,0.15)] ring-2 ring-[#3B82F6]/30'
-                  : 'border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)]'
-              }`}
-            >
-              {p.isPopular && (
-                <div className="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#3B82F6] text-white flex items-center gap-1.5 shadow-md">
-                  <Sparkles size={12} />
-                  <span>{p.badge || 'Most Popular'}</span>
-                </div>
-              )}
+          {plans.map((p) => {
+            const getNum = (str: string) => {
+              const m = str.match(/[\d,]+/);
+              return m ? parseInt(m[0].replace(/,/g, ''), 10) : null;
+            };
 
-              <div>
-                <span className="text-xs font-mono text-[#3B82F6] uppercase tracking-wider font-bold block mb-2">
-                  {p.badge || p.name}
-                </span>
+            const numVal = getNum(p.price);
+            const isRawINR = p.currency === 'INR' || p.price.includes('₹');
+            const inrRate = currencySetting.rate || 86;
 
-                <h3 className="font-display font-bold text-2xl text-[#0F172A] dark:text-[#F8FAFC] mb-3">
-                  {p.name}
-                </h3>
+            let displayPrice = p.price;
+            if (numVal !== null) {
+              if (currencySetting.currency === 'INR') {
+                const converted = isRawINR ? numVal : Math.round(numVal * inrRate);
+                displayPrice = `₹${converted.toLocaleString()}`;
+              } else {
+                const converted = isRawINR ? Math.round(numVal / inrRate) : numVal;
+                displayPrice = `$${converted.toLocaleString()}`;
+              }
+            }
 
-                <div className="flex items-baseline gap-1.5 my-4">
-                  <span className="text-3xl font-display font-black text-[#0F172A] dark:text-[#F8FAFC]">
-                    {p.price}
+            return (
+              <div
+                key={p.id}
+                className={`glass-card rounded-3xl p-6 sm:p-8 border flex flex-col justify-between relative overflow-hidden transition-all bg-white dark:bg-[#0C0D14] ${
+                  p.isPopular
+                    ? 'border-[#3B82F6] shadow-[0_0_30px_rgba(59,130,246,0.15)] ring-2 ring-[#3B82F6]/30'
+                    : 'border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)]'
+                }`}
+              >
+                {p.isPopular && (
+                  <div className="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#3B82F6] text-white flex items-center gap-1.5 shadow-md">
+                    <Sparkles size={12} />
+                    <span>{p.badge || 'Most Popular'}</span>
+                  </div>
+                )}
+
+                <div>
+                  <span className="text-xs font-mono text-[#3B82F6] uppercase tracking-wider font-bold block mb-2">
+                    {p.badge || p.name}
                   </span>
-                  <span className="text-xs font-mono text-[#64748B] font-semibold">/ {p.billing}</span>
-                </div>
+
+                  <h3 className="font-display font-bold text-2xl text-[#0F172A] dark:text-[#F8FAFC] mb-3">
+                    {p.name}
+                  </h3>
+
+                  <div className="flex items-baseline gap-1.5 my-4">
+                    <span className="text-3xl font-display font-black text-[#0F172A] dark:text-[#F8FAFC]">
+                      {displayPrice}
+                    </span>
+                    <span className="text-xs font-mono text-[#64748B] font-semibold">/ {p.billing}</span>
+                  </div>
 
                 <p className="text-xs text-[#475569] dark:text-[#94A3B8] leading-relaxed mb-6 font-body font-medium">
                   {p.description}
