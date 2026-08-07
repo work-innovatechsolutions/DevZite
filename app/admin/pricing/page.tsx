@@ -458,38 +458,39 @@ export default function AdminPricingPage() {
                     <span className="text-xs font-mono text-[#64748B] font-semibold">/ {p.billing}</span>
                   </div>
 
-                <p className="text-xs text-[#475569] dark:text-[#94A3B8] leading-relaxed mb-6 font-body font-medium">
-                  {p.description}
-                </p>
+                  <p className="text-xs text-[#475569] dark:text-[#94A3B8] leading-relaxed mb-6 font-body font-medium">
+                    {p.description}
+                  </p>
 
-                <div className="space-y-2.5 pt-4 border-t border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] mb-6">
-                  {p.features?.map((f, i) => (
-                    <div key={i} className="flex items-start gap-2.5 text-xs text-[#334155] dark:text-[#CBD5E1] font-body font-medium">
-                      <Check size={14} className="text-[#3B82F6] shrink-0 mt-0.5" />
-                      <span>{f}</span>
-                    </div>
-                  ))}
+                  <div className="space-y-2.5 pt-4 border-t border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] mb-6">
+                    {p.features?.map((f, i) => (
+                      <div key={i} className="flex items-start gap-2.5 text-xs text-[#334155] dark:text-[#CBD5E1] font-body font-medium">
+                        <Check size={14} className="text-[#3B82F6] shrink-0 mt-0.5" />
+                        <span>{f}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] flex items-center justify-end gap-2">
+                  <button
+                    onClick={() => handleOpenCreateModal(p)}
+                    className="p-2 rounded-xl text-[#3B82F6] hover:bg-[#3B82F6]/10 transition-colors cursor-pointer"
+                    title="Edit Plan"
+                  >
+                    <Edit2 size={16} />
+                  </button>
+                  <button
+                    onClick={() => handleDeletePlan(p.id)}
+                    className="p-2 rounded-xl text-[#EF4444] hover:bg-[rgba(239,68,68,0.1)] transition-colors cursor-pointer"
+                    title="Delete Plan"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
               </div>
-
-              <div className="pt-4 border-t border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] flex items-center justify-end gap-2">
-                <button
-                  onClick={() => handleOpenCreateModal(p)}
-                  className="p-2 rounded-xl text-[#3B82F6] hover:bg-[#3B82F6]/10 transition-colors cursor-pointer"
-                  title="Edit Plan"
-                >
-                  <Edit2 size={16} />
-                </button>
-                <button
-                  onClick={() => handleDeletePlan(p.id)}
-                  className="p-2 rounded-xl text-[#EF4444] hover:bg-[rgba(239,68,68,0.1)] transition-colors cursor-pointer"
-                  title="Delete Plan"
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
