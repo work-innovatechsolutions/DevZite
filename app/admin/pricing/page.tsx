@@ -7,6 +7,7 @@ interface PricingPlan {
   id: string;
   name: string;
   badge: string;
+  currency?: 'USD' | 'INR';
   price: string;
   billing: string;
   description: string;
@@ -49,6 +50,7 @@ export default function AdminPricingPage() {
   // Pricing Plan Form State
   const [name, setName] = useState('');
   const [badge, setBadge] = useState('Essential Build');
+  const [planCurrency, setPlanCurrency] = useState<'USD' | 'INR'>('USD');
   const [price, setPrice] = useState('$3,500');
   const [billing, setBilling] = useState('per project');
   const [description, setDescription] = useState('');
@@ -141,6 +143,7 @@ export default function AdminPricingPage() {
       setEditingPlan(planToEdit);
       setName(planToEdit.name);
       setBadge(planToEdit.badge);
+      setPlanCurrency(planToEdit.currency || (planToEdit.price?.includes('₹') ? 'INR' : 'USD'));
       setPrice(planToEdit.price);
       setBilling(planToEdit.billing);
       setDescription(planToEdit.description);
@@ -150,7 +153,8 @@ export default function AdminPricingPage() {
       setEditingPlan(null);
       setName('');
       setBadge('Essential Build');
-      setPrice('$3,500');
+      setPlanCurrency(currencySetting.currency);
+      setPrice(currencySetting.currency === 'INR' ? '₹3,500' : '$3,500');
       setBilling('per project');
       setDescription('Custom digital product engineering package.');
       setIsPopular(false);
@@ -169,6 +173,7 @@ export default function AdminPricingPage() {
       id: planId,
       name,
       badge,
+      currency: planCurrency,
       price,
       billing,
       description,
@@ -509,13 +514,34 @@ export default function AdminPricingPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-[#475569] dark:text-[#94A3B8] mb-1 font-bold">Currency</label>
+                  <select
+                    value={planCurrency}
+                    onChange={(e) => {
+                      const sel = e.target.value as 'USD' | 'INR';
+                      setPlanCurrency(sel);
+                      // Auto format price symbol if user changes currency dropdown
+                      if (price.startsWith('$') && sel === 'INR') {
+                        setPrice(price.replace('$', '₹'));
+                      } else if (price.startsWith('₹') && sel === 'USD') {
+                        setPrice(price.replace('₹', '$'));
+                      }
+                    }}
+                    className="w-full px-4 py-2.5 rounded-xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] text-[#0F172A] dark:text-[#F8FAFC] outline-none focus:border-[#3B82F6] font-bold cursor-pointer"
+                  >
+                    <option value="USD" className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">USD ($)</option>
+                    <option value="INR" className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">INR (₹)</option>
+                  </select>
+                </div>
+
                 <div>
                   <label className="block text-[#475569] dark:text-[#94A3B8] mb-1 font-bold">Price Amount</label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. $5,999 or Custom Quote"
+                    placeholder="e.g. $5,999 or ₹19,999"
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] text-[#0F172A] dark:text-[#F8FAFC] outline-none focus:border-[#3B82F6]"
