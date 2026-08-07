@@ -306,22 +306,26 @@ export default function PricingPage() {
             {plans.map((p, index) => {
               const numericVal = getNumericPrice(p.price);
               const activeCurrency = currencySetting.currency;
-              
-              // Determine whether this specific tier was originally set in INR or USD
+
+              // Determine whether this specific tier was stored in INR or USD
               const isTierExplicitINR = p.currency === 'INR' || p.price.includes('₹');
               const isTierExplicitUSD = p.currency === 'USD' || p.price.includes('$');
-              // Standard baseline in our database: if raw number is < 1000 without $ symbol, it's USD, if >= 1000 without $, check explicit currency
-              const isPlanINR = isTierExplicitINR || (!isTierExplicitUSD && numericVal !== null && numericVal > 2000 && !p.price.includes('$'));
-              const inrRate = currencySetting.rate || 86;
+              // If the plan has no explicit currency marker, a large number (> 2000) is treated as INR
+              const isPlanINR = isTierExplicitINR || (!isTierExplicitUSD && numericVal !== null && numericVal > 2000);
+
+              // IMPORTANT: Always use the fixed exchange rate for math.
+              // currencySetting.rate is the "multiplier" (86 for INR, 1 for USD) — NOT the exchange rate when USD is active.
+              // We use a constant INR_PER_USD so division/multiplication always works correctly.
+              const INR_PER_USD = currencySetting.rate && currencySetting.rate > 1 ? currencySetting.rate : 86;
 
               let baseConvertedVal: number | null = null;
               if (numericVal !== null) {
                 if (activeCurrency === 'INR') {
-                  // Active mode is INR: if plan was stored in USD (e.g. 2499 or 5999 or 999), multiply by 86
-                  baseConvertedVal = isPlanINR ? numericVal : Math.round(numericVal * inrRate);
+                  // Display in INR: if plan was stored as USD, multiply by exchange rate
+                  baseConvertedVal = isPlanINR ? numericVal : Math.round(numericVal * INR_PER_USD);
                 } else {
-                  // Active mode is USD: if plan was stored in INR (e.g. 9999 or 19999 INR), divide by 86
-                  baseConvertedVal = isPlanINR ? Math.round(numericVal / inrRate) : numericVal;
+                  // Display in USD: if plan was stored as INR, divide by exchange rate
+                  baseConvertedVal = isPlanINR ? Math.round(numericVal / INR_PER_USD) : numericVal;
                 }
               }
 
