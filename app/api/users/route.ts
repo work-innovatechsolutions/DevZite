@@ -45,16 +45,66 @@ let IN_MEMORY_USERS: UserRecord[] = [
 
 export async function GET() {
   try {
-    const { adminDb, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
+    const { adminDb, adminAuth, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
     if (isFirebaseAdminConfigured) {
+      const authPhotoMap = new Map<string, string>();
+      const authNameMap = new Map<string, string>();
+
+      try {
+        const authList = await adminAuth.listUsers(100);
+        if (authList?.users) {
+          authList.users.forEach((u) => {
+            if (u.email) {
+              const cleanEmail = u.email.toLowerCase();
+              if (u.photoURL) authPhotoMap.set(cleanEmail, u.photoURL);
+              if (u.displayName) authNameMap.set(cleanEmail, u.displayName);
+            }
+          });
+        }
+      } catch (authErr) {
+        console.warn('[users GET] Firebase Auth listUsers notice:', authErr);
+      }
+
       try {
         const snap = await adminDb.collection('registered_users').get();
+        let dbUsers: UserRecord[] = [];
         if (!snap.empty) {
-          const dbUsers = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as UserRecord[];
-          // Merge in-memory with dbUsers to prevent missing records
-          const dbEmails = new Set(dbUsers.map((u) => u.email.toLowerCase()));
-          const extraInMemory = IN_MEMORY_USERS.filter((u) => !dbEmails.has(u.email.toLowerCase()));
-          return NextResponse.json({ success: true, data: [...dbUsers, ...extraInMemory] }, { status: 200 });
+          dbUsers = snap.docs.map((doc) => {
+            const data = doc.data();
+            const cleanEmail = (data.email || '').toLowerCase();
+            const realPhoto = authPhotoMap.get(cleanEmail);
+            const realName = authNameMap.get(cleanEmail);
+
+            return {
+              id: doc.id,
+              ...data,
+              name: realName || data.name || cleanEmail.split('@')[0],
+              email: cleanEmail,
+              avatar: realPhoto || (data.avatar && !data.avatar.includes('unsplash') ? data.avatar : `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanEmail}`),
+              role: data.role || (DIRECT_ADMINS.includes(cleanEmail) ? 'Admin' : 'User'),
+              status: 'Active',
+              lastLogin: data.lastLogin || new Date().toISOString(),
+              createdAt: data.createdAt || new Date().toISOString(),
+            } as UserRecord;
+          });
+        }
+
+        // Merge in-memory with dbUsers & authPhotoMap
+        const dbEmails = new Set(dbUsers.map((u) => u.email.toLowerCase()));
+        const extraInMemory = IN_MEMORY_USERS.filter((u) => !dbEmails.has(u.email.toLowerCase())).map((u) => {
+          const cleanEmail = u.email.toLowerCase();
+          const realPhoto = authPhotoMap.get(cleanEmail);
+          const realName = authNameMap.get(cleanEmail);
+          return {
+            ...u,
+            name: realName || u.name,
+            avatar: realPhoto || (u.avatar && !u.avatar.includes('unsplash') ? u.avatar : `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanEmail}`),
+          };
+        });
+
+        const merged = [...dbUsers, ...extraInMemory];
+        if (merged.length > 0) {
+          return NextResponse.json({ success: true, data: merged }, { status: 200 });
         }
       } catch (dbErr) {
         console.warn('[users GET] Firestore query notice:', dbErr);
@@ -77,15 +127,27 @@ export async function POST(req: Request) {
     }
 
     const cleanEmail = email.trim().toLowerCase();
-    const cleanName = name || cleanEmail.split('@')[0];
-    const cleanAvatar = avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanEmail}`;
+    let cleanName = name || cleanEmail.split('@')[0];
+    let cleanAvatar = avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanEmail}`;
     const now = new Date().toISOString();
 
     const isDefaultAdmin = DIRECT_ADMINS.includes(cleanEmail);
+    let assignedRole: 'Admin' | 'User' = isDefaultAdmin ? 'Admin' : 'User';
+
+    // Try getting real photoURL from Firebase Auth if not passed
+    try {
+      const { adminAuth, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
+      if (isFirebaseAdminConfigured) {
+        try {
+          const authRecord = await adminAuth.getUserByEmail(cleanEmail);
+          if (authRecord.photoURL) cleanAvatar = authRecord.photoURL;
+          if (authRecord.displayName) cleanName = authRecord.displayName;
+        } catch {}
+      }
+    } catch {}
 
     // Update in-memory array
     const existingIndex = IN_MEMORY_USERS.findIndex((u) => u.email.toLowerCase() === cleanEmail);
-    let assignedRole: 'Admin' | 'User' = isDefaultAdmin ? 'Admin' : 'User';
 
     if (existingIndex >= 0) {
       assignedRole = IN_MEMORY_USERS[existingIndex].role;
@@ -204,7 +266,7 @@ export async function PATCH(req: Request) {
               role: 'Admin',
               status: 'Active (Firebase Auth)',
               lastActive: 'Just Now',
-              avatar: userItem?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+              avatar: userItem?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanEmail}`,
               updatedAt: new Date().toISOString(),
             },
             { merge: true }
