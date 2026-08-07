@@ -10,7 +10,6 @@ import {
   Clock,
   Mail,
   CheckCircle2,
-  Sparkles,
   RefreshCw,
   UserCheck,
   Trash2,
@@ -160,10 +159,10 @@ export default function RegisteredUsersAdminPage() {
           <p className="text-3xl font-display font-black text-[#0F172A] dark:text-[#F8FAFC]">{users.length}</p>
         </div>
 
-        <div className="rounded-3xl glass-card p-6 border border-[#3B82F6]/30 bg-white dark:bg-[#0C0D14]">
-          <div className="flex items-center justify-between text-[#3B82F6] mb-2 font-mono text-xs font-bold uppercase tracking-wider">
+        <div className="rounded-3xl glass-card p-6 border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] bg-white dark:bg-[#0C0D14]">
+          <div className="flex items-center justify-between text-[#64748B] mb-2 font-mono text-xs font-bold uppercase tracking-wider">
             <span>Admin Privilege</span>
-            <ShieldCheck size={18} />
+            <ShieldCheck size={18} className="text-[#3B82F6]" />
           </div>
           <p className="text-3xl font-display font-black text-[#3B82F6]">{adminCount}</p>
         </div>
@@ -190,97 +189,116 @@ export default function RegisteredUsersAdminPage() {
       </div>
 
       {/* Users Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredUsers.map((u) => (
-          <div
-            key={u.id}
-            className={`rounded-3xl glass-card p-6 border bg-white dark:bg-[#0C0D14] shadow-xl flex flex-col justify-between relative transition-all ${
-              u.role === 'Admin'
-                ? 'border-[#3B82F6]/40 shadow-[0_0_20px_rgba(59,130,246,0.15)]'
-                : 'border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)]'
-            }`}
-          >
-            <div>
-              {/* Header Profile DP, Role Badge & Delete Action */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="relative w-14 h-14 rounded-2xl overflow-hidden border-2 border-[#3B82F6]/30 shadow-md bg-[#3B82F6]/10 flex items-center justify-center text-[#3B82F6] font-bold text-lg">
-                  {u.avatar ? (
-                    <Image
-                      src={u.avatar}
-                      alt={u.name || u.email || 'User Avatar'}
-                      fill
-                      className="object-cover"
-                    />
-                  ) : (
-                    <span>{(u.name || u.email || 'U').charAt(0).toUpperCase()}</span>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${
-                      u.role === 'Admin'
-                        ? 'bg-[#3B82F6]/15 text-[#3B82F6] border border-[#3B82F6]/30'
-                        : 'bg-[rgba(15,23,42,0.05)] dark:bg-[rgba(255,255,255,0.05)] text-[#64748B] border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.1)]'
-                    }`}
-                  >
-                    {u.role === 'Admin' ? <ShieldCheck size={14} /> : <User size={14} />}
-                    <span>{u.role || 'User'}</span>
-                  </span>
-
-                  <button
-                    onClick={() => handleDeleteUser(u.email, u.id)}
-                    className="p-2 rounded-xl text-[#EF4444] hover:bg-[#EF4444]/10 transition-all cursor-pointer"
-                    title="Delete User Account"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
-
-              <h3 className="font-display font-bold text-xl text-[#0F172A] dark:text-[#F8FAFC] mb-1 truncate">
-                {u.name || u.email || 'Registered User'}
-              </h3>
-
-              <div className="flex items-center gap-1.5 text-xs text-[#64748B] mb-4 truncate font-medium">
-                <Mail size={13} className="text-[#3B82F6] shrink-0" />
-                <span className="truncate">{u.email || 'No email provided'}</span>
-              </div>
-            </div>
-
-            {/* Role Permission Dropdown Selector */}
-            <div className="pt-4 border-t border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] space-y-3">
+      {loading ? (
+        <div className="flex flex-col items-center justify-center p-16 rounded-3xl glass-card border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] bg-white dark:bg-[#0C0D14]">
+          <div className="w-10 h-10 border-4 border-[#3B82F6] border-t-transparent rounded-full animate-spin mb-4" />
+          <span className="text-xs font-mono text-[#64748B] uppercase tracking-widest font-bold">
+            Loading authenticated account profiles...
+          </span>
+        </div>
+      ) : filteredUsers.length === 0 ? (
+        <div className="text-center p-12 rounded-3xl glass-card border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] bg-white dark:bg-[#0C0D14]">
+          <Users size={32} className="mx-auto text-[#64748B] mb-3" />
+          <h3 className="font-display font-bold text-lg text-[#0F172A] dark:text-[#F8FAFC] mb-1">
+            No Account Profiles Found
+          </h3>
+          <p className="text-xs text-[#64748B] font-mono">
+            {searchQuery ? `No user matches query "${searchQuery}"` : 'No registered user accounts found in Firestore.'}
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredUsers.map((u) => (
+            <div
+              key={u.id}
+              className={`rounded-3xl glass-card p-6 border bg-white dark:bg-[#0C0D14] shadow-xl flex flex-col justify-between relative transition-all ${
+                u.role === 'Admin'
+                  ? 'border-[#3B82F6]/40 shadow-[0_0_20px_rgba(59,130,246,0.15)]'
+                  : 'border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)]'
+              }`}
+            >
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-[#64748B] mb-1.5 flex items-center gap-1">
-                  <UserCheck size={12} className="text-[#3B82F6]" />
-                  <span>Assign Privilege Role</span>
-                </label>
+                {/* Header Profile DP, Role Badge & Delete Action */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="relative w-14 h-14 rounded-2xl overflow-hidden border-2 border-[#3B82F6]/30 shadow-md bg-[#3B82F6]/10 flex items-center justify-center text-[#3B82F6] font-bold text-lg">
+                    {u.avatar ? (
+                      <Image
+                        src={u.avatar}
+                        alt={u.name || u.email || 'User Avatar'}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <span>{(u.name || u.email || 'U').charAt(0).toUpperCase()}</span>
+                    )}
+                  </div>
 
-                <select
-                  value={u.role}
-                  disabled={updatingEmail === u.email}
-                  onChange={(e) => handleRoleChange(u.email, e.target.value as 'Admin' | 'User')}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[rgba(15,23,42,0.04)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.12)] dark:border-[rgba(255,255,255,0.12)] text-[#0F172A] dark:text-[#F8FAFC] text-xs font-semibold outline-none focus:ring-2 focus:ring-[#3B82F6]/50 cursor-pointer"
-                >
-                  <option value="User" className="bg-[#0C0D14] text-white">Standard User (Client Access)</option>
-                  <option value="Admin" className="bg-[#0C0D14] text-white">Admin (Full CMS Access)</option>
-                </select>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+                        u.role === 'Admin'
+                          ? 'bg-[#3B82F6]/15 text-[#3B82F6] border border-[#3B82F6]/30'
+                          : 'bg-[rgba(15,23,42,0.05)] dark:bg-[rgba(255,255,255,0.05)] text-[#64748B] border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.1)]'
+                      }`}
+                    >
+                      {u.role === 'Admin' ? <ShieldCheck size={14} /> : <User size={14} />}
+                      <span>{u.role || 'User'}</span>
+                    </span>
+
+                    <button
+                      onClick={() => handleDeleteUser(u.email, u.id)}
+                      className="p-2 rounded-xl text-[#EF4444] hover:bg-[#EF4444]/10 transition-all cursor-pointer"
+                      title="Delete User Account"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                <h3 className="font-display font-bold text-xl text-[#0F172A] dark:text-[#F8FAFC] mb-1 truncate">
+                  {u.name || u.email || 'Registered User'}
+                </h3>
+
+                <div className="flex items-center gap-1.5 text-xs text-[#64748B] mb-4 truncate font-medium">
+                  <Mail size={13} className="text-[#3B82F6] shrink-0" />
+                  <span className="truncate">{u.email || 'No email provided'}</span>
+                </div>
               </div>
 
-              <div className="flex items-center justify-between text-[11px] text-[#64748B] pt-1">
-                <span className="flex items-center gap-1 text-[#10B981] font-semibold">
-                  <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
-                  Active Profile
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock size={11} />
-                  Logged in
-                </span>
+              {/* Role Permission Dropdown Selector */}
+              <div className="pt-4 border-t border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] space-y-3">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[#64748B] mb-1.5 flex items-center gap-1">
+                    <UserCheck size={12} className="text-[#3B82F6]" />
+                    <span>Assign Privilege Role</span>
+                  </label>
+
+                  <select
+                    value={u.role}
+                    disabled={updatingEmail === u.email}
+                    onChange={(e) => handleRoleChange(u.email, e.target.value as 'Admin' | 'User')}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[rgba(15,23,42,0.04)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.12)] dark:border-[rgba(255,255,255,0.12)] text-[#0F172A] dark:text-[#F8FAFC] text-xs font-semibold outline-none focus:ring-2 focus:ring-[#3B82F6]/50 cursor-pointer"
+                  >
+                    <option value="User" className="bg-[#0C0D14] text-white">Standard User (Client Access)</option>
+                    <option value="Admin" className="bg-[#0C0D14] text-white">Admin (Full CMS Access)</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] text-[#64748B] pt-1">
+                  <span className="flex items-center gap-1 text-[#10B981] font-semibold">
+                    <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
+                    Active Profile
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock size={11} />
+                    Active Account
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
