@@ -79,11 +79,12 @@ export default function RegisteredUsersAdminPage() {
     }
   };
 
-  const filteredUsers = users.filter(
-    (u) =>
-      u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredUsers = users.filter((u) => {
+    const userName = (u.name || u.email || '').toLowerCase();
+    const userEmail = (u.email || '').toLowerCase();
+    const q = searchQuery.toLowerCase();
+    return userName.includes(q) || userEmail.includes(q);
+  });
 
   const adminCount = users.filter((u) => u.role === 'Admin').length;
   const standardUserCount = users.filter((u) => u.role === 'User').length;
@@ -203,12 +204,12 @@ export default function RegisteredUsersAdminPage() {
                   {u.avatar ? (
                     <Image
                       src={u.avatar}
-                      alt={u.name}
+                      alt={u.name || u.email || 'User Avatar'}
                       fill
                       className="object-cover"
                     />
                   ) : (
-                    <span>{u.name.charAt(0).toUpperCase()}</span>
+                    <span>{(u.name || u.email || 'U').charAt(0).toUpperCase()}</span>
                   )}
                 </div>
 
@@ -221,18 +222,18 @@ export default function RegisteredUsersAdminPage() {
                     }`}
                   >
                     {u.role === 'Admin' ? <ShieldCheck size={14} /> : <User size={14} />}
-                    <span>{u.role}</span>
+                    <span>{u.role || 'User'}</span>
                   </span>
                 </div>
               </div>
 
               <h3 className="font-display font-bold text-xl text-[#0F172A] dark:text-[#F8FAFC] mb-1 truncate">
-                {u.name}
+                {u.name || u.email || 'Registered User'}
               </h3>
 
               <div className="flex items-center gap-1.5 text-xs text-[#64748B] mb-4 truncate font-medium">
                 <Mail size={13} className="text-[#3B82F6] shrink-0" />
-                <span className="truncate">{u.email}</span>
+                <span className="truncate">{u.email || 'No email provided'}</span>
               </div>
             </div>
 
