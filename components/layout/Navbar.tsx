@@ -175,10 +175,10 @@ export function Navbar() {
               </Link>
             </MagneticWrapper>
 
-            {/* Mobile hamburger button */}
+            {/* Mobile hamburger button (Shows on all screens < 1280px to prevent 1024-1279px gap) */}
             <button
               onClick={() => setMenuOpen((p) => !p)}
-              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-lg glass text-[#475569] dark:text-[#94A3B8] hover:text-[#0F172A] dark:hover:text-[#F8FAFC] border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.08)] transition-colors"
+              className="xl:hidden w-10 h-10 flex items-center justify-center rounded-lg glass text-[#475569] dark:text-[#94A3B8] hover:text-[#0F172A] dark:hover:text-[#F8FAFC] border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.08)] transition-colors"
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             >
               {menuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -191,7 +191,7 @@ export function Navbar() {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            className="fixed inset-0 z-[300] bg-[#F8FAFC]/95 dark:bg-[#06070A]/95 backdrop-blur-2xl flex flex-col items-center justify-center"
+            className="fixed inset-0 z-[300] bg-[#F8FAFC]/95 dark:bg-[#06070A]/95 backdrop-blur-2xl flex flex-col items-center justify-between py-12 px-6 overflow-y-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -205,29 +205,32 @@ export function Navbar() {
               <X size={20} />
             </button>
 
+            {/* Top spacing */}
+            <div className="h-6" />
+
             {/* Links */}
             <motion.ul
-              className="flex flex-col items-center gap-7 py-8"
+              className="flex flex-col items-center gap-6 my-auto"
               initial="hidden"
               animate="visible"
               exit="hidden"
               variants={{
                 hidden: {},
-                visible: { transition: { staggerChildren: STAGGER.loose } },
+                visible: { transition: { staggerChildren: STAGGER.normal } },
               }}
             >
               {NAV_LINKS.map(({ label, href }) => (
                 <motion.li
                   key={`mobile-nav-${href}`}
                   variants={{
-                    hidden: { opacity: 0, y: 32, filter: 'blur(8px)' },
-                    visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: DURATION.slow, ease: EASE.premium } },
+                    hidden: { opacity: 0, y: 24, filter: 'blur(8px)' },
+                    visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: DURATION.medium, ease: EASE.premium } },
                   }}
                 >
                   <Link
                     href={href}
                     onClick={() => setMenuOpen(false)}
-                    className="text-3xl sm:text-4xl font-display font-black text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#3B82F6] dark:hover:text-[#3B82F6] transition-all duration-300 tracking-tight"
+                    className="text-2xl sm:text-4xl font-display font-black text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#3B82F6] dark:hover:text-[#3B82F6] transition-all duration-300 tracking-tight"
                   >
                     {label}
                   </Link>
@@ -235,12 +238,38 @@ export function Navbar() {
               ))}
             </motion.ul>
 
+            {/* Mobile Action Buttons (Login + Book Consultation) */}
+            <motion.div
+              className="flex flex-col sm:flex-row items-center gap-4 mt-8 w-full max-w-sm"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: DURATION.medium }}
+            >
+              <Link
+                href="/login"
+                onClick={() => setMenuOpen(false)}
+                className="w-full py-3.5 px-6 rounded-full glass border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.08)] text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#3B82F6] text-xs font-mono font-bold flex items-center justify-center gap-2 transition-all shadow-sm"
+              >
+                <User size={16} className="text-[#3B82F6]" />
+                <span>Login to Studio</span>
+              </Link>
+
+              <Link
+                href="/contact?plan=Consultation"
+                onClick={() => setMenuOpen(false)}
+                className="w-full py-3.5 px-6 rounded-full bg-[#3B82F6] hover:bg-[#2563EB] text-white text-xs font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md"
+              >
+                <Calendar size={16} />
+                <span>Book Free Consultation</span>
+              </Link>
+            </motion.div>
+
             {/* Social links */}
             <motion.div
-              className="absolute bottom-10 flex items-center gap-6 text-xs font-mono font-semibold text-[#64748B] dark:text-[#94A3B8]"
+              className="flex items-center gap-6 mt-8 text-xs font-mono font-semibold text-[#64748B] dark:text-[#94A3B8]"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: DURATION.medium }}
+              transition={{ delay: 0.5, duration: DURATION.medium }}
             >
               <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#3B82F6] transition-colors">LinkedIn</a>
               <span>·</span>
