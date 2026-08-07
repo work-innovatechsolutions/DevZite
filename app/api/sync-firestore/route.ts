@@ -34,10 +34,18 @@ async function handleSync() {
     if (isFirebaseAdminConfigured) {
       const batch = adminDb.batch();
 
-      // 1. Sync Projects
+      // 1. Sync Projects (do not overwrite user-updated custom images if project exists)
       for (const p of INITIAL_PROJECTS) {
         const ref = adminDb.collection('projects').doc(p.slug);
-        batch.set(ref, p, { merge: true });
+        const existing = await ref.get();
+        if (!existing.exists) {
+          batch.set(ref, p, { merge: true });
+        } else {
+          // Keep existing image and custom edits
+          const existingData = existing.data() || {};
+          const { image, ...seedWithoutImage } = p;
+          batch.set(ref, { ...seedWithoutImage, image: existingData.image || p.image }, { merge: true });
+        }
       }
 
       // 2. Sync Pricing Tiers

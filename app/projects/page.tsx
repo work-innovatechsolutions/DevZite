@@ -55,28 +55,34 @@ const DEFAULT_PROJECTS: ProjectCard[] = [
 ];
 
 async function getFirestoreProjects() {
-  return DEFAULT_PROJECTS;
-  /*
   try {
-    const snap = await adminDb.collection('projects').get();
-    if (!snap.empty) {
-      return snap.docs.map((doc): ProjectCard => {
-        const data = doc.data();
-        return {
-          slug: doc.id,
-          title: asText(data.name || data.title, doc.id),
-          category: asText(data.category, 'Engineering Case'),
-          description: asText(data.summary || data.description, 'High-performance digital engineering product.'),
-          metrics: `Lighthouse: ${data.lighthouseScore || 99}/100 · ${data.status || 'Live Production'}`,
-          tech: asTechList(data.techStack || data.tech),
-          image: asImageSrc(data.image),
-        };
-      });
+    const { adminDb, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
+    if (isFirebaseAdminConfigured) {
+      const snap = await adminDb.collection('projects').get();
+      if (!snap.empty) {
+        return snap.docs.map((doc): ProjectCard => {
+          const data = doc.data();
+          const name = data.name || data.title || doc.id;
+          const techStack = Array.isArray(data.techStack)
+            ? data.techStack
+            : Array.isArray(data.tech)
+            ? data.tech
+            : ['Next.js 15', 'Tailwind', 'TypeScript'];
+          return {
+            slug: doc.id,
+            title: typeof name === 'string' ? name : doc.id,
+            category: (data.category as string) || 'Next.js 15 Web App',
+            description: (data.summary || data.description) as string || 'High-performance digital engineering product.',
+            metrics: `Lighthouse: ${data.lighthouseScore || 99}/100 · ${data.status || 'Live Production'}`,
+            tech: techStack,
+            image: (data.image as string) || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80',
+          };
+        });
+      }
     }
   } catch (err) {
     console.error('Error fetching Firestore projects for /projects page:', err);
   }
-  */
   return DEFAULT_PROJECTS;
 }
 
