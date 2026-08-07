@@ -6,7 +6,7 @@ import confetti from 'canvas-confetti';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { BlurReveal } from '@/components/motion';
-import { Check, Sparkles, ArrowRight, Zap, Tag, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Check, Sparkles, ArrowRight, Zap, Tag, CheckCircle2, AlertCircle, X } from 'lucide-react';
 import { AnimatedPriceNumber } from '@/components/ui/AnimatedPriceNumber';
 import { db } from '@/lib/firebase/client';
 import { collection, onSnapshot } from 'firebase/firestore';
@@ -192,8 +192,23 @@ export default function PricingPage() {
                       placeholder="Have a promo code? (e.g. DEVZITE20)"
                       value={couponInput}
                       onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
-                      className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-[rgba(15,23,42,0.04)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] text-xs font-mono font-bold uppercase text-[#0F172A] dark:text-[#F8FAFC] outline-none focus:border-[#10B981]"
+                      className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-[rgba(15,23,42,0.04)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] text-xs font-mono font-bold uppercase text-[#0F172A] dark:text-[#F8FAFC] outline-none focus:border-[#10B981]"
                     />
+                    {couponInput && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCouponInput('');
+                          setAppliedCoupon(null);
+                          setCouponError(null);
+                          setCouponSuccessMsg(null);
+                        }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#EF4444] p-1 cursor-pointer transition-colors"
+                        title="Clear promo code"
+                      >
+                        <X size={14} />
+                      </button>
+                    )}
                   </div>
                   <button
                     type="submit"
@@ -204,9 +219,23 @@ export default function PricingPage() {
                 </form>
 
                 {couponSuccessMsg && (
-                  <div className="mt-3 flex items-center justify-center gap-1.5 text-xs font-mono font-bold text-[#10B981]">
-                    <CheckCircle2 size={14} />
-                    <span>{couponSuccessMsg}</span>
+                  <div className="mt-3 flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-[#10B981]/10 border border-[#10B981]/20 text-xs font-mono font-bold text-[#10B981]">
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle2 size={14} className="shrink-0" />
+                      <span>{couponSuccessMsg}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAppliedCoupon(null);
+                        setCouponInput('');
+                        setCouponSuccessMsg(null);
+                      }}
+                      className="p-1 rounded-lg hover:bg-[#10B981]/20 transition-colors text-[#10B981] cursor-pointer shrink-0"
+                      title="Remove Coupon"
+                    >
+                      <X size={14} />
+                    </button>
                   </div>
                 )}
 
@@ -262,6 +291,7 @@ export default function PricingPage() {
                             <div className="flex items-baseline gap-1.5">
                               <AnimatedPriceNumber
                                 value={finalPrice}
+                                startValue={p.price}
                                 className="text-3xl sm:text-4xl font-display font-black text-[#10B981] tracking-tight"
                               />
                               <span className="text-xs font-mono text-[#10B981] font-bold">
