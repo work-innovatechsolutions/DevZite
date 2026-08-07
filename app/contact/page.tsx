@@ -60,7 +60,7 @@ function ContactFormContent() {
           // If plan query parameter exists (e.g. ?plan=pro), select that plan's price
           if (planParam) {
             const matchedPlan = sorted.find(
-              (p) =>
+              (p: PricingTier) =>
                 p.id.toLowerCase() === planParam.toLowerCase() ||
                 p.name.toLowerCase().includes(planParam.toLowerCase())
             );
