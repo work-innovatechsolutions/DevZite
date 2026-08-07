@@ -60,7 +60,7 @@ async function handleSync() {
   let usersCount = REGISTERED_USERS_SEED.length;
 
   try {
-    const { adminDb, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
+    const { adminDb, adminAuth, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
 
     if (isFirebaseAdminConfigured) {
       const batch = adminDb.batch();
@@ -113,7 +113,39 @@ async function handleSync() {
         );
       }
 
-      // 6. Sync Registered Users
+      // 6. Sync Registered Users (including live Firebase Auth users list)
+      try {
+        const authList = await adminAuth.listUsers(100);
+        if (authList?.users) {
+          authList.users.forEach((u) => {
+            if (u.email) {
+              const cleanEmail = u.email.toLowerCase();
+              const docId = cleanEmail.replace(/[^a-zA-Z0-9_-]/g, '_');
+              const userRef = adminDb.collection('registered_users').doc(docId);
+              const isDefaultAdmin = ['souvikgon377@gmail.com', 'work.innovatechsolutions@gmail.com', 'sulagnaghosh363@gmail.com', 'clienttest@devzite.com'].includes(cleanEmail);
+
+              batch.set(
+                userRef,
+                {
+                  id: docId,
+                  name: u.displayName || cleanEmail.split('@')[0],
+                  email: cleanEmail,
+                  avatar: u.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanEmail}`,
+                  role: isDefaultAdmin ? 'Admin' : 'User',
+                  status: 'Active',
+                  lastLogin: u.metadata?.lastSignInTime || new Date().toISOString(),
+                  createdAt: u.metadata?.creationTime || new Date().toISOString(),
+                },
+                { merge: true }
+              );
+              usersCount++;
+            }
+          });
+        }
+      } catch (authErr) {
+        console.warn('[sync-firestore] Firebase Auth listing warning:', authErr);
+      }
+
       for (const u of REGISTERED_USERS_SEED) {
         const userRef = adminDb.collection('registered_users').doc(u.id);
         batch.set(userRef, u, { merge: true });

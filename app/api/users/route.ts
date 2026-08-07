@@ -85,11 +85,13 @@ export async function GET() {
     const { adminDb, adminAuth, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
     const authPhotoMap = new Map<string, string>();
     const authNameMap = new Map<string, string>();
+    let authUsersList: any[] = [];
 
     if (isFirebaseAdminConfigured) {
       try {
         const authList = await adminAuth.listUsers(100);
         if (authList?.users) {
+          authUsersList = authList.users;
           authList.users.forEach((u) => {
             if (u.email) {
               const cleanEmail = u.email.toLowerCase();
@@ -102,6 +104,70 @@ export async function GET() {
         console.warn('[users GET] Firebase Auth listUsers notice:', authErr);
       }
 
+      // Proactively synchronize any missing Firebase Auth users into Firestore registered_users
+      try {
+        const snap = await adminDb.collection('registered_users').get();
+        const existingEmails = new Set<string>();
+        if (!snap.empty) {
+          snap.docs.forEach((doc) => {
+            const data = doc.data();
+            if (data.email) existingEmails.add(data.email.toLowerCase());
+          });
+        }
+
+        const missingAuthUsers = authUsersList.filter(
+          (u) => u.email && !existingEmails.has(u.email.toLowerCase()) && !deletedEmails.has(u.email.toLowerCase())
+        );
+
+        if (missingAuthUsers.length > 0) {
+          const batch = adminDb.batch();
+          missingAuthUsers.forEach((u) => {
+            const cleanEmail = u.email.toLowerCase();
+            const docId = cleanEmail.replace(/[^a-zA-Z0-9_-]/g, '_');
+            const userDocRef = adminDb.collection('registered_users').doc(docId);
+            const overrideRole = getUserRoleOverride(cleanEmail);
+            const effectiveRole = overrideRole || (isDynamicAdmin(cleanEmail) ? 'Admin' : 'User');
+
+            batch.set(
+              userDocRef,
+              {
+                id: docId,
+                name: u.displayName || cleanEmail.split('@')[0],
+                email: cleanEmail,
+                avatar: u.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanEmail}`,
+                role: effectiveRole,
+                status: 'Active',
+                lastLogin: u.metadata?.lastSignInTime || new Date().toISOString(),
+                createdAt: u.metadata?.creationTime || new Date().toISOString(),
+              },
+              { merge: true }
+            );
+
+            if (effectiveRole === 'Admin') {
+              const mgrDocRef = adminDb.collection('admin_managers').doc(docId);
+              batch.set(
+                mgrDocRef,
+                {
+                  id: docId,
+                  name: u.displayName || cleanEmail.split('@')[0],
+                  email: cleanEmail,
+                  role: 'Admin',
+                  status: 'Active (Firebase Auth)',
+                  lastActive: 'Just Now',
+                  avatar: u.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanEmail}`,
+                  updatedAt: new Date().toISOString(),
+                },
+                { merge: true }
+              );
+            }
+          });
+          await batch.commit();
+        }
+      } catch (syncErr) {
+        console.warn('[users GET] Auto-sync missing Firebase Auth users warning:', syncErr);
+      }
+
+      // Query registered_users to fetch all records including newly synced ones
       try {
         const snap = await adminDb.collection('registered_users').get();
         let dbUsers: UserRecord[] = [];
@@ -188,7 +254,6 @@ export async function POST(req: Request) {
     const isDefaultAdmin = isDynamicAdmin(cleanEmail);
     let assignedRole: 'Admin' | 'User' = overrideRole || (role === 'Admin' || isDefaultAdmin ? 'Admin' : 'User');
 
-    // Fetch Google photoURL from Firebase Auth if missing
     try {
       const { adminAuth, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
       if (isFirebaseAdminConfigured) {
@@ -202,7 +267,6 @@ export async function POST(req: Request) {
 
     const docId = cleanEmail.replace(/[^a-zA-Z0-9_-]/g, '_');
 
-    // Update in-memory array
     const existingIndex = IN_MEMORY_USERS.findIndex((u) => u.email.toLowerCase() === cleanEmail);
 
     if (existingIndex >= 0) {
@@ -228,7 +292,6 @@ export async function POST(req: Request) {
       IN_MEMORY_USERS.unshift(newUser);
     }
 
-    // Direct atomic write to Firestore registered_users & admin_managers collections
     try {
       const { adminDb, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
       if (isFirebaseAdminConfigured) {
@@ -292,7 +355,6 @@ export async function PATCH(req: Request) {
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // Record in persistent store
     setUserRoleOverride(cleanEmail, role);
 
     if (role === 'Admin') {
@@ -301,7 +363,6 @@ export async function PATCH(req: Request) {
       DYNAMIC_ADMIN_SET.delete(cleanEmail);
     }
 
-    // Update in-memory store
     const userItem = IN_MEMORY_USERS.find((u) => u.email.toLowerCase() === cleanEmail);
     if (userItem) {
       userItem.role = role;
@@ -318,7 +379,6 @@ export async function PATCH(req: Request) {
       });
     }
 
-    // Sync role to Firestore registered_users & admin_managers collections
     try {
       const { adminDb, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
       if (isFirebaseAdminConfigured) {
@@ -380,7 +440,6 @@ export async function DELETE(req: Request) {
 
     markUserDeleted(cleanEmail, cleanId);
 
-    // Remove from in-memory array
     if (cleanEmail) {
       IN_MEMORY_USERS = IN_MEMORY_USERS.filter((u) => u.email.toLowerCase() !== cleanEmail);
       DYNAMIC_ADMIN_SET.delete(cleanEmail);
