@@ -115,28 +115,34 @@ export default function PricingPage() {
 
     loadPricing();
 
-    // Real-time sync with Firestore client SDK when configured
+    // Real-time sync with Firestore client SDK when authorized
     if (db) {
       try {
-        const unsub = onSnapshot(collection(db, 'pricing'), (snapshot) => {
-          if (!snapshot.empty) {
-            const ORDER = ['starter', 'pro', 'premium', 'custom'];
-            const firestorePlans = snapshot.docs.map((doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            })) as PricingPlan[];
+        const unsub = onSnapshot(
+          collection(db, 'pricing'),
+          (snapshot) => {
+            if (!snapshot.empty) {
+              const ORDER = ['starter', 'pro', 'premium', 'custom'];
+              const firestorePlans = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+              })) as PricingPlan[];
 
-            const sorted = firestorePlans.sort((a: any, b: any) => {
-              const idxA = ORDER.indexOf(a.id);
-              const idxB = ORDER.indexOf(b.id);
-              return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
-            });
-            setPlans(sorted);
+              const sorted = firestorePlans.sort((a: any, b: any) => {
+                const idxA = ORDER.indexOf(a.id);
+                const idxB = ORDER.indexOf(b.id);
+                return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
+              });
+              setPlans(sorted);
+            }
+          },
+          (err) => {
+            // Silently swallow client Firestore permission errors since /api/pricing already populates data via Server Admin SDK
           }
-        });
+        );
         return () => unsub();
       } catch (e) {
-        console.warn('Firestore pricing snapshot listener notice:', e);
+        // Ignored
       }
     }
   }, []);
