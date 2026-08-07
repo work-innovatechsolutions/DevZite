@@ -6,8 +6,8 @@ import confetti from 'canvas-confetti';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { BlurReveal } from '@/components/motion';
-import { Check, Sparkles, ArrowRight, Zap, Tag, CheckCircle2, AlertCircle, X } from 'lucide-react';
-import { AnimatedPriceNumber } from '@/components/ui/AnimatedPriceNumber';
+import { Check, Sparkles, ArrowRight, Zap, Tag, CheckCircle2, AlertCircle, X, Star } from 'lucide-react';
+import NumberFlow from '@number-flow/react';
 import { db } from '@/lib/firebase/client';
 import { collection, onSnapshot } from 'firebase/firestore';
 
@@ -104,14 +104,12 @@ export default function PricingPage() {
 
   const triggerConfetti = () => {
     try {
-      // Left burst
       confetti({
         particleCount: 80,
         spread: 70,
         origin: { y: 0.6, x: 0.2 },
         colors: ['#3B82F6', '#10B981', '#F59E0B', '#EC4899', '#8B5CF6'],
       });
-      // Right burst
       confetti({
         particleCount: 80,
         spread: 70,
@@ -143,15 +141,11 @@ export default function PricingPage() {
     }
   };
 
-  const calculateDiscountedPrice = (rawPrice: string, percent: number) => {
+  const getNumericPrice = (rawPrice: string) => {
     const match = rawPrice.match(/[\d,]+/);
-    if (!match) return rawPrice;
-
-    const numericVal = parseInt(match[0].replace(/,/g, ''), 10);
-    if (isNaN(numericVal)) return rawPrice;
-
-    const discountedVal = Math.round(numericVal * (1 - percent / 100));
-    return `$${discountedVal.toLocaleString()}`;
+    if (!match) return null;
+    const num = parseInt(match[0].replace(/,/g, ''), 10);
+    return isNaN(num) ? null : num;
   };
 
   return (
@@ -249,13 +243,14 @@ export default function PricingPage() {
             </BlurReveal>
           </div>
 
-          {/* Pricing Grid */}
+          {/* Pricing Grid with Congested Pricing Design & Smooth NumberFlow */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 items-stretch mb-20 w-full">
             {plans.map((p, index) => {
-              const hasDiscount = appliedCoupon && p.price.includes('$');
-              const finalPrice = hasDiscount
-                ? calculateDiscountedPrice(p.price, appliedCoupon.discountPercent)
-                : p.price;
+              const numericVal = getNumericPrice(p.price);
+              const hasDiscount = appliedCoupon && numericVal !== null;
+              const discountedVal = hasDiscount
+                ? Math.round(numericVal * (1 - appliedCoupon.discountPercent / 100))
+                : numericVal;
 
               return (
                 <BlurReveal key={p.id} delay={0.15 + index * 0.1}>
@@ -267,8 +262,8 @@ export default function PricingPage() {
                     }`}
                   >
                     {p.isPopular && (
-                      <div className="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#3B82F6] text-white flex items-center gap-1.5 shadow-md">
-                        <Sparkles size={12} />
+                      <div className="absolute top-0 right-0 flex items-center rounded-bl-xl bg-[#3B82F6] px-3 py-1 text-xs font-mono font-bold text-white shadow-md">
+                        <Star className="h-3.5 w-3.5 fill-current text-white mr-1" />
                         <span>{p.badge || 'Most Popular'}</span>
                       </div>
                     )}
@@ -282,22 +277,45 @@ export default function PricingPage() {
                         {p.name}
                       </h2>
 
+                      {/* NumberFlow Price Block with Constant Height */}
                       <div className="min-h-[72px] flex flex-col justify-end my-4">
                         <div className="flex flex-wrap items-baseline gap-2">
-                          {hasDiscount ? (
+                          {numericVal !== null ? (
                             <div className="flex flex-col">
-                              <span className="text-xs font-mono text-[#EF4444] line-through font-bold h-4">
-                                {p.price}
-                              </span>
-                              <div className="flex items-baseline gap-1.5">
-                                <AnimatedPriceNumber
-                                  value={finalPrice}
-                                  startValue={p.price}
-                                  className="text-3xl sm:text-4xl font-display font-black text-[#10B981] tracking-tight"
-                                />
-                                <span className="text-xs font-mono text-[#10B981] font-bold">
-                                  ({appliedCoupon.discountPercent}% OFF)
+                              {hasDiscount ? (
+                                <span className="text-xs font-mono text-[#EF4444] line-through font-bold h-4">
+                                  {p.price}
                                 </span>
+                              ) : (
+                                <span className="text-xs font-mono opacity-0 h-4 font-bold select-none">
+                                  placeholder
+                                </span>
+                              )}
+
+                              <div className="flex items-baseline gap-1.5">
+                                <span className={`text-3xl sm:text-4xl font-display font-black tracking-tight ${hasDiscount ? 'text-[#10B981]' : 'text-[#0F172A] dark:text-[#F8FAFC]'}`}>
+                                  <NumberFlow
+                                    value={discountedVal!}
+                                    format={{
+                                      style: 'currency',
+                                      currency: 'USD',
+                                      minimumFractionDigits: 0,
+                                      maximumFractionDigits: 0,
+                                    }}
+                                    transformTiming={{
+                                      duration: 600,
+                                      easing: 'ease-out',
+                                    }}
+                                    willChange
+                                    className="font-variant-numeric: tabular-nums"
+                                  />
+                                </span>
+
+                                {hasDiscount && (
+                                  <span className="text-xs font-mono text-[#10B981] font-bold">
+                                    ({appliedCoupon.discountPercent}% OFF)
+                                  </span>
+                                )}
                               </div>
                             </div>
                           ) : (
@@ -305,10 +323,9 @@ export default function PricingPage() {
                               <span className="text-xs font-mono opacity-0 h-4 font-bold select-none">
                                 placeholder
                               </span>
-                              <AnimatedPriceNumber
-                                value={p.price}
-                                className="text-3xl sm:text-4xl font-display font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight"
-                              />
+                              <span className="text-3xl sm:text-4xl font-display font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight">
+                                {p.price}
+                              </span>
                             </div>
                           )}
                           <span className="text-xs font-mono text-[#64748B] font-semibold">/ {p.billing}</span>
