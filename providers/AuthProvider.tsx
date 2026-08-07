@@ -46,6 +46,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
+
+      if (currentUser && currentUser.email) {
+        fetch('/api/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: currentUser.email,
+            name: currentUser.displayName || currentUser.email.split('@')[0],
+            avatar: currentUser.photoURL || '',
+          }),
+        }).catch((err) => console.warn('[AuthProvider] User log sync notice:', err));
+      }
     });
     return () => unsubscribe();
   }, []);

@@ -56,7 +56,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ authorized: true, role: 'Admin' }, { status: 200 });
     }
 
-    // 4. Query Firestore admin_managers collection safely via dynamic import
+    // 4. Query Firestore admin_managers & registered_users collections safely via dynamic import
     try {
       const { adminDb, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
       if (isFirebaseAdminConfigured) {
@@ -64,6 +64,14 @@ export async function POST(req: Request) {
         if (!snap.empty) {
           const manager = snap.docs[0].data();
           return NextResponse.json({ authorized: true, role: manager.role || 'Admin' }, { status: 200 });
+        }
+
+        const userSnap = await adminDb.collection('registered_users').where('email', '==', cleanEmail).get();
+        if (!userSnap.empty) {
+          const uData = userSnap.docs[0].data();
+          if (uData.role === 'Admin') {
+            return NextResponse.json({ authorized: true, role: 'Admin' }, { status: 200 });
+          }
         }
       }
     } catch (adminErr) {

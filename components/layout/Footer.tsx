@@ -119,7 +119,7 @@ export function Footer() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="flex-1 px-3 py-2 rounded-lg glass text-sm text-[#F8FAFC] placeholder-[#475569] outline-none focus:border-[rgba(59,130,246,0.5)] transition-colors"
+                    className="flex-1 px-3 py-2 rounded-lg bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.08)] text-sm text-[#0F172A] dark:text-[#F8FAFC] placeholder-[#94A3B8] outline-none focus:border-[rgba(59,130,246,0.5)] transition-colors"
                     required
                     aria-label="Email address"
                   />

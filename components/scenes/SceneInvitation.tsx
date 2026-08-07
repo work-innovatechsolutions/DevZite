@@ -151,12 +151,12 @@ export function SceneInvitation() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         {/* Name */}
                         <div>
-                          <label className="text-xs font-mono text-[#94A3B8] block mb-2">Your Name *</label>
+                          <label className="text-xs font-mono text-[#475569] dark:text-[#94A3B8] block mb-2 font-bold">Your Name *</label>
                           <input
                             {...register('name')}
                             type="text"
                             placeholder="John Doe"
-                            className="w-full px-4 py-3 rounded-xl glass text-sm text-[#F8FAFC] placeholder-[#475569] outline-none focus:border-[#3B82F6] transition-colors"
+                            className="w-full px-4 py-3 rounded-xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.08)] text-sm text-[#0F172A] dark:text-[#F8FAFC] placeholder-[#94A3B8] outline-none focus:border-[#3B82F6] transition-colors font-body"
                           />
                           {errors.name && (
                             <p className="text-xs text-[#FF5F56] mt-1 font-mono">{errors.name.message}</p>
@@ -165,12 +165,12 @@ export function SceneInvitation() {
 
                         {/* Email */}
                         <div>
-                          <label className="text-xs font-mono text-[#94A3B8] block mb-2">Email Address *</label>
+                          <label className="text-xs font-mono text-[#475569] dark:text-[#94A3B8] block mb-2 font-bold">Email Address *</label>
                           <input
                             {...register('email')}
                             type="email"
                             placeholder="john@company.com"
-                            className="w-full px-4 py-3 rounded-xl glass text-sm text-[#F8FAFC] placeholder-[#475569] outline-none focus:border-[#3B82F6] transition-colors"
+                            className="w-full px-4 py-3 rounded-xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.08)] text-sm text-[#0F172A] dark:text-[#F8FAFC] placeholder-[#94A3B8] outline-none focus:border-[#3B82F6] transition-colors font-body"
                           />
                           {errors.email && (
                             <p className="text-xs text-[#FF5F56] mt-1 font-mono">{errors.email.message}</p>
@@ -181,17 +181,17 @@ export function SceneInvitation() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         {/* Service Selection */}
                         <div>
-                          <label className="text-xs font-mono text-[#94A3B8] block mb-2">Service Needed *</label>
+                          <label className="text-xs font-mono text-[#475569] dark:text-[#94A3B8] block mb-2 font-bold">Service Needed *</label>
                           <select
                             {...register('service')}
-                            className="w-full px-4 py-3 rounded-xl glass text-sm text-[#F8FAFC] outline-none focus:border-[#3B82F6] transition-colors bg-[#0C0D14]"
+                            className="w-full px-4 py-3 rounded-xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.08)] text-sm text-[#0F172A] dark:text-[#F8FAFC] outline-none focus:border-[#3B82F6] transition-colors font-body cursor-pointer"
                           >
-                            <option value="">Select a service...</option>
-                            <option value="website">Website Design & Dev</option>
-                            <option value="web-apps">SaaS & Web App</option>
-                            <option value="android-apps">Android Application</option>
-                            <option value="ai-videos">AI Video Production</option>
-                            <option value="blogs">Blog Engine & Content</option>
+                            <option value="" className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">Select a service...</option>
+                            <option value="website" className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">Website Design & Dev</option>
+                            <option value="web-apps" className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">SaaS & Web App</option>
+                            <option value="android-apps" className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">Android Application</option>
+                            <option value="ai-videos" className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">AI Video Production</option>
+                            <option value="blogs" className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">Blog Engine & Content</option>
                           </select>
                           {errors.service && (
                             <p className="text-xs text-[#FF5F56] mt-1 font-mono">{errors.service.message}</p>
@@ -200,28 +200,28 @@ export function SceneInvitation() {
 
                         {/* Budget */}
                         <div>
-                          <label className="text-xs font-mono text-[#94A3B8] block mb-2">Estimated Budget</label>
+                          <label className="text-xs font-mono text-[#475569] dark:text-[#94A3B8] block mb-2 font-bold">Estimated Budget</label>
                           <select
                             {...register('budget')}
-                            className="w-full px-4 py-3 rounded-xl glass text-sm text-[#F8FAFC] outline-none focus:border-[#3B82F6] transition-colors bg-[#0C0D14]"
+                            className="w-full px-4 py-3 rounded-xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.08)] text-sm text-[#0F172A] dark:text-[#F8FAFC] outline-none focus:border-[#3B82F6] transition-colors font-body cursor-pointer"
                           >
-                            <option value="">Select range...</option>
-                            <option value="5k-10k">$5k – $10k</option>
-                            <option value="10k-25k">$10k – $25k</option>
-                            <option value="25k-50k">$25k – $50k</option>
-                            <option value="50k+">$50k+</option>
+                            <option value="" className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">Select range...</option>
+                            <option value="5k-10k" className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">$5k – $10k</option>
+                            <option value="10k-25k" className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">$10k – $25k</option>
+                            <option value="25k-50k" className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">$25k – $50k</option>
+                            <option value="50k+" className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">$50k+</option>
                           </select>
                         </div>
                       </div>
 
                       {/* Message */}
                       <div>
-                        <label className="text-xs font-mono text-[#94A3B8] block mb-2">Project Brief *</label>
+                        <label className="text-xs font-mono text-[#475569] dark:text-[#94A3B8] block mb-2 font-bold">Project Brief *</label>
                         <textarea
                           {...register('message')}
                           rows={4}
                           placeholder="Tell us about your goals, timelines, and technical requirements..."
-                          className="w-full px-4 py-3 rounded-xl glass text-sm text-[#F8FAFC] placeholder-[#475569] outline-none focus:border-[#3B82F6] transition-colors resize-none"
+                          className="w-full px-4 py-3 rounded-xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.08)] text-sm text-[#0F172A] dark:text-[#F8FAFC] placeholder-[#94A3B8] outline-none focus:border-[#3B82F6] transition-colors resize-none font-body"
                         />
                         {errors.message && (
                           <p className="text-xs text-[#FF5F56] mt-1 font-mono">{errors.message.message}</p>

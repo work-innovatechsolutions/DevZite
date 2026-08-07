@@ -31,6 +31,7 @@ const ADMIN_NAV = [
   { label: 'Blog & MDX',  href: '/admin/blogs',     icon: FileCode2 },
   { label: 'Leads & CRM', href: '/admin/leads',     icon: Mail },
   { label: 'Clients',     href: '/admin/clients',   icon: Users },
+  { label: 'Registered Users', href: '/admin/users', icon: ShieldAlert },
   { label: 'Managers',    href: '/admin/managers',  icon: UserCheck },
   { label: 'Analytics',   href: '/admin/analytics', icon: BarChart3 },
   { label: 'Settings',    href: '/admin/settings',  icon: Settings },
