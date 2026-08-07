@@ -4,26 +4,30 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const keys = [
-    'FIREBASE_PROJECT_ID',
-    'FIREBASE_CLIENT_EMAIL',
-    'FIREBASE_PRIVATE_KEY',
-    'ADMIN_EMAILS',
-  ];
-  
-  const status = keys.reduce((acc, key) => {
-    const val = process.env[key];
-    acc[key] = {
-      exists: !!val,
-      length: val ? val.length : 0,
-      preview: val ? `${val.slice(0, 8)}...` : 'undefined',
-    };
-    return acc;
-  }, {} as Record<string, any>);
+  let isConfigured = false;
+  let errorMsg = 'None';
+  let snapEmpty = null;
+  let testDocCount = 0;
+
+  try {
+    const { adminDb, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
+    isConfigured = isFirebaseAdminConfigured;
+    
+    if (isFirebaseAdminConfigured) {
+      const snap = await adminDb.collection('registered_users').get();
+      snapEmpty = snap.empty;
+      testDocCount = snap.size;
+    }
+  } catch (err: any) {
+    errorMsg = err?.message || String(err);
+  }
 
   return NextResponse.json({
     success: true,
-    status,
+    isConfigured,
+    errorMsg,
+    snapEmpty,
+    testDocCount,
     timestamp: new Date().toISOString(),
   });
 }
