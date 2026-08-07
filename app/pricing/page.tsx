@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import confetti from 'canvas-confetti';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { BlurReveal } from '@/components/motion';
 import { Check, Sparkles, ArrowRight, Zap, Tag, CheckCircle2, AlertCircle } from 'lucide-react';
+import { AnimatedPriceNumber } from '@/components/ui/AnimatedPriceNumber';
 import { db } from '@/lib/firebase/client';
 import { collection, onSnapshot } from 'firebase/firestore';
 
@@ -100,6 +102,27 @@ export default function PricingPage() {
     }
   }, []);
 
+  const triggerConfetti = () => {
+    try {
+      // Left burst
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6, x: 0.2 },
+        colors: ['#3B82F6', '#10B981', '#F59E0B', '#EC4899', '#8B5CF6'],
+      });
+      // Right burst
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6, x: 0.8 },
+        colors: ['#3B82F6', '#10B981', '#F59E0B', '#EC4899', '#8B5CF6'],
+      });
+    } catch (e) {
+      console.warn('Confetti trigger notice:', e);
+    }
+  };
+
   const handleApplyCoupon = (e: React.FormEvent) => {
     e.preventDefault();
     setCouponError(null);
@@ -112,7 +135,8 @@ export default function PricingPage() {
 
     if (matched) {
       setAppliedCoupon(matched);
-      setCouponSuccessMsg(`Coupon "${matched.code}" applied! You get ${matched.discountPercent}% OFF.`);
+      setCouponSuccessMsg(`🎉 Coupon "${matched.code}" applied! You get ${matched.discountPercent}% OFF.`);
+      triggerConfetti();
     } else {
       setAppliedCoupon(null);
       setCouponError(`Invalid or expired promo code "${cleanInput}".`);
@@ -120,7 +144,6 @@ export default function PricingPage() {
   };
 
   const calculateDiscountedPrice = (rawPrice: string, percent: number) => {
-    // Extract numerical value from price string e.g. "$5,999" -> 5999
     const match = rawPrice.match(/[\d,]+/);
     if (!match) return rawPrice;
 
@@ -174,9 +197,9 @@ export default function PricingPage() {
                   </div>
                   <button
                     type="submit"
-                    className="px-4 py-2.5 rounded-xl bg-[#10B981] hover:bg-[#059669] text-white text-xs font-mono font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer shrink-0"
+                    className="px-4 py-2.5 rounded-xl bg-[#10B981] hover:bg-[#059669] text-white text-xs font-mono font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer shrink-0 flex items-center gap-1.5"
                   >
-                    Apply Code
+                    <span>Apply Code</span>
                   </button>
                 </form>
 
@@ -237,18 +260,20 @@ export default function PricingPage() {
                               {p.price}
                             </span>
                             <div className="flex items-baseline gap-1.5">
-                              <span className="text-3xl sm:text-4xl font-display font-black text-[#10B981] tracking-tight">
-                                {finalPrice}
-                              </span>
+                              <AnimatedPriceNumber
+                                value={finalPrice}
+                                className="text-3xl sm:text-4xl font-display font-black text-[#10B981] tracking-tight"
+                              />
                               <span className="text-xs font-mono text-[#10B981] font-bold">
                                 ({appliedCoupon.discountPercent}% OFF)
                               </span>
                             </div>
                           </div>
                         ) : (
-                          <span className="text-3xl sm:text-4xl font-display font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight">
-                            {p.price}
-                          </span>
+                          <AnimatedPriceNumber
+                            value={p.price}
+                            className="text-3xl sm:text-4xl font-display font-black text-[#0F172A] dark:text-[#F8FAFC] tracking-tight"
+                          />
                         )}
                         <span className="text-xs font-mono text-[#64748B] font-semibold">/ {p.billing}</span>
                       </div>
