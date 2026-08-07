@@ -118,7 +118,7 @@ export function Navbar() {
           <div className="hidden xl:flex items-center justify-center flex-shrink-0">
             <ul className="flex items-center gap-6">
               {NAV_LINKS.map(({ label, href }) => (
-                <li key={href}>
+                <li key={`desktop-nav-${href}`}>
                   <Link
                     href={href}
                     className="relative text-sm font-body font-medium text-[#475569] dark:text-[#94A3B8] hover:text-[#0F172A] dark:hover:text-[#F8FAFC] transition-colors duration-200 group"
@@ -218,7 +218,7 @@ export function Navbar() {
             >
               {NAV_LINKS.map(({ label, href }) => (
                 <motion.li
-                  key={href}
+                  key={`mobile-nav-${href}`}
                   variants={{
                     hidden: { opacity: 0, y: 32, filter: 'blur(8px)' },
                     visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: DURATION.slow, ease: EASE.premium } },
