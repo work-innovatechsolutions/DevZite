@@ -251,7 +251,7 @@ export function Navbar() {
                 className="w-full py-3.5 px-6 rounded-full glass border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.08)] text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#3B82F6] text-xs font-mono font-bold flex items-center justify-center gap-2 transition-all shadow-sm"
               >
                 <User size={16} className="text-[#3B82F6]" />
-                <span>Login to Studio</span>
+                <span>Login</span>
               </Link>
 
               <Link
