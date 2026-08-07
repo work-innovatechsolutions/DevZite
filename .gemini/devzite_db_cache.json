@@ -1,9 +1,15 @@
 {
   "deletedManagerIds": [
-    "mgr-2"
+    "mgr-2",
+    "mgr-3",
+    "work_innovatechsolutions_gmail_com"
   ],
   "deletedUserEmails": [
-    "testuser_firestoresync@devzite.com"
+    "testuser_firestoresync@devzite.com",
+    "elena@devzite.com",
+    "work.innovatechsolutions@gmail.com"
   ],
-  "userRoleOverrides": {}
+  "userRoleOverrides": {
+    "souvikgon9800@gmail.com": "Admin"
+  }
 }
