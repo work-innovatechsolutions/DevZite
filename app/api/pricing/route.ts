@@ -55,6 +55,23 @@ const FALLBACK_PRICING = [
       '24/7 Dedicated Retainer Support',
     ],
   },
+  {
+    id: 'custom',
+    name: 'Custom',
+    badge: 'Bespoke Build',
+    price: 'Custom Quote',
+    billing: 'flexible scope',
+    description: 'Tailored enterprise retainer, dedicated squad, or complex multi-system platform build.',
+    isPopular: false,
+    features: [
+      'Dedicated Full-Time Engineering Squad',
+      'Bespoke System Architecture & Codebase',
+      'Dedicated Executive Account Manager',
+      'Direct Private Slack / Discord Channel',
+      'Priority Emergency Hotfixes & Maintenance',
+      'Flexible Billing & Custom Retainer Terms',
+    ],
+  },
 ];
 
 export async function GET() {

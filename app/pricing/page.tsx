@@ -6,6 +6,8 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { BlurReveal, WordReveal } from '@/components/motion';
 import { Check, Sparkles, ArrowRight, Zap } from 'lucide-react';
+import { db } from '@/lib/firebase/client';
+import { collection, onSnapshot } from 'firebase/firestore';
 
 interface PricingPlan {
   id: string;
@@ -55,7 +57,7 @@ const DEFAULT_PLANS: PricingPlan[] = [
   },
   {
     id: 'premium',
-    name: 'Enterprise',
+    name: 'Premium',
     badge: 'Custom Architecture',
     price: '$12,999',
     billing: 'per project',
@@ -68,6 +70,23 @@ const DEFAULT_PLANS: PricingPlan[] = [
       'Enterprise Security & Compliance Audit',
       '99.99% Uptime SLA Guarantee',
       '24/7 Dedicated Retainer Support',
+    ],
+  },
+  {
+    id: 'custom',
+    name: 'Custom',
+    badge: 'Bespoke Build',
+    price: 'Custom Quote',
+    billing: 'flexible scope',
+    description: 'Tailored enterprise retainer, dedicated squad, or complex multi-system platform build.',
+    isPopular: false,
+    features: [
+      'Dedicated Full-Time Engineering Squad',
+      'Bespoke System Architecture & Codebase',
+      'Dedicated Executive Account Manager',
+      'Direct Private Slack / Discord Channel',
+      'Priority Emergency Hotfixes & Maintenance',
+      'Flexible Billing & Custom Retainer Terms',
     ],
   },
 ];
@@ -93,7 +112,33 @@ export default function PricingPage() {
         console.warn('Pricing fetch active:', err);
       }
     }
+
     loadPricing();
+
+    // Real-time sync with Firestore client SDK when configured
+    if (db) {
+      try {
+        const unsub = onSnapshot(collection(db, 'pricing'), (snapshot) => {
+          if (!snapshot.empty) {
+            const ORDER = ['starter', 'pro', 'premium', 'custom'];
+            const firestorePlans = snapshot.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            })) as PricingPlan[];
+
+            const sorted = firestorePlans.sort((a: any, b: any) => {
+              const idxA = ORDER.indexOf(a.id);
+              const idxB = ORDER.indexOf(b.id);
+              return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
+            });
+            setPlans(sorted);
+          }
+        });
+        return () => unsub();
+      } catch (e) {
+        console.warn('Firestore pricing snapshot listener notice:', e);
+      }
+    }
   }, []);
 
   return (
