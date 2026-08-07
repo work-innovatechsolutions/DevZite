@@ -303,16 +303,20 @@ export default function PricingPage() {
           {/* Pricing Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 items-stretch mb-20 w-full">
             {plans.map((p, index) => {
-              const numericUSD = getNumericPrice(p.price);
-              const rate = currencySetting.rate || 1;
+              const numericVal = getNumericPrice(p.price);
+              // Check if tier raw price itself is in INR or global setting is INR
+              const isTierINR = p.currency === 'INR' || p.price.includes('₹');
+              const activeCurrency = isTierINR ? 'INR' : currencySetting.currency;
+              const rate = activeCurrency === 'INR' && !isTierINR ? currencySetting.rate || 86 : 1;
 
-              const baseConvertedVal = numericUSD !== null ? Math.round(numericUSD * rate) : null;
+              const baseConvertedVal = numericVal !== null ? Math.round(numericVal * rate) : null;
               const hasDiscount = appliedCoupon && baseConvertedVal !== null;
               const finalConvertedVal = hasDiscount
                 ? Math.round(baseConvertedVal * (1 - appliedCoupon.discountPercent / 100))
                 : baseConvertedVal;
 
-              const originalPriceDisplay = baseConvertedVal !== null ? formatPriceDisplay(numericUSD!) : p.price;
+              const symbolDisplay = activeCurrency === 'INR' ? '₹' : '$';
+              const originalPriceDisplay = baseConvertedVal !== null ? `${symbolDisplay}${baseConvertedVal.toLocaleString()}` : p.price;
 
               return (
                 <BlurReveal key={p.id} delay={0.15 + index * 0.1}>
@@ -360,7 +364,8 @@ export default function PricingPage() {
                                     value={finalConvertedVal}
                                     format={{
                                       style: 'currency',
-                                      currency: currencySetting.currency,
+                                      currency: activeCurrency,
+                                      currencyDisplay: 'narrowSymbol',
                                       minimumFractionDigits: 0,
                                       maximumFractionDigits: 0,
                                     }}
