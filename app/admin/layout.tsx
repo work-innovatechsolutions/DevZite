@@ -14,10 +14,11 @@ import {
   Settings,
   LogOut,
   UserCheck,
-  Sparkles,
   ArrowUpRight,
   DollarSign,
-  ShieldAlert
+  ShieldAlert,
+  Menu,
+  X
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useAuth } from '@/providers/AuthProvider';
@@ -39,6 +40,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const { user, loading, logout } = useAuth();
   const [sessionAuth, setSessionAuth] = useState<boolean | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     async function checkAdminAuth() {
@@ -102,9 +109,120 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
+  const handleLogout = async () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('devzite_admin_auth');
+    }
+    try {
+      await logout();
+    } catch (e) {}
+    window.location.href = '/login';
+  };
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#06070A] text-[#0F172A] dark:text-[#F8FAFC] flex font-body">
-      {/* ── Desktop Sidebar ── */}
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#06070A] text-[#0F172A] dark:text-[#F8FAFC] flex flex-col md:flex-row font-body">
+      {/* ── Mobile & Tablet Header Bar (Visible on < md) ── */}
+      <header className="md:hidden sticky top-0 z-[150] bg-white/90 dark:bg-[#0C0D14]/90 backdrop-blur-xl border-b border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] px-4 py-3 flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="w-10 h-10 flex items-center justify-center rounded-xl glass border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.08)] text-[#0F172A] dark:text-[#F8FAFC]"
+            aria-label="Toggle Admin Navigation Menu"
+          >
+            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+
+          <Link href="/" className="inline-flex items-center gap-2">
+            <div className="relative w-28 h-7">
+              <Image
+                src="/devzitelogo.svg"
+                alt="Devzite"
+                fill
+                sizes="112px"
+                className="object-contain object-left logo-svg"
+                priority
+              />
+            </div>
+          </Link>
+          <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-[#3B82F6] text-white">
+            ADMIN
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+        </div>
+      </header>
+
+      {/* ── Mobile Overlay Drawer ── */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-[200] bg-black/60 backdrop-blur-md flex">
+          <div className="w-4/5 max-w-xs bg-white dark:bg-[#0C0D14] h-full p-6 flex flex-col justify-between shadow-2xl border-r border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] overflow-y-auto">
+            <div>
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)]">
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#3B82F6]">
+                  Admin Suite Menu
+                </span>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-[#64748B] hover:text-[#0F172A] dark:hover:text-white"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <nav className="space-y-1.5">
+                {ADMIN_NAV.map((item) => {
+                  const IconComp = item.icon;
+                  const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                  return (
+                    <Link
+                      key={`mobile-admin-${item.href}`}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-mono font-medium transition-all ${
+                        isActive
+                          ? 'bg-[#3B82F6] text-white font-bold shadow-[0_0_16px_rgba(59,130,246,0.3)]'
+                          : 'text-[#475569] dark:text-[#94A3B8] hover:text-[#0F172A] dark:hover:text-[#F8FAFC] hover:bg-[rgba(15,23,42,0.04)] dark:hover:bg-[rgba(255,255,255,0.04)]'
+                      }`}
+                    >
+                      <IconComp size={18} />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+
+            <div className="pt-6 border-t border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] space-y-3 mt-6">
+              <button
+                onClick={handleLogout}
+                className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-xs font-mono text-[#EF4444] hover:bg-[rgba(239,68,68,0.1)] transition-colors border border-[rgba(239,68,68,0.2)] font-semibold cursor-pointer"
+              >
+                <span className="flex items-center gap-2">
+                  <LogOut size={16} />
+                  Sign Out (Firebase)
+                </span>
+              </button>
+
+              <Link
+                href="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-xs font-mono text-[#475569] dark:text-[#94A3B8] hover:text-[#3B82F6] transition-colors border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)]"
+              >
+                <span className="flex items-center gap-2">
+                  <ArrowUpRight size={16} />
+                  Exit to Live Site
+                </span>
+              </Link>
+            </div>
+          </div>
+
+          <div className="flex-1" onClick={() => setMobileMenuOpen(false)} />
+        </div>
+      )}
+
+      {/* ── Desktop Sidebar (Visible on md+) ── */}
       <aside className="w-64 border-r border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] bg-white dark:bg-[#0C0D14] p-6 flex flex-col justify-between shrink-0 hidden md:flex shadow-sm">
         <div>
           {/* Logo Header */}
@@ -121,7 +239,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 />
               </div>
             </Link>
-            <div className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-[#3B82F6] text-white">
+            <div className="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-[#3B82F6] text-white">
               ADMIN
             </div>
           </div>
@@ -160,15 +278,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
 
           <button
-            onClick={async () => {
-              if (typeof window !== 'undefined') {
-                sessionStorage.removeItem('devzite_admin_auth');
-              }
-              try {
-                await logout();
-              } catch (e) {}
-              window.location.href = '/login';
-            }}
+            onClick={handleLogout}
             className="flex items-center justify-between w-full px-3 py-2 rounded-xl text-xs font-mono text-[#EF4444] hover:bg-[rgba(239,68,68,0.1)] transition-colors border border-[rgba(239,68,68,0.2)] font-semibold cursor-pointer mb-2"
           >
             <span className="flex items-center gap-2">
@@ -190,7 +300,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* ── Main Content Area ── */}
-      <div className="flex-1 overflow-y-auto p-6 sm:p-10 bg-[#F8FAFC] dark:bg-[#06070A]">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-8 lg:p-10 bg-[#F8FAFC] dark:bg-[#06070A]">
         {children}
       </div>
     </div>
