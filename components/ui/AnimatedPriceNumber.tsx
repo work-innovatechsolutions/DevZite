@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 interface AnimatedNumberProps {
   value: string;
@@ -20,26 +20,34 @@ export function AnimatedPriceNumber({ value, className = '' }: AnimatedNumberPro
   const targetNum = parseInt(numberStr.replace(/,/g, ''), 10);
 
   const [currentNum, setCurrentNum] = useState(targetNum);
+  const currentNumRef = useRef(targetNum);
 
   useEffect(() => {
     let startTimestamp: number | null = null;
-    const startNum = currentNum;
-    const duration = 800; // ms transition
+    const startNum = currentNumRef.current;
+    const duration = 1000; // 1s smooth slot roll
+    let animationFrameId: number;
 
     const step = (timestamp: number) => {
       if (!startTimestamp) startTimestamp = timestamp;
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      // Ease out cubic
-      const easeProgress = 1 - Math.pow(1 - progress, 3);
+      // Custom easeOutExpo curve for dramatic counter rolling
+      const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
       const val = Math.round(startNum + (targetNum - startNum) * easeProgress);
+
       setCurrentNum(val);
+      currentNumRef.current = val;
 
       if (progress < 1) {
-        window.requestAnimationFrame(step);
+        animationFrameId = window.requestAnimationFrame(step);
       }
     };
 
-    window.requestAnimationFrame(step);
+    animationFrameId = window.requestAnimationFrame(step);
+
+    return () => {
+      if (animationFrameId) window.cancelAnimationFrame(animationFrameId);
+    };
   }, [targetNum]);
 
   return (
