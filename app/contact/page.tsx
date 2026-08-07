@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { BlurReveal, WordReveal } from '@/components/motion';
-import { Mail, MapPin, Clock, Send, CheckCircle2, ShieldCheck, MessageSquare } from 'lucide-react';
+import { Mail, MapPin, Clock, Send, CheckCircle2, ShieldCheck, MessageSquare, Phone } from 'lucide-react';
 
 const SERVICES_OPTIONS = [
   'Starter Plan ($2,499)',
@@ -32,6 +32,7 @@ function ContactFormContent() {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [company, setCompany] = useState('');
   const [service, setService] = useState(SERVICES_OPTIONS[0]);
   const [budget, setBudget] = useState(BUDGET_OPTIONS[1]);
@@ -60,6 +61,7 @@ function ContactFormContent() {
       id: `lead-${Date.now()}`,
       name,
       email,
+      phone: phone || 'Not specified',
       company: company || 'Not specified',
       service,
       budget,
@@ -78,6 +80,7 @@ function ContactFormContent() {
       setSubmitted(true);
       setName('');
       setEmail('');
+      setPhone('');
       setCompany('');
       setMessage('');
     } catch (err) {
@@ -170,17 +173,32 @@ function ContactFormContent() {
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-mono font-bold text-[#475569] dark:text-[#94A3B8] uppercase tracking-wider mb-2">
-                        Company or Studio Name
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Apex Innovations Co."
-                        value={company}
-                        onChange={(e) => setCompany(e.target.value)}
-                        className="w-full px-4 py-3.5 rounded-2xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] text-[#0F172A] dark:text-[#F8FAFC] placeholder-[#94A3B8] text-sm outline-none focus:ring-2 focus:ring-[#3B82F6]/50 focus:border-[#3B82F6] font-body"
-                      />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-xs font-mono font-bold text-[#475569] dark:text-[#94A3B8] uppercase tracking-wider mb-2">
+                          Company or Studio Name
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Apex Innovations Co."
+                          value={company}
+                          onChange={(e) => setCompany(e.target.value)}
+                          className="w-full px-4 py-3.5 rounded-2xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] text-[#0F172A] dark:text-[#F8FAFC] placeholder-[#94A3B8] text-sm outline-none focus:ring-2 focus:ring-[#3B82F6]/50 focus:border-[#3B82F6] font-body"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-mono font-bold text-[#475569] dark:text-[#94A3B8] uppercase tracking-wider mb-2">
+                          WhatsApp / Phone Number
+                        </label>
+                        <input
+                          type="tel"
+                          placeholder="+1 (555) 000-0000"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          className="w-full px-4 py-3.5 rounded-2xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] text-[#0F172A] dark:text-[#F8FAFC] placeholder-[#94A3B8] text-sm outline-none focus:ring-2 focus:ring-[#3B82F6]/50 focus:border-[#3B82F6] font-body"
+                        />
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -268,6 +286,18 @@ function ContactFormContent() {
                       <span className="text-xs font-mono text-[#64748B] block mb-0.5">Email Inquiry</span>
                       <a href="mailto:hello@devzite.com" className="font-bold text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#3B82F6] transition-colors">
                         hello@devzite.com
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-[rgba(37,211,102,0.1)] border border-[rgba(37,211,102,0.25)] flex items-center justify-center text-[#25D366] shrink-0">
+                      <Phone size={18} />
+                    </div>
+                    <div>
+                      <span className="text-xs font-mono text-[#64748B] block mb-0.5">WhatsApp Instant Chat</span>
+                      <a href="https://wa.me/15550000000" target="_blank" rel="noopener noreferrer" className="font-bold text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#25D366] transition-colors">
+                        Chat on WhatsApp →
                       </a>
                     </div>
                   </div>
