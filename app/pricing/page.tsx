@@ -304,18 +304,27 @@ export default function PricingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 items-stretch mb-20 w-full">
             {plans.map((p, index) => {
               const numericVal = getNumericPrice(p.price);
-              // Check if tier raw price itself is in INR or global setting is INR
-              const isTierINR = p.currency === 'INR' || p.price.includes('₹');
-              const activeCurrency = isTierINR ? 'INR' : currencySetting.currency;
-              const rate = activeCurrency === 'INR' && !isTierINR ? currencySetting.rate || 86 : 1;
+              const activeCurrency = currencySetting.currency;
+              const isRawINR = p.currency === 'INR' || p.price.includes('₹');
+              const inrRate = currencySetting.rate || 86;
 
-              const baseConvertedVal = numericVal !== null ? Math.round(numericVal * rate) : null;
+              let baseConvertedVal: number | null = null;
+              if (numericVal !== null) {
+                if (activeCurrency === 'INR') {
+                  // If global currency is INR: if price is already INR, use as is; otherwise multiply USD by inrRate
+                  baseConvertedVal = isRawINR ? numericVal : Math.round(numericVal * inrRate);
+                } else {
+                  // If global currency is USD: if price is in INR, divide by inrRate; otherwise use USD numericVal as is
+                  baseConvertedVal = isRawINR ? Math.round(numericVal / inrRate) : numericVal;
+                }
+              }
+
               const hasDiscount = appliedCoupon && baseConvertedVal !== null;
               const finalConvertedVal = hasDiscount
                 ? Math.round(baseConvertedVal * (1 - appliedCoupon.discountPercent / 100))
                 : baseConvertedVal;
 
-              const symbolDisplay = activeCurrency === 'INR' ? '₹' : '$';
+              const symbolDisplay = currencySetting.symbol || '$';
               const originalPriceDisplay = baseConvertedVal !== null ? `${symbolDisplay}${baseConvertedVal.toLocaleString()}` : p.price;
 
               return (
