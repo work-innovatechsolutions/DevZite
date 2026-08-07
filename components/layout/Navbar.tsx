@@ -121,7 +121,7 @@ export function Navbar() {
                 <li key={href}>
                   <Link
                     href={href}
-                    className="relative text-sm font-body font-medium text-[#94A3B8] hover:text-[#F8FAFC] transition-colors duration-200 group"
+                    className="relative text-sm font-body font-medium text-[#475569] dark:text-[#94A3B8] hover:text-[#0F172A] dark:hover:text-[#F8FAFC] transition-colors duration-200 group"
                     onMouseEnter={() => setState('hover-link')}
                     onMouseLeave={() => setState('idle')}
                   >
@@ -142,7 +142,7 @@ export function Navbar() {
             {/* ⌘K Button */}
             <button
               onClick={openPalette}
-              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg glass text-[#64748B] hover:text-[#94A3B8] transition-colors text-xs font-mono"
+              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg glass text-[#475569] dark:text-[#64748B] hover:text-[#0F172A] dark:hover:text-[#94A3B8] transition-colors text-xs font-mono"
               aria-label="Open command palette"
               onMouseEnter={() => setState('hover-button')}
               onMouseLeave={() => setState('idle')}
@@ -154,7 +154,7 @@ export function Navbar() {
             {/* Login Button */}
             <Link
               href="/login"
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full glass border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#3B82F6] text-xs font-mono font-bold transition-all hover:border-[rgba(59,130,246,0.3)] shadow-sm"
+              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full glass border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.08)] text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#3B82F6] text-xs font-mono font-bold transition-all hover:border-[rgba(59,130,246,0.3)] shadow-sm"
               onMouseEnter={() => setState('hover-button')}
               onMouseLeave={() => setState('idle')}
             >
@@ -175,10 +175,10 @@ export function Navbar() {
               </Link>
             </MagneticWrapper>
 
-            {/* Mobile hamburger */}
+            {/* Mobile hamburger button */}
             <button
               onClick={() => setMenuOpen((p) => !p)}
-              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-lg glass text-[#94A3B8] hover:text-[#F8FAFC] transition-colors"
+              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-lg glass text-[#475569] dark:text-[#94A3B8] hover:text-[#0F172A] dark:hover:text-[#F8FAFC] border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.08)] transition-colors"
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             >
               {menuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -191,7 +191,7 @@ export function Navbar() {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            className="fixed inset-0 z-[300] bg-[#06070A]/95 backdrop-blur-2xl flex flex-col items-center justify-center"
+            className="fixed inset-0 z-[300] bg-[#F8FAFC]/95 dark:bg-[#06070A]/95 backdrop-blur-2xl flex flex-col items-center justify-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -200,14 +200,14 @@ export function Navbar() {
             {/* Close button */}
             <button
               onClick={() => setMenuOpen(false)}
-              className="absolute top-5 right-5 w-10 h-10 flex items-center justify-center rounded-full glass text-[#94A3B8]"
+              className="absolute top-5 right-5 w-10 h-10 flex items-center justify-center rounded-full glass text-[#475569] dark:text-[#94A3B8] hover:text-[#0F172A] dark:hover:text-[#F8FAFC] border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.08)] transition-colors"
             >
               <X size={20} />
             </button>
 
             {/* Links */}
             <motion.ul
-              className="flex flex-col items-center gap-8"
+              className="flex flex-col items-center gap-7 py-8"
               initial="hidden"
               animate="visible"
               exit="hidden"
@@ -216,7 +216,7 @@ export function Navbar() {
                 visible: { transition: { staggerChildren: STAGGER.loose } },
               }}
             >
-              {[...NAV_LINKS, { label: 'Contact', href: '/contact' }].map(({ label, href }) => (
+              {NAV_LINKS.map(({ label, href }) => (
                 <motion.li
                   key={href}
                   variants={{
@@ -227,7 +227,7 @@ export function Navbar() {
                   <Link
                     href={href}
                     onClick={() => setMenuOpen(false)}
-                    className="text-display-md font-display font-bold text-[#F8FAFC] hover:gradient-text transition-all duration-300"
+                    className="text-3xl sm:text-4xl font-display font-black text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#3B82F6] dark:hover:text-[#3B82F6] transition-all duration-300 tracking-tight"
                   >
                     {label}
                   </Link>
@@ -237,16 +237,16 @@ export function Navbar() {
 
             {/* Social links */}
             <motion.div
-              className="absolute bottom-12 flex items-center gap-6 text-sm text-[#64748B]"
+              className="absolute bottom-10 flex items-center gap-6 text-xs font-mono font-semibold text-[#64748B] dark:text-[#94A3B8]"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: DURATION.medium }}
             >
-              <span>LinkedIn</span>
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#3B82F6] transition-colors">LinkedIn</a>
               <span>·</span>
-              <span>GitHub</span>
+              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#3B82F6] transition-colors">GitHub</a>
               <span>·</span>
-              <span>Twitter</span>
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#3B82F6] transition-colors">Twitter</a>
             </motion.div>
           </motion.div>
         )}
