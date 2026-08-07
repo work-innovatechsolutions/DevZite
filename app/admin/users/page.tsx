@@ -279,8 +279,8 @@ export default function RegisteredUsersAdminPage() {
                     onChange={(e) => handleRoleChange(u.email, e.target.value as 'Admin' | 'User')}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-[rgba(15,23,42,0.04)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.12)] dark:border-[rgba(255,255,255,0.12)] text-[#0F172A] dark:text-[#F8FAFC] text-xs font-semibold outline-none focus:ring-2 focus:ring-[#3B82F6]/50 cursor-pointer"
                   >
-                    <option value="User" className="bg-[#0C0D14] text-white">Standard User (Client Access)</option>
-                    <option value="Admin" className="bg-[#0C0D14] text-white">Admin (Full CMS Access)</option>
+                    <option value="User" className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">Standard User (Client Access)</option>
+                    <option value="Admin" className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">Admin (Full CMS Access)</option>
                   </select>
                 </div>
 
