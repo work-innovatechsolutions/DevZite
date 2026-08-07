@@ -53,10 +53,29 @@ export async function POST(req: Request) {
     if (!isFirebaseAdminConfigured) {
       return NextResponse.json({ success: false, error: 'Firebase Admin environment variables missing' }, { status: 500 });
     }
-    await adminDb.collection('blogs').doc(slug).set(data, { merge: true });
+    await adminDb.collection('blogs').doc(slug).set({ slug, ...data }, { merge: true });
     return NextResponse.json({ success: true, message: 'Blog saved successfully' });
   } catch (error: any) {
     console.error('API /api/blogs POST Error:', error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const slug = searchParams.get('slug');
+    if (!slug) {
+      return NextResponse.json({ success: false, error: 'Blog slug parameter required' }, { status: 400 });
+    }
+    const { adminDb, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
+    if (!isFirebaseAdminConfigured) {
+      return NextResponse.json({ success: false, error: 'Firebase Admin environment variables missing' }, { status: 500 });
+    }
+    await adminDb.collection('blogs').doc(slug).delete();
+    return NextResponse.json({ success: true, message: 'Blog deleted successfully' });
+  } catch (error: any) {
+    console.error('API /api/blogs DELETE Error:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

@@ -1,42 +1,68 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { BlurReveal, TextReveal } from '@/components/motion';
 
-const BLOG_POSTS = [
+interface BlogPost {
+  slug: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  author?: string;
+  readTime?: string;
+  date?: string;
+  publishedAt?: string;
+  icon?: string;
+  status?: string;
+}
+
+const DEFAULT_BLOGS: BlogPost[] = [
   {
-    slug: 'nextjs-15-gsap-lenis-performance',
-    title: 'Architecting Awwwards-Level Performance in Next.js 15',
-    excerpt: 'How we achieve 95+ Lighthouse scores while combining GSAP ScrollTrigger, Lenis smooth scrolling, and React Three Fiber 3D scenes.',
+    slug: 'nextjs-15-performance-guide',
+    title: 'Architecting 99+ Lighthouse Scores in Next.js 15',
+    excerpt: 'Detailed engineering guide on zero-CLS layouts, passive scroll event optimization, and Turbopack bundler tuning.',
     category: 'Engineering',
     readTime: '6 min read',
-    date: 'Aug 4, 2026',
-    author: 'DevZite Engineering Team',
+    date: 'Aug 5, 2026',
     icon: '⚡',
+    status: 'Published',
   },
   {
-    slug: 'firebase-firestore-security-rules-guide',
-    title: 'Mastering Firestore Security Rules for Production SaaS',
-    excerpt: 'A comprehensive guide to role-based access control, schema validation, multi-tenant client isolation, and audit logging in Firebase.',
-    category: 'Backend',
+    slug: 'native-android-jetpack-compose',
+    title: 'Clean Architecture Patterns for Jetpack Compose',
+    excerpt: 'Structuring enterprise Android applications with unidirectional data flow and modular ViewModel architecture.',
+    category: 'Mobile Dev',
     readTime: '8 min read',
     date: 'Jul 28, 2026',
-    author: 'Security Lead',
     icon: '🔒',
-  },
-  {
-    slug: 'ai-video-storytelling-workflow',
-    title: 'Building Automated AI Video Pipelines for Brand Launches',
-    excerpt: 'Exploring our 7-step automated workflow combining script synthesis, voice models, storyboard generation, and 4K rendering engines.',
-    category: 'AI Pipeline',
-    readTime: '5 min read',
-    date: 'Jul 15, 2026',
-    author: 'AI Creative Director',
-    icon: '🎬',
+    status: 'Published',
   },
 ];
 
 export default function BlogIndexPage() {
+  const [blogs, setBlogs] = useState<BlogPost[]>(DEFAULT_BLOGS);
+
+  useEffect(() => {
+    async function loadBlogs() {
+      try {
+        const res = await fetch('/api/blogs');
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          const publishedOnly = data.data.filter((b: any) => b.status !== 'Draft');
+          if (publishedOnly.length > 0) {
+            setBlogs(publishedOnly);
+          }
+        }
+      } catch (err) {
+        console.warn('Blogs load notice:', err);
+      }
+    }
+    loadBlogs();
+  }, []);
+
   return (
     <>
       <Navbar />
@@ -66,7 +92,7 @@ export default function BlogIndexPage() {
 
           {/* Posts Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {BLOG_POSTS.map((post, index) => (
+            {blogs.map((post, index) => (
               <BlurReveal key={post.slug} delay={0.2 + index * 0.1}>
                 <Link
                   href={`/blog/${post.slug}`}
@@ -75,7 +101,7 @@ export default function BlogIndexPage() {
                   <div>
                     <div className="flex items-center justify-between mb-6">
                       <span className="text-3xl p-3 rounded-2xl glass border border-[rgba(255,255,255,0.06)]">
-                        {post.icon}
+                        {post.icon || '⚡'}
                       </span>
                       <span className="text-[11px] font-mono text-[#06B6D4] px-2.5 py-1 rounded-full glass">
                         {post.category}
@@ -92,8 +118,8 @@ export default function BlogIndexPage() {
                   </div>
 
                   <div className="pt-4 border-t border-[rgba(255,255,255,0.06)] flex items-center justify-between text-xs font-mono text-[#64748B]">
-                    <span>{post.readTime}</span>
-                    <span>{post.date}</span>
+                    <span>{post.author || 'Devzite Team'}</span>
+                    <span>{post.date || 'Aug 2026'}</span>
                   </div>
                 </Link>
               </BlurReveal>
