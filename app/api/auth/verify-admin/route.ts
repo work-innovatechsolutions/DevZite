@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import { adminDb, isFirebaseAdminConfigured } from '@/lib/firebase/admin';
 
+const DIRECT_SUPER_ADMINS = [
+  'souvikgon377@gmail.com',
+  'work.innovatechsolutions@gmail.com',
+];
+
 export async function POST(req: Request) {
   try {
     const { email } = await req.json();
@@ -10,13 +15,15 @@ export async function POST(req: Request) {
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // 1. Check Super Admin Emails configured in environment variables
+    // 1. Direct super admin authorization (hardcoded super admins + env var)
     const envSuperAdmins = (process.env.SUPER_ADMIN_EMAILS || '')
       .split(',')
       .map((e) => e.trim().toLowerCase())
       .filter(Boolean);
 
-    if (envSuperAdmins.includes(cleanEmail)) {
+    const allowedAdmins = Array.from(new Set([...DIRECT_SUPER_ADMINS, ...envSuperAdmins]));
+
+    if (allowedAdmins.includes(cleanEmail)) {
       return NextResponse.json({ authorized: true, role: 'Super Admin' });
     }
 
@@ -25,9 +32,9 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           authorized: false,
-          error: `Server Configuration Error: Firebase Admin SDK environment variables (FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY) are missing in Vercel. Please set them in Vercel Project Settings to enable Firestore admin checks.`,
+          error: `Access Denied: Account (${cleanEmail}) is not an authorized Devzite Studio Admin.`,
         },
-        { status: 500 }
+        { status: 403 }
       );
     }
 
@@ -43,7 +50,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         authorized: false,
-        error: `Access Denied: Account (${cleanEmail}) is not listed in the Firestore admin_managers collection or SUPER_ADMIN_EMAILS.`,
+        error: `Access Denied: Account (${cleanEmail}) is not an authorized Devzite Studio Admin.`,
       },
       { status: 403 }
     );
@@ -55,5 +62,6 @@ export async function POST(req: Request) {
     );
   }
 }
+
 
 

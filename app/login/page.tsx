@@ -17,41 +17,15 @@ export default function LoginPage() {
   const [role, setRole] = useState<'client' | 'admin'>('client');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [unauthorizedEmail, setUnauthorizedEmail] = useState('');
 
   const router = useRouter();
-  const { signInWithEmail, signInWithGoogle, logout } = useAuth();
+  const { signInWithEmail, registerWithEmail, signInWithGoogle, logout } = useAuth();
 
   const readJsonSafe = async (res: Response) => {
     try {
       return await res.json();
     } catch {
       return null;
-    }
-  };
-
-  const handleBootstrapAdmin = async (targetEmail: string) => {
-    if (!targetEmail) return;
-    setLoading(true);
-    try {
-      const res = await fetch('/api/auth/bootstrap-admin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: targetEmail, name: targetEmail.split('@')[0] }),
-      });
-      const data = await readJsonSafe(res);
-      if (res.ok && data?.success) {
-        sessionStorage.setItem('devzite_admin_auth', 'true');
-        setUnauthorizedEmail('');
-        setErrorMsg('');
-        router.push('/admin/dashboard');
-      } else {
-        setErrorMsg(data?.error || 'Failed to authorize admin account.');
-      }
-    } catch {
-      setErrorMsg('Error authorizing admin account.');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -77,14 +51,28 @@ export default function LoginPage() {
 
         if (!verifyRes.ok || !verifyData?.authorized) {
           setErrorMsg(verifyData?.error || `Access Denied: Account (${email}) is not an authorized Admin.`);
-          setUnauthorizedEmail(email);
           setLoading(false);
           return;
         }
       }
 
-      // Perform Firebase Auth Sign-In
-      await signInWithEmail(email, password);
+      // Perform Firebase Auth Sign-In with auto-registration fallback for authorized accounts
+      try {
+        await signInWithEmail(email, password);
+      } catch (signInErr: any) {
+        if (
+          role === 'admin' &&
+          (signInErr.code === 'auth/user-not-found' || signInErr.code === 'auth/invalid-credential')
+        ) {
+          try {
+            await registerWithEmail(email, password);
+          } catch {
+            throw signInErr;
+          }
+        } else {
+          throw signInErr;
+        }
+      }
 
       if (role === 'admin') {
         sessionStorage.setItem('devzite_admin_auth', 'true');
@@ -129,7 +117,6 @@ export default function LoginPage() {
 
         if (!verifyRes.ok || !verifyData?.authorized) {
           setErrorMsg(verifyData?.error || `Access Denied: Google Account (${userEmail}) is not an authorized Admin.`);
-          setUnauthorizedEmail(userEmail);
           await logout();
           sessionStorage.removeItem('devzite_admin_auth');
           setLoading(false);
@@ -317,21 +304,9 @@ export default function LoginPage() {
 
               {/* ── Error Banner ── */}
               {errorMsg && (
-                <div className="p-4 rounded-2xl bg-[#EF4444]/10 border border-[#EF4444]/30 text-[#EF4444] text-xs font-mono font-medium flex flex-col gap-2.5 mb-6 shadow-lg">
-                  <div className="flex items-start gap-2.5">
-                    <AlertCircle size={18} className="shrink-0 mt-0.5 text-[#EF4444]" />
-                    <span className="leading-relaxed">{errorMsg}</span>
-                  </div>
-
-                  {unauthorizedEmail && (
-                    <button
-                      type="button"
-                      onClick={() => handleBootstrapAdmin(unauthorizedEmail)}
-                      className="w-full py-2.5 px-3 rounded-xl bg-[#3B82F6] hover:bg-[#2563EB] text-white font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-md mt-1 cursor-pointer"
-                    >
-                      Authorize ({unauthorizedEmail}) as First Super Admin
-                    </button>
-                  )}
+                <div className="p-4 rounded-2xl bg-[#EF4444]/10 border border-[#EF4444]/30 text-[#EF4444] text-xs font-mono font-medium flex items-start gap-2.5 mb-6 shadow-lg">
+                  <AlertCircle size={18} className="shrink-0 mt-0.5 text-[#EF4444]" />
+                  <span className="leading-relaxed">{errorMsg}</span>
                 </div>
               )}
 
