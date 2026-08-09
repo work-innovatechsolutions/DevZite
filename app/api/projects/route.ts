@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -82,6 +83,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: 'Firebase Admin environment variables missing' }, { status: 500 });
     }
     await adminDb.collection('projects').doc(slug).set({ slug, ...data }, { merge: true });
+    // Bust ISR cache so the public page reflects the change immediately
+    revalidatePath('/projects');
+    revalidatePath(`/projects/${slug}`);
     return NextResponse.json({ success: true, message: 'Project saved successfully' });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Error saving project';
@@ -101,6 +105,9 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ success: false, error: 'Firebase Admin environment variables missing' }, { status: 500 });
     }
     await adminDb.collection('projects').doc(slug).delete();
+    // Bust ISR cache so the removal is reflected immediately on the public page
+    revalidatePath('/projects');
+    revalidatePath(`/projects/${slug}`);
     return NextResponse.json({ success: true, message: 'Project deleted successfully' });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Error deleting project';
