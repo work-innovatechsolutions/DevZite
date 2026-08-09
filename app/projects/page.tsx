@@ -3,7 +3,10 @@ import Image from 'next/image';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { BlurReveal } from '@/components/motion';
-import { ArrowUpRight, Zap } from 'lucide-react';
+import { ArrowUpRight, Zap, ExternalLink } from 'lucide-react';
+
+// Revalidate every 60 seconds so newly-added projects appear without a full rebuild
+export const revalidate = 60;
 
 type ProjectCard = {
   slug: string;
@@ -13,6 +16,7 @@ type ProjectCard = {
   metrics: string;
   tech: string[];
   image: string;
+  url?: string;
 };
 
 const DEFAULT_PROJECTS: ProjectCard[] = [
@@ -33,6 +37,7 @@ const DEFAULT_PROJECTS: ProjectCard[] = [
     metrics: 'Lighthouse: 99/100 · Live Production',
     tech: ['Next.js 15', 'Tailwind', 'GSAP', 'Lenis'],
     image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80',
+    url: 'https://devzite.com',
   },
   {
     slug: 'cyberpulse-saas-dashboard',
@@ -76,6 +81,7 @@ async function getFirestoreProjects() {
             metrics: `Lighthouse: ${data.lighthouseScore || 99}/100 · ${data.status || 'Live Production'}`,
             tech: techStack,
             image: (data.image as string) || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80',
+            url: (data.url as string) || undefined,
           };
         });
       }
@@ -166,13 +172,27 @@ export default async function ProjectsOverviewPage() {
                         ))}
                       </div>
 
-                      <Link
-                        href={`/projects/${p.slug}`}
-                        className="flex items-center justify-between text-xs font-mono font-bold text-[#3B82F6] pt-4 border-t border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] hover:underline"
-                      >
-                        <span>Explore Technical Specs</span>
-                        <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                      </Link>
+                      <div className="flex items-center gap-2 pt-4 border-t border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)]">
+                        <Link
+                          href={`/projects/${p.slug}`}
+                          className="flex-1 flex items-center justify-between text-xs font-mono font-bold text-[#3B82F6] hover:underline"
+                        >
+                          <span>Explore Technical Specs</span>
+                          <ArrowUpRight size={15} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                        </Link>
+
+                        {p.url && (
+                          <a
+                            href={p.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-mono font-bold bg-[#3B82F6] hover:bg-[#2563EB] text-white transition-all duration-200 shadow-sm hover:shadow-[0_0_12px_rgba(59,130,246,0.4)] whitespace-nowrap"
+                          >
+                            <ExternalLink size={11} />
+                            View Site
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
