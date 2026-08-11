@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
 import { useCursorState } from '@/providers/CursorProvider';
 import { isTouchDevice } from '@/lib/utils';
@@ -22,9 +23,14 @@ const CURSOR_CONFIG = {
 } as const;
 
 export function PremiumCursor() {
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [isTouch, setIsTouch] = useState(false);
   const { state, label } = useCursorState();
+
+  const isDisabledPanel = Boolean(
+    pathname && (pathname.startsWith('/admin') || pathname.startsWith('/client'))
+  );
 
   const posRef = useRef({ x: -100, y: -100 });
   const trailDotsRef = useRef<HTMLDivElement[]>([]);
@@ -45,6 +51,15 @@ export function PremiumCursor() {
     setMounted(true);
     setIsTouch(isTouchDevice());
   }, []);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (isDisabledPanel) {
+      document.body.classList.add('custom-cursor-disabled');
+    } else {
+      document.body.classList.remove('custom-cursor-disabled');
+    }
+  }, [isDisabledPanel]);
 
   useEffect(() => {
     if (isTouch) return;
@@ -83,7 +98,7 @@ export function PremiumCursor() {
     };
   }, [isTouch, mx, my]);
 
-  if (!mounted || isTouch) return null;
+  if (!mounted || isTouch || isDisabledPanel) return null;
 
   return (
     <div

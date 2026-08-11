@@ -18,6 +18,7 @@ import {
   ArrowUpRight,
   DollarSign,
   ShieldAlert,
+  MessageSquare,
   Menu,
   X
 } from 'lucide-react';
@@ -31,6 +32,7 @@ const ADMIN_NAV = [
   { label: 'Blog & MDX',  href: '/admin/blogs',     icon: FileCode2 },
   { label: 'Leads & CRM', href: '/admin/leads',     icon: Mail },
   { label: 'Clients',     href: '/admin/clients',   icon: Users },
+  { label: 'Client Chat', href: '/admin/chat',      icon: MessageSquare },
   { label: 'Registered Users', href: '/admin/users', icon: ShieldAlert },
   { label: 'Managers',    href: '/admin/managers',  icon: UserCheck },
   { label: 'Analytics',   href: '/admin/analytics', icon: BarChart3 },
