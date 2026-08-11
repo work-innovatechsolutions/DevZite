@@ -44,10 +44,23 @@ export function SceneInvitation() {
   const onSubmit = async (data: ContactFormValues) => {
     setSubmitting(true);
     try {
-      const response = await fetch('/api/contact', {
+      const newLead = {
+        id: `lead-${Date.now()}`,
+        name: data.name,
+        email: data.email,
+        phone: 'Not specified',
+        company: 'Not specified',
+        service: data.service,
+        budget: data.budget || 'Not selected',
+        message: data.message + (uploadedFiles.length > 0 ? ` [${uploadedFiles.length} file(s) attached]` : ''),
+        status: 'New Inquiry',
+        createdAt: new Date().toISOString(),
+      };
+
+      const response = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, filesCount: uploadedFiles.length }),
+        body: JSON.stringify(newLead),
       });
 
       if (response.ok) {

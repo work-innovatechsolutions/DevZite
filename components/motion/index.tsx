@@ -67,7 +67,7 @@ export function WordReveal({
   return (
     <span className={cn('inline-block', className)} aria-label={text}>
       {words.map((word, i) => (
-        <span key={i} className="inline-block overflow-hidden mr-[0.25em]">
+        <span key={i} className="inline-block overflow-hidden pr-[0.12em] py-[0.05em] mr-[0.2em] last:mr-0 align-bottom">
           <motion.span
             className={cn('inline-block', className, wordClassName)}
             initial={{ y: '115%', opacity: 0 }}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BlurReveal, CountUp } from '@/components/motion';
 import { useCursorState } from '@/providers/CursorProvider';
@@ -114,15 +115,15 @@ export function SceneArrival() {
               Explore Capabilities
               <ArrowRight size={16} />
             </a>
-            <a
-              href="#scene-invitation"
+            <Link
+              href="/contact"
               id="hero-cta-project"
               onMouseEnter={() => setState('hover-button')}
               onMouseLeave={() => setState('idle')}
               className="btn-ghost text-sm sm:text-base px-7 py-3.5"
             >
               Start a Project
-            </a>
+            </Link>
           </div>
         </BlurReveal>
 

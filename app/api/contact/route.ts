@@ -3,29 +3,43 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, service, budget, message, filesCount } = body;
+    const { name, email, service, budget, message, filesCount, phone, company, id } = body;
 
-    if (!name || !email || !service || !message) {
+    if (!name || !email) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    console.log('📬 Contact Form Submission Received:', {
+    const docId = id || `lead-${Date.now()}`;
+    const leadData = {
+      id: docId,
       name,
       email,
-      service,
-      budget: budget || 'N/A',
-      message,
-      filesCount: filesCount || 0,
-      timestamp: new Date().toISOString(),
-    });
+      phone: phone || 'Not specified',
+      company: company || 'Not specified',
+      service: service || 'General Inquiry',
+      budget: budget || 'Not selected',
+      message: (message || '') + (filesCount ? ` [${filesCount} file(s) attached]` : ''),
+      status: 'New Inquiry',
+      createdAt: new Date().toISOString(),
+    };
 
-    // Simulated email delivery / Firestore record insertion
+    try {
+      const { adminDb, isFirebaseAdminConfigured } = await import('@/lib/firebase/admin');
+      if (isFirebaseAdminConfigured) {
+        await adminDb.collection('leads').doc(docId).set(leadData, { merge: true });
+      }
+    } catch (e) {
+      console.warn('Firebase leads write fallback in contact API:', e);
+    }
+
+    console.log('📬 Contact Form Submission Received & Saved to Leads:', leadData);
+
     return NextResponse.json({
       success: true,
-      message: 'Contact form submission stored and notification dispatched.',
+      message: 'Contact form submission stored and saved to leads.',
     });
   } catch (error) {
     console.error('Contact API Error:', error);

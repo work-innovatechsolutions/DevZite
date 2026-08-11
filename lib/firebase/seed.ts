@@ -145,28 +145,9 @@ export const INITIAL_LEADS = [
   },
 ];
 
-export const INITIAL_BLOGS = [
-  {
-    slug: 'nextjs-15-performance-guide',
-    title: 'Architecting 99+ Lighthouse Scores in Next.js 15',
-    category: 'Engineering',
-    author: 'Devzite Technical Team',
-    status: 'Published',
-    views: 4280,
-    excerpt: 'Detailed engineering guide on zero-CLS layouts, passive scroll event optimization, and Turbopack bundler tuning.',
-    publishedAt: new Date().toISOString(),
-  },
-  {
-    slug: 'native-android-jetpack-compose',
-    title: 'Clean Architecture Patterns for Jetpack Compose',
-    category: 'Mobile Dev',
-    author: 'Devzite Mobile Lead',
-    status: 'Published',
-    views: 2910,
-    excerpt: 'Structuring enterprise Android applications with unidirectional data flow and modular ViewModel architecture.',
-    publishedAt: new Date().toISOString(),
-  },
-];
+import { COMPREHENSIVE_BLOGS } from '@/lib/data/blogs';
+
+export const INITIAL_BLOGS = COMPREHENSIVE_BLOGS;
 
 export const INITIAL_MANAGERS: any[] = [];
 

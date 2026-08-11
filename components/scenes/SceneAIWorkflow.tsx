@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { BlurReveal, WordReveal, SlideIn } from '@/components/motion';
 import { DURATION, EASE } from '@/lib/motion/tokens';
@@ -29,7 +30,7 @@ export function SceneAIWorkflow() {
       <div className="container-site">
 
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-20">
+        <div className="text-center max-w-4xl mx-auto mb-20">
           <BlurReveal>
             <span className="text-xs font-mono text-[#8B5CF6] uppercase tracking-widest">
               / 05 — AI Video Pipeline
@@ -39,11 +40,18 @@ export function SceneAIWorkflow() {
           <h2 className="text-display-md font-display font-black text-[#F8FAFC] mt-4 mb-5">
             <WordReveal text="From raw prompt to" delay={0.15} stagger={0.05} className="block" />
             <WordReveal
-              text="4K cinematic film."
+              text="Business Growth UGC"
               delay={0.35}
               stagger={0.05}
-              className="block gradient-text-violet"
-              wordClassName="gradient-text-violet"
+              className="block whitespace-nowrap gradient-text-animated"
+              wordClassName="gradient-text-animated"
+            />
+            <WordReveal
+              text="Video."
+              delay={0.5}
+              stagger={0.05}
+              className="block gradient-text-animated"
+              wordClassName="gradient-text-animated"
             />
           </h2>
 
@@ -127,15 +135,15 @@ export function SceneAIWorkflow() {
             />
             <div className="relative z-10">
               <p className="font-display font-bold text-xl text-[#F8FAFC] mb-1">48-hour turnaround</p>
-              <p className="text-sm text-[#94A3B8]">From prompt to broadcast-ready 4K cinematic video.</p>
+              <p className="text-sm text-[#94A3B8]">From prompt to high-converting Business Growth UGC Video.</p>
             </div>
-            <a
-              href="#scene-invitation"
+            <Link
+              href="/contact"
               className="btn-primary shrink-0 relative z-10"
               id="workflow-cta"
             >
               Launch a Video Project →
-            </a>
+            </Link>
           </div>
         </SlideIn>
       </div>
