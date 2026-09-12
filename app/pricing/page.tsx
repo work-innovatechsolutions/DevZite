@@ -8,8 +8,7 @@ import { Footer } from '@/components/layout/Footer';
 import { BlurReveal } from '@/components/motion';
 import { Check, Sparkles, ArrowRight, Zap, Tag, CheckCircle2, AlertCircle, X, Star } from 'lucide-react';
 import NumberFlow from '@number-flow/react';
-import { db } from '@/lib/firebase/client';
-import { collection, onSnapshot, doc } from 'firebase/firestore';
+
 
 interface PricingPlan {
   id: string;
@@ -104,9 +103,18 @@ export default function PricingPage() {
     loadCoupons();
     loadCurrency();
 
-    if (db) {
+    let unsubPricing: (() => void) | undefined;
+    let unsubCurrency: (() => void) | undefined;
+
+    async function initFirestoreLiveSync() {
       try {
-        const unsubPricing = onSnapshot(
+        const { getFirebaseDb } = await import('@/lib/firebase/client');
+        const db = await getFirebaseDb();
+        if (!db) return;
+
+        const { collection, onSnapshot, doc } = await import('firebase/firestore');
+
+        unsubPricing = onSnapshot(
           collection(db, 'pricing'),
           (snapshot) => {
             if (!snapshot.empty) {
@@ -127,7 +135,7 @@ export default function PricingPage() {
           () => {}
         );
 
-        const unsubCurrency = onSnapshot(
+        unsubCurrency = onSnapshot(
           doc(db, 'settings', 'currency'),
           (snapshot) => {
             if (snapshot.exists()) {
@@ -141,15 +149,17 @@ export default function PricingPage() {
           },
           () => {}
         );
-
-        return () => {
-          unsubPricing();
-          unsubCurrency();
-        };
       } catch (e) {
-        // Ignored
+        // Fallback already loaded via fetch APIs
       }
     }
+
+    initFirestoreLiveSync();
+
+    return () => {
+      if (unsubPricing) unsubPricing();
+      if (unsubCurrency) unsubCurrency();
+    };
   }, []);
 
   const triggerConfetti = () => {

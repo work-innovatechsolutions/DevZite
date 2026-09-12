@@ -21,14 +21,24 @@ export function MagneticWrapper({
   className,
 }: MagneticWrapperProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const rectRef = useRef<DOMRect | null>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const springX = useSpring(x, SPRING.default);
   const springY = useSpring(y, SPRING.default);
 
-  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+  const handleMouseEnter = () => {
     if (isTouchDevice() || !ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
+    rectRef.current = ref.current.getBoundingClientRect();
+  };
+
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    if (isTouchDevice()) return;
+    if (!rectRef.current && ref.current) {
+      rectRef.current = ref.current.getBoundingClientRect();
+    }
+    const rect = rectRef.current;
+    if (!rect) return;
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
     x.set((e.clientX - centerX) * strength);
@@ -36,6 +46,7 @@ export function MagneticWrapper({
   };
 
   const handleMouseLeave = () => {
+    rectRef.current = null;
     x.set(0);
     y.set(0);
   };
@@ -45,6 +56,7 @@ export function MagneticWrapper({
       ref={ref}
       className={className}
       style={{ x: springX, y: springY }}
+      onMouseEnter={handleMouseEnter}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >

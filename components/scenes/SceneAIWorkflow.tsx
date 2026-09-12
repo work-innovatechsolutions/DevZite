@@ -76,14 +76,14 @@ export function SceneAIWorkflow() {
               return (
                 <motion.div
                   key={s.step}
-                  className={`flex items-center gap-6 md:gap-0 ${isLeft ? 'md:flex-row' : 'md:flex-row-reverse'}`}
+                  className="grid grid-cols-1 md:grid-cols-[1fr_80px_1fr] items-center gap-6 md:gap-0"
                   initial={{ opacity: 0, x: isLeft ? -50 : 50 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: '-8%' }}
                   transition={{ duration: DURATION.slow, delay: i * 0.1, ease: EASE.premium }}
                 >
-                  {/* Card (takes 5/12 width on md) */}
-                  <div className={`flex-1 md:w-5/12 ${isLeft ? 'md:pr-10 md:text-right' : 'md:pl-10'}`}>
+                  {/* Card */}
+                  <div className={`${isLeft ? 'md:col-start-1 md:pr-10 md:text-right' : 'md:col-start-3 md:pl-10'}`}>
                     <div className="group glass-card rounded-2xl p-6 hover:border-[rgba(139,92,246,0.4)] relative overflow-hidden">
                       {/* Accent glow */}
                       <div
@@ -104,7 +104,7 @@ export function SceneAIWorkflow() {
                   </div>
 
                   {/* Center node */}
-                  <div className="hidden md:flex flex-col items-center justify-center w-2/12 z-10">
+                  <div className="hidden md:flex flex-col items-center justify-center md:col-start-2 z-10">
                     <div
                       className="w-10 h-10 rounded-full flex items-center justify-center text-[11px] font-mono font-bold border-2 relative"
                       style={{
@@ -117,9 +117,6 @@ export function SceneAIWorkflow() {
                       {s.step}
                     </div>
                   </div>
-
-                  {/* Opposite spacer */}
-                  <div className="hidden md:block flex-1 w-5/12" />
                 </motion.div>
               );
             })}

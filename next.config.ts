@@ -49,14 +49,12 @@ const nextConfig: NextConfig = {
     optimizePackageImports: [
       'lucide-react',
       'framer-motion',
-      '@radix-ui/react-dialog',
-      '@radix-ui/react-dropdown-menu',
       'gsap',
+      'clsx',
+      'tailwind-merge',
     ],
   },
 
-  // ─── Webpack / Transpile ────────────────────────────────────────────────
-  transpilePackages: ['three'],
   serverExternalPackages: ['firebase-admin', 'jose', 'jwks-rsa'],
 
   // ─── Output ─────────────────────────────────────────────────────────────

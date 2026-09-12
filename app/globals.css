@@ -104,8 +104,8 @@
   }
 
   @keyframes shimmer {
-    0%   { background-position: -200% 0; }
-    100% { background-position:  200% 0; }
+    0%   { transform: translateX(-100%) skewX(-15deg); }
+    100% { transform: translateX(200%) skewX(-15deg); }
   }
 
   @keyframes blink {
@@ -383,12 +383,13 @@ h1, h2, h3, h4, h5, h6 {
   background: linear-gradient(
     105deg,
     transparent 30%,
-    rgba(255, 255, 255, 0.07) 50%,
+    rgba(255, 255, 255, 0.08) 50%,
     transparent 70%
   );
-  background-size: 200% 100%;
+  transform: translateX(-100%) skewX(-15deg);
   opacity: 0;
   transition: opacity 0.3s ease;
+  pointer-events: none;
 }
 .glass-shimmer:hover::before {
   opacity: 1;
@@ -544,7 +545,7 @@ h1, h2, h3, h4, h5, h6 {
   gap: 0.5rem;
   padding: 0.875rem 2rem;
   border-radius: 9999px;
-  background: #3B82F6;
+  background: #2563EB;
   color: #fff;
   font-weight: 600;
   font-size: 0.9375rem;
@@ -552,7 +553,7 @@ h1, h2, h3, h4, h5, h6 {
   transition: background 0.25s ease, box-shadow 0.3s ease, transform 0.2s ease;
 }
 .btn-primary:hover {
-  background: #2563EB;
+  background: #1D4ED8;
   box-shadow: 0 0 35px rgba(59, 130, 246, 0.6), 0 8px 20px rgba(0,0,0,0.3);
   transform: translateY(-1px);
 }

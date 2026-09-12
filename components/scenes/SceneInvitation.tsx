@@ -164,9 +164,10 @@ export function SceneInvitation() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         {/* Name */}
                         <div>
-                          <label className="text-xs font-mono text-[#475569] dark:text-[#94A3B8] block mb-2 font-bold">Your Name *</label>
+                          <label htmlFor="invitation-name" className="text-xs font-mono text-[#475569] dark:text-[#94A3B8] block mb-2 font-bold">Your Name *</label>
                           <input
                             {...register('name')}
+                            id="invitation-name"
                             type="text"
                             placeholder="John Doe"
                             className="w-full px-4 py-3 rounded-xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.08)] text-sm text-[#0F172A] dark:text-[#F8FAFC] placeholder-[#94A3B8] outline-none focus:border-[#3B82F6] transition-colors font-body"
@@ -178,9 +179,10 @@ export function SceneInvitation() {
 
                         {/* Email */}
                         <div>
-                          <label className="text-xs font-mono text-[#475569] dark:text-[#94A3B8] block mb-2 font-bold">Email Address *</label>
+                          <label htmlFor="invitation-email" className="text-xs font-mono text-[#475569] dark:text-[#94A3B8] block mb-2 font-bold">Email Address *</label>
                           <input
                             {...register('email')}
+                            id="invitation-email"
                             type="email"
                             placeholder="john@company.com"
                             className="w-full px-4 py-3 rounded-xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.08)] text-sm text-[#0F172A] dark:text-[#F8FAFC] placeholder-[#94A3B8] outline-none focus:border-[#3B82F6] transition-colors font-body"
@@ -194,9 +196,10 @@ export function SceneInvitation() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         {/* Service Selection */}
                         <div>
-                          <label className="text-xs font-mono text-[#475569] dark:text-[#94A3B8] block mb-2 font-bold">Service Needed *</label>
+                          <label htmlFor="invitation-service" className="text-xs font-mono text-[#475569] dark:text-[#94A3B8] block mb-2 font-bold">Service Needed *</label>
                           <select
                             {...register('service')}
+                            id="invitation-service"
                             className="w-full px-4 py-3 rounded-xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.08)] text-sm text-[#0F172A] dark:text-[#F8FAFC] outline-none focus:border-[#3B82F6] transition-colors font-body cursor-pointer"
                           >
                             <option value="" className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">Select a service...</option>
@@ -213,9 +216,10 @@ export function SceneInvitation() {
 
                         {/* Budget */}
                         <div>
-                          <label className="text-xs font-mono text-[#475569] dark:text-[#94A3B8] block mb-2 font-bold">Estimated Budget</label>
+                          <label htmlFor="invitation-budget" className="text-xs font-mono text-[#475569] dark:text-[#94A3B8] block mb-2 font-bold">Estimated Budget</label>
                           <select
                             {...register('budget')}
+                            id="invitation-budget"
                             className="w-full px-4 py-3 rounded-xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.08)] text-sm text-[#0F172A] dark:text-[#F8FAFC] outline-none focus:border-[#3B82F6] transition-colors font-body cursor-pointer"
                           >
                             <option value="" className="bg-white dark:bg-[#0C0D14] text-[#0F172A] dark:text-[#F8FAFC]">Select range...</option>
@@ -229,9 +233,10 @@ export function SceneInvitation() {
 
                       {/* Message */}
                       <div>
-                        <label className="text-xs font-mono text-[#475569] dark:text-[#94A3B8] block mb-2 font-bold">Project Brief *</label>
+                        <label htmlFor="invitation-message" className="text-xs font-mono text-[#475569] dark:text-[#94A3B8] block mb-2 font-bold">Project Brief *</label>
                         <textarea
                           {...register('message')}
+                          id="invitation-message"
                           rows={4}
                           placeholder="Tell us about your goals, timelines, and technical requirements..."
                           className="w-full px-4 py-3 rounded-xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.1)] dark:border-[rgba(255,255,255,0.08)] text-sm text-[#0F172A] dark:text-[#F8FAFC] placeholder-[#94A3B8] outline-none focus:border-[#3B82F6] transition-colors resize-none font-body"
@@ -243,7 +248,7 @@ export function SceneInvitation() {
 
                       {/* Dropzone File Upload */}
                       <div>
-                        <label className="text-xs font-mono text-[#94A3B8] block mb-2">Attachments (RFP / Wireframes)</label>
+                        <label htmlFor="invitation-attachments" className="text-xs font-mono text-[#94A3B8] block mb-2">Attachments (RFP / Wireframes)</label>
                         <div
                           {...getRootProps()}
                           className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors ${
@@ -252,7 +257,7 @@ export function SceneInvitation() {
                               : 'border-[rgba(255,255,255,0.1)] hover:border-[rgba(59,130,246,0.4)]'
                           }`}
                         >
-                          <input {...getInputProps()} />
+                          <input id="invitation-attachments" {...getInputProps()} />
                           <p className="text-xs text-[#64748B]">
                             {isDragActive
                               ? 'Drop files here...'
@@ -274,7 +279,7 @@ export function SceneInvitation() {
                         disabled={submitting}
                         onMouseEnter={() => setState('hover-button')}
                         onMouseLeave={() => setState('idle')}
-                        className="w-full py-4 rounded-xl bg-[#3B82F6] hover:bg-[#2563EB] text-white font-body font-semibold text-sm transition-all duration-300 hover:shadow-[0_0_25px_rgba(59,130,246,0.5)] active:scale-95 disabled:opacity-50"
+                        className="w-full py-4 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-body font-semibold text-sm transition-all duration-300 hover:shadow-[0_0_25px_rgba(59,130,246,0.5)] active:scale-95 disabled:opacity-50"
                       >
                         {submitting ? 'Submitting Request...' : 'Send Project Brief →'}
                       </button>

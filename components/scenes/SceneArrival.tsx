@@ -67,14 +67,12 @@ export function SceneArrival() {
       <div className="container-site relative z-10 text-center flex flex-col items-center max-w-5xl">
 
         {/* Top Status Indicator */}
-        <BlurReveal delay={0.1}>
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full glass border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] mb-6 shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
-            <span className="text-xs font-mono text-[#0F172A] dark:text-[#CBD5E1] tracking-wide font-semibold">
-              Available for Q3/Q4 Projects
-            </span>
-          </div>
-        </BlurReveal>
+        <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full glass border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] mb-6 shadow-sm">
+          <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
+          <span className="text-xs font-mono text-[#0F172A] dark:text-[#CBD5E1] tracking-wide font-semibold">
+            Available for Q3/Q4 Projects
+          </span>
+        </div>
 
         {/* Main headline — High-impact, bold & prominent font weight */}
         <h1 className="text-4xl sm:text-6xl lg:text-7xl font-display font-black mb-6 tracking-tight max-w-5xl mx-auto leading-[1.08] text-[#0F172A] dark:text-[#F8FAFC]">
@@ -83,7 +81,7 @@ export function SceneArrival() {
             <AnimatePresence mode="wait">
               <motion.span
                 key={ROTATING_SPECIALTIES[currentWordIdx]}
-                initial={{ y: 14, opacity: 0 }}
+                initial={false}
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: -14, opacity: 0 }}
                 transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
@@ -95,37 +93,33 @@ export function SceneArrival() {
           </span>
         </h1>
 
-        {/* Sub-headline description — High contrast in Light and Dark Mode */}
-        <BlurReveal delay={0.35}>
-          <p className="text-lg sm:text-xl lg:text-2xl text-[#334155] dark:text-[#CBD5E1] max-w-3xl mx-auto mb-10 leading-relaxed font-body font-semibold">
-            Devzite is a digital engineering studio. We build high-performance web applications, native mobile software, and custom cloud products for ambitious brands.
-          </p>
-        </BlurReveal>
+        {/* Sub-headline description — Immediate render for instant LCP */}
+        <p className="text-lg sm:text-xl lg:text-2xl text-[#334155] dark:text-[#CBD5E1] max-w-3xl mx-auto mb-10 leading-relaxed font-body font-semibold">
+          Devzite is a digital engineering studio. We build high-performance web applications, native mobile software, and custom cloud products for ambitious brands.
+        </p>
 
-        {/* Action CTAs */}
-        <BlurReveal delay={0.5}>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14">
-            <a
-              href="#scene-problems"
-              id="hero-cta-work"
-              onMouseEnter={() => setState('hover-button')}
-              onMouseLeave={() => setState('idle')}
-              className="btn-primary text-sm sm:text-base px-7 py-3.5 shadow-[0_0_25px_rgba(59,130,246,0.2)]"
-            >
-              Explore Capabilities
-              <ArrowRight size={16} />
-            </a>
-            <Link
-              href="/contact"
-              id="hero-cta-project"
-              onMouseEnter={() => setState('hover-button')}
-              onMouseLeave={() => setState('idle')}
-              className="btn-ghost text-sm sm:text-base px-7 py-3.5"
-            >
-              Start a Project
-            </Link>
-          </div>
-        </BlurReveal>
+        {/* Action CTAs — Immediate render */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14">
+          <a
+            href="#scene-problems"
+            id="hero-cta-work"
+            onMouseEnter={() => setState('hover-button')}
+            onMouseLeave={() => setState('idle')}
+            className="btn-primary text-sm sm:text-base px-7 py-3.5 shadow-[0_0_25px_rgba(59,130,246,0.2)]"
+          >
+            Explore Capabilities
+            <ArrowRight size={16} />
+          </a>
+          <Link
+            href="/contact"
+            id="hero-cta-project"
+            onMouseEnter={() => setState('hover-button')}
+            onMouseLeave={() => setState('idle')}
+            className="btn-ghost text-sm sm:text-base px-7 py-3.5"
+          >
+            Start a Project
+          </Link>
+        </div>
 
         {/* Capability Cards Row (3 Cards) */}
         <BlurReveal delay={0.65} className="w-full">

@@ -104,17 +104,15 @@ function TestimonialCard({ item, rotate }: { item: TestimonialItem; rotate?: boo
             {item.avatar}
           </div>
           <div>
-            <h4 className="font-display font-bold text-sm text-[#F8FAFC] leading-tight">{item.author}</h4>
+            <h3 className="font-display font-bold text-sm text-[#F8FAFC] leading-tight">{item.author}</h3>
             <p className="text-[11px] text-[#64748B] font-mono leading-tight">{item.role}</p>
           </div>
         </div>
 
         {/* Star rating */}
-        <div className="flex gap-0.5">
-          {Array.from({ length: item.rating }).map((_, i) => (
-            <span key={i} className="text-[#FFBD2E] text-xs">★</span>
-          ))}
-        </div>
+        <span className="text-[#FFBD2E] text-xs tracking-wider" aria-label={`${item.rating} out of 5 stars`}>
+          {'★'.repeat(item.rating)}
+        </span>
       </div>
 
       {/* Quote */}
@@ -163,19 +161,19 @@ export function SceneVoices() {
         </h2>
       </div>
 
-      {/* Marquee Row 1 — left to right */}
+      {/* Marquee Row 1 — left to right (2 copies for seamless 50% loop) */}
       <div className="w-full overflow-hidden mb-5">
         <div className="marquee-track marquee-track--play flex gap-5">
-          {[...TESTIMONIALS_ROW1, ...TESTIMONIALS_ROW1, ...TESTIMONIALS_ROW1].map((item, idx) => (
+          {[...TESTIMONIALS_ROW1, ...TESTIMONIALS_ROW1].map((item, idx) => (
             <TestimonialCard key={idx} item={item} rotate={idx % 2 === 0} />
           ))}
         </div>
       </div>
 
-      {/* Marquee Row 2 — right to left */}
+      {/* Marquee Row 2 — right to left (2 copies for seamless 50% loop) */}
       <div className="w-full overflow-hidden">
         <div className="marquee-track marquee-track--reverse flex gap-5">
-          {[...TESTIMONIALS_ROW2, ...TESTIMONIALS_ROW2, ...TESTIMONIALS_ROW2].map((item, idx) => (
+          {[...TESTIMONIALS_ROW2, ...TESTIMONIALS_ROW2].map((item, idx) => (
             <TestimonialCard key={idx} item={item} rotate={idx % 2 !== 0} />
           ))}
         </div>

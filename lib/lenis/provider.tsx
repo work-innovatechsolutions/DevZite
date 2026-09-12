@@ -1,9 +1,7 @@
 'use client';
 
-import { createContext, useContext, useEffect, useRef } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import Lenis from 'lenis';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 interface LenisContextValue {
   lenis: Lenis | null;
@@ -20,11 +18,11 @@ interface LenisProviderProps {
 }
 
 export function LenisProvider({ children }: LenisProviderProps) {
-  const lenisRef = useRef<Lenis | null>(null);
+  const [lenis, setLenis] = useState<Lenis | null>(null);
 
   useEffect(() => {
     // Ultra-smooth, 60-120fps liquid smooth scroll
-    const lenis = new Lenis({
+    const instance = new Lenis({
       lerp: 0.1,
       orientation: 'vertical',
       gestureOrientation: 'vertical',
@@ -34,28 +32,25 @@ export function LenisProvider({ children }: LenisProviderProps) {
       infinite: false,
     });
 
-    lenisRef.current = lenis;
-
-    // Synchronize Lenis with GSAP ScrollTrigger
-    lenis.on('scroll', ScrollTrigger.update);
+    setLenis(instance);
 
     // High performance RAF loop
     let reqId: number;
     function raf(time: number) {
-      lenis.raf(time);
+      instance.raf(time);
       reqId = requestAnimationFrame(raf);
     }
     reqId = requestAnimationFrame(raf);
 
     return () => {
       cancelAnimationFrame(reqId);
-      lenis.destroy();
-      lenisRef.current = null;
+      instance.destroy();
+      setLenis(null);
     };
   }, []);
 
   return (
-    <LenisContext.Provider value={{ lenis: lenisRef.current }}>
+    <LenisContext.Provider value={{ lenis }}>
       {children}
     </LenisContext.Provider>
   );

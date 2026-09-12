@@ -2,7 +2,6 @@
 
 import { useRef, useEffect, type ReactNode, type CSSProperties } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { gsap } from '@/lib/gsap/plugins';
 import { DURATION, EASE } from '@/lib/motion/tokens';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { clsx } from 'clsx';

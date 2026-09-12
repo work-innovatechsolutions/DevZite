@@ -169,10 +169,11 @@ function ContactFormContent() {
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-xs font-mono font-bold text-[#475569] dark:text-[#94A3B8] uppercase tracking-wider mb-2">
+                        <label htmlFor="contact-name" className="block text-xs font-mono font-bold text-[#475569] dark:text-[#94A3B8] uppercase tracking-wider mb-2">
                           Your Full Name *
                         </label>
                         <input
+                          id="contact-name"
                           type="text"
                           required
                           placeholder="Sarah Jenkins"
@@ -183,10 +184,11 @@ function ContactFormContent() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-mono font-bold text-[#475569] dark:text-[#94A3B8] uppercase tracking-wider mb-2">
+                        <label htmlFor="contact-email" className="block text-xs font-mono font-bold text-[#475569] dark:text-[#94A3B8] uppercase tracking-wider mb-2">
                           Email Address *
                         </label>
                         <input
+                          id="contact-email"
                           type="email"
                           required
                           placeholder="sarah@company.com"
@@ -199,10 +201,11 @@ function ContactFormContent() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-xs font-mono font-bold text-[#475569] dark:text-[#94A3B8] uppercase tracking-wider mb-2">
+                        <label htmlFor="contact-company" className="block text-xs font-mono font-bold text-[#475569] dark:text-[#94A3B8] uppercase tracking-wider mb-2">
                           Company or Studio Name
                         </label>
                         <input
+                          id="contact-company"
                           type="text"
                           placeholder="e.g. Apex Innovations Co."
                           value={company}
@@ -212,10 +215,11 @@ function ContactFormContent() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-mono font-bold text-[#475569] dark:text-[#94A3B8] uppercase tracking-wider mb-2">
+                        <label htmlFor="contact-phone" className="block text-xs font-mono font-bold text-[#475569] dark:text-[#94A3B8] uppercase tracking-wider mb-2">
                           WhatsApp / Phone Number
                         </label>
                         <input
+                          id="contact-phone"
                           type="tel"
                           placeholder="+1 (555) 000-0000"
                           value={phone}
@@ -227,10 +231,11 @@ function ContactFormContent() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-xs font-mono font-bold text-[#475569] dark:text-[#94A3B8] uppercase tracking-wider mb-2">
+                        <label htmlFor="contact-service" className="block text-xs font-mono font-bold text-[#475569] dark:text-[#94A3B8] uppercase tracking-wider mb-2">
                           Service Domain
                         </label>
                         <select
+                          id="contact-service"
                           value={service}
                           onChange={(e) => setService(e.target.value)}
                           className="w-full px-4 py-3.5 rounded-2xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] text-[#0F172A] dark:text-[#F8FAFC] text-sm outline-none focus:ring-2 focus:ring-[#3B82F6]/50 focus:border-[#3B82F6] font-body cursor-pointer"
@@ -244,10 +249,11 @@ function ContactFormContent() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-mono font-bold text-[#475569] dark:text-[#94A3B8] uppercase tracking-wider mb-2">
+                        <label htmlFor="contact-budget" className="block text-xs font-mono font-bold text-[#475569] dark:text-[#94A3B8] uppercase tracking-wider mb-2">
                           Estimated Budget (From Pricing Cards)
                         </label>
                         <select
+                          id="contact-budget"
                           value={budget}
                           onChange={(e) => setBudget(e.target.value)}
                           className="w-full px-4 py-3.5 rounded-2xl bg-[rgba(15,23,42,0.03)] dark:bg-[rgba(255,255,255,0.04)] border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] text-[#0F172A] dark:text-[#F8FAFC] text-sm outline-none focus:ring-2 focus:ring-[#3B82F6]/50 focus:border-[#3B82F6] font-body cursor-pointer"
@@ -274,10 +280,11 @@ function ContactFormContent() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono font-bold text-[#475569] dark:text-[#94A3B8] uppercase tracking-wider mb-2">
+                      <label htmlFor="contact-message" className="block text-xs font-mono font-bold text-[#475569] dark:text-[#94A3B8] uppercase tracking-wider mb-2">
                         Project Overview & Goals
                       </label>
                       <textarea
+                        id="contact-message"
                         rows={4}
                         placeholder="Tell us about your timeline, core features, and target outcomes..."
                         value={message}

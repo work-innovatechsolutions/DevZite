@@ -88,7 +88,7 @@ export function AIAssistant() {
                 <Sparkles size={16} />
               </div>
               <div>
-                <h4 className="font-display font-bold text-sm text-[#F8FAFC]">DevZite AI Lead Assistant</h4>
+                <p className="font-display font-bold text-sm text-[#F8FAFC]">DevZite AI Lead Assistant</p>
                 <span className="text-[10px] font-mono text-[#06B6D4]">● Online · Instant Guidance</span>
               </div>
             </div>

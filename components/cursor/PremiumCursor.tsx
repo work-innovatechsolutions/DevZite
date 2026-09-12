@@ -2,24 +2,24 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
+import { motion, useMotionValue, useSpring, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useCursorState } from '@/providers/CursorProvider';
 import { isTouchDevice } from '@/lib/utils';
 import { SPRING } from '@/lib/motion/tokens';
 
 const TRAIL_COUNT = 5;
 
-// Per-state cursor config
+// Per-state cursor config with pre-calculated transform scale
 const CURSOR_CONFIG = {
-  idle:          { size: 8,  ringSize: 32, fill: false, label: '' },
-  'hover-link':  { size: 6,  ringSize: 44, fill: true,  label: '' },
-  'hover-button':{ size: 0,  ringSize: 40, fill: true,  label: '' },
-  'hover-image': { size: 4,  ringSize: 52, fill: false, label: 'VIEW' },
-  'hover-video': { size: 0,  ringSize: 52, fill: false, label: '▶' },
-  drag:          { size: 8,  ringSize: 44, fill: false, label: '⟺' },
-  progress:      { size: 4,  ringSize: 40, fill: false, label: '' },
-  'page-nav':    { size: 4,  ringSize: 44, fill: false, label: '→' },
-  hidden:        { size: 0,  ringSize: 0,  fill: false, label: '' },
+  idle:          { scale: 1,    ringScale: 1,      fill: false, label: '' },
+  'hover-link':  { scale: 0.75, ringScale: 1.375,  fill: true,  label: '' },
+  'hover-button':{ scale: 0,    ringScale: 1.25,   fill: true,  label: '' },
+  'hover-image': { scale: 0.5,  ringScale: 1.625,  fill: false, label: 'VIEW' },
+  'hover-video': { scale: 0,    ringScale: 1.625,  fill: false, label: '▶' },
+  drag:          { scale: 1,    ringScale: 1.375,  fill: false, label: '⟺' },
+  progress:      { scale: 0.5,  ringScale: 1.25,   fill: false, label: '' },
+  'page-nav':    { scale: 0.5,  ringScale: 1.375,  fill: false, label: '→' },
+  hidden:        { scale: 0,    ringScale: 0,      fill: false, label: '' },
 } as const;
 
 export function PremiumCursor() {
@@ -27,6 +27,7 @@ export function PremiumCursor() {
   const [mounted, setMounted] = useState(false);
   const [isTouch, setIsTouch] = useState(false);
   const { state, label } = useCursorState();
+  const shouldReduceMotion = useReducedMotion();
 
   const isDisabledPanel = Boolean(
     pathname && (pathname.startsWith('/admin') || pathname.startsWith('/client'))
@@ -62,23 +63,27 @@ export function PremiumCursor() {
   }, [isDisabledPanel]);
 
   useEffect(() => {
-    if (isTouch) return;
+    if (isTouch || shouldReduceMotion) return;
 
-    const onMove = (e: MouseEvent) => {
-      posRef.current = { x: e.clientX, y: e.clientY };
-      mx.set(e.clientX);
-      my.set(e.clientY);
-    };
+    let isRunning = false;
 
-    // Direct DOM manipulation — ultra-fast 60-120fps tracking
+    // Direct DOM manipulation with idle equilibrium check
     const animateTrail = () => {
       const positions = trailPosRef.current;
       const target = posRef.current;
+      let needsMoreFrames = false;
 
       for (let i = 0; i < TRAIL_COUNT; i++) {
         const prev = i === 0 ? target : positions[i - 1];
-        positions[i].x += (prev.x - positions[i].x) * 0.65;
-        positions[i].y += (prev.y - positions[i].y) * 0.65;
+        const dx = prev.x - positions[i].x;
+        const dy = prev.y - positions[i].y;
+
+        positions[i].x += dx * 0.65;
+        positions[i].y += dy * 0.65;
+
+        if (Math.abs(dx) > 0.2 || Math.abs(dy) > 0.2) {
+          needsMoreFrames = true;
+        }
 
         const el = trailDotsRef.current[i];
         if (el) {
@@ -86,19 +91,33 @@ export function PremiumCursor() {
         }
       }
 
-      rafRef.current = requestAnimationFrame(animateTrail);
+      if (needsMoreFrames) {
+        rafRef.current = requestAnimationFrame(animateTrail);
+      } else {
+        isRunning = false;
+      }
+    };
+
+    const onMove = (e: MouseEvent) => {
+      posRef.current = { x: e.clientX, y: e.clientY };
+      mx.set(e.clientX);
+      my.set(e.clientY);
+
+      if (!isRunning) {
+        isRunning = true;
+        rafRef.current = requestAnimationFrame(animateTrail);
+      }
     };
 
     window.addEventListener('mousemove', onMove, { passive: true });
-    rafRef.current = requestAnimationFrame(animateTrail);
 
     return () => {
       window.removeEventListener('mousemove', onMove);
       cancelAnimationFrame(rafRef.current);
     };
-  }, [isTouch, mx, my]);
+  }, [isTouch, shouldReduceMotion, mx, my]);
 
-  if (!mounted || isTouch || isDisabledPanel) return null;
+  if (!mounted || isTouch || isDisabledPanel || shouldReduceMotion) return null;
 
   return (
     <div
@@ -121,9 +140,9 @@ export function PremiumCursor() {
         />
       ))}
 
-      {/* Cursor dot */}
+      {/* Cursor dot — GPU transform scale instead of width/height */}
       <motion.div
-        className="absolute top-0 left-0 rounded-full bg-[#3B82F6] dark:bg-white pointer-events-none"
+        className="absolute top-0 left-0 w-2 h-2 rounded-full bg-[#3B82F6] dark:bg-white pointer-events-none"
         style={{
           x: springX,
           y: springY,
@@ -132,16 +151,15 @@ export function PremiumCursor() {
           willChange: 'transform',
         }}
         animate={{
-          width: config.size,
-          height: config.size,
-          opacity: config.size === 0 ? 0 : 1,
+          scale: config.scale,
+          opacity: config.scale === 0 ? 0 : 1,
         }}
         transition={SPRING.tight}
       />
 
-      {/* Outer ring */}
+      {/* Outer ring — GPU transform scale & layered opacity */}
       <motion.div
-        className="absolute top-0 left-0 rounded-full border border-[rgba(59,130,246,0.7)] pointer-events-none"
+        className="absolute top-0 left-0 w-8 h-8 rounded-full pointer-events-none"
         style={{
           x: springX,
           y: springY,
@@ -150,18 +168,22 @@ export function PremiumCursor() {
           willChange: 'transform',
         }}
         animate={{
-          width: config.ringSize,
-          height: config.ringSize,
-          opacity: config.ringSize === 0 ? 0 : 1,
-          backgroundColor: config.fill
-            ? 'rgba(59,130,246,0.15)'
-            : 'rgba(59,130,246,0)',
-          borderColor: config.fill
-            ? 'rgba(59,130,246,0.9)'
-            : 'rgba(59,130,246,0.7)',
+          scale: config.ringScale,
+          opacity: config.ringScale === 0 ? 0 : 1,
         }}
         transition={SPRING.default}
       >
+        {/* Unfilled border */}
+        <div
+          className="absolute inset-0 rounded-full border border-[rgba(59,130,246,0.7)] transition-opacity duration-200"
+          style={{ opacity: config.fill ? 0 : 1 }}
+        />
+        {/* Filled state */}
+        <div
+          className="absolute inset-0 rounded-full bg-[rgba(59,130,246,0.15)] border border-[rgba(59,130,246,0.9)] transition-opacity duration-200"
+          style={{ opacity: config.fill ? 1 : 0 }}
+        />
+
         {/* Label inside ring */}
         <AnimatePresence>
           {displayLabel && (

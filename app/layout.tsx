@@ -1,9 +1,16 @@
+import dynamic from 'next/dynamic';
 import type { Metadata, Viewport } from 'next';
-import { Inter, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
+import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import { Providers } from '@/providers';
-import { AIAssistant } from '@/components/ai-assistant/AIAssistant';
-import { PremiumCursor } from '@/components/cursor/PremiumCursor';
 import '@/app/globals.css';
+
+const PremiumCursor = dynamic(
+  () => import('@/components/cursor/PremiumCursor').then((m) => m.PremiumCursor)
+);
+
+const AIAssistant = dynamic(
+  () => import('@/components/ai-assistant/AIAssistant').then((m) => m.AIAssistant)
+);
 
 // ─── Fonts ───────────────────────────────────────────────────────────────────
 const plusJakarta = Plus_Jakarta_Sans({
@@ -20,16 +27,14 @@ const inter = Inter({
   weight: ['400', '500', '600', '700'],
 });
 
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-jetbrains-mono',
-  display: 'swap',
-  weight: ['400', '500'],
-});
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://devzite.com').replace(/\/+$/, '');
 
 // ─── Metadata ────────────────────────────────────────────────────────────────
 export const metadata: Metadata = {
-  metadataBase: new URL('https://devzite.com'),
+  metadataBase: new URL(siteUrl),
+  alternates: {
+    canonical: './',
+  },
   title: {
     default: 'Devzite — Digital Experiences That People Remember',
     template: '%s | Devzite',
@@ -51,7 +56,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://devzite.com',
+    url: siteUrl,
     siteName: 'Devzite',
     title: 'Devzite — Digital Experiences That People Remember',
     description:
@@ -102,7 +107,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${plusJakarta.variable} ${inter.variable} ${jetbrainsMono.variable}`}
+      className={`${plusJakarta.variable} ${inter.variable}`}
       suppressHydrationWarning
     >
       <body className="bg-[#F8FAFC] dark:bg-[#06070A] text-[#0F172A] dark:text-[#F8FAFC] antialiased overflow-x-hidden">

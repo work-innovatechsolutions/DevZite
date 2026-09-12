@@ -164,10 +164,11 @@ export function SceneProof() {
                         setState('idle');
                         setLabel('');
                       }}
-                      className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#3B82F6] hover:bg-[#2563EB] text-white text-sm font-semibold transition-all duration-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]"
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold transition-all duration-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]"
                     >
                       Read Full Case Study
-                      <span>→</span>
+                      <span className="sr-only">: {project.title}</span>
+                      <span aria-hidden="true">→</span>
                     </Link>
                   </div>
 
