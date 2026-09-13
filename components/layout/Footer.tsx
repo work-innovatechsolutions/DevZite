@@ -89,8 +89,9 @@ export function Footer() {
             viewport={{ once: true, margin: '-10%' }}
           >
             <Link href="/" className="inline-flex items-center mb-6">
-              <div className="relative w-48 sm:w-56 h-12 sm:h-14">
-                <Image src="/devzitelogo.svg" alt="Devzite" fill sizes="224px" className="object-contain object-left logo-svg" />
+              <div className="relative w-60 sm:w-72 h-16 sm:h-20">
+                <Image src="/devzitelogo-dark.png" alt="Devzite" fill sizes="(max-width: 640px) 240px, 288px" className="object-contain object-left opacity-0 dark:opacity-100 transition-opacity duration-300" />
+                <Image src="/devzitelogo-light.png" alt="Devzite" fill sizes="(max-width: 640px) 240px, 288px" className="object-contain object-left opacity-100 dark:opacity-0 transition-opacity duration-300" />
               </div>
             </Link>
 

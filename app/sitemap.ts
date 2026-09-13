@@ -4,7 +4,8 @@ import { ALL_PROJECT_SLUGS } from '@/lib/data/projects';
 import { COMPREHENSIVE_BLOGS } from '@/lib/data/blogs';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://devzite.com').replace(/\/+$/, '');
+  const rawUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://devzite.com';
+  const baseUrl = (!rawUrl.includes('vercel.app') ? rawUrl : 'https://devzite.com').replace(/\/+$/, '');
   const now = new Date();
 
   // ── 1. Core Public Static Pages ───────────────────────────────────────────
@@ -80,12 +81,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
 
   // ── 3. Dynamic Case Study / Project Pages (/projects/[slug]) ───────────────
-  const projectRoutes: MetadataRoute.Sitemap = ALL_PROJECT_SLUGS.map((slug) => ({
-    url: `${baseUrl}/projects/${slug}`,
-    lastModified: now,
-    changeFrequency: 'weekly',
-    priority: 0.75,
-  }));
+  // Excluded per user request: nexus-ai-studio, aura-fitness, lumina-cloud, cyberpulse-saas-dashboard
+  const EXCLUDED_PROJECT_SLUGS = new Set([
+    'nexus-ai-studio',
+    'aura-fitness',
+    'lumina-cloud',
+    'cyberpulse-saas-dashboard',
+  ]);
+
+  const projectRoutes: MetadataRoute.Sitemap = ALL_PROJECT_SLUGS
+    .filter((slug) => !EXCLUDED_PROJECT_SLUGS.has(slug))
+    .map((slug) => ({
+      url: `${baseUrl}/projects/${slug}`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.75,
+    }));
 
   // ── 4. Dynamic Blog Post Pages (/blog/[slug]) ─────────────────────────────
   const blogRoutes: MetadataRoute.Sitemap = COMPREHENSIVE_BLOGS

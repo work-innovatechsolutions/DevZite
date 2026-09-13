@@ -853,10 +853,32 @@ html.light .terminal-cursor::after {
   color: #15803D;
 }
 
-/* Logo adaptation for Light Mode */
-html.light .logo-svg,
-[data-theme='light'] .logo-svg {
-  filter: invert(0.85) hue-rotate(180deg) brightness(0.2);
+/* ─── GPU-Accelerated Theme View Transition ─────────────────────────────────── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.35s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+::view-transition-old(root) {
+  animation-name: fade-out;
+}
+
+::view-transition-new(root) {
+  animation-name: fade-in;
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+
+
 
 

@@ -1,4 +1,5 @@
 import dynamic from 'next/dynamic';
+import Script from 'next/script';
 import type { Metadata, Viewport } from 'next';
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import { Providers } from '@/providers';
@@ -107,9 +108,33 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${plusJakarta.variable} ${inter.variable}`}
+      className={`dark ${plusJakarta.variable} ${inter.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var saved = localStorage.getItem('devzite-theme');
+                  var theme = saved || 'dark';
+                  var root = document.documentElement;
+                  if (theme === 'light') {
+                    root.classList.remove('dark');
+                    root.classList.add('light');
+                  } else {
+                    root.classList.remove('light');
+                    root.classList.add('dark');
+                  }
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className="bg-[#F8FAFC] dark:bg-[#06070A] text-[#0F172A] dark:text-[#F8FAFC] antialiased overflow-x-hidden">
         {/* Skip to content for accessibility */}
         <a href="#main-content" className="skip-to-content">

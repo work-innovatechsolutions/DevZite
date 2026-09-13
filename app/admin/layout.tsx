@@ -137,13 +137,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </button>
 
           <Link href="/" className="inline-flex items-center gap-2">
-            <div className="relative w-28 h-7">
+            <div className="relative w-40 sm:w-48 h-10 sm:h-12">
               <Image
-                src="/devzitelogo.svg"
+                src="/devzitelogo-dark.png"
                 alt="Devzite"
                 fill
-                sizes="112px"
-                className="object-contain object-left logo-svg"
+                sizes="(max-width: 640px) 160px, 192px"
+                className="object-contain object-left opacity-0 dark:opacity-100 transition-opacity duration-300"
+                priority
+              />
+              <Image
+                src="/devzitelogo-light.png"
+                alt="Devzite"
+                fill
+                sizes="(max-width: 640px) 160px, 192px"
+                className="object-contain object-left opacity-100 dark:opacity-0 transition-opacity duration-300"
                 priority
               />
             </div>
@@ -255,13 +263,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {/* Logo Header */}
           <div className="flex items-center justify-between mb-8 pb-6 border-b border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)]">
             <Link href="/" className="inline-flex items-center gap-2 group">
-              <div className="relative w-32 h-8">
+              <div className="relative w-48 h-12">
                 <Image
-                  src="/devzitelogo.svg"
+                  src="/devzitelogo-dark.png"
                   alt="Devzite"
                   fill
-                  sizes="128px"
-                  className="object-contain object-left logo-svg"
+                  sizes="192px"
+                  className="object-contain object-left opacity-0 dark:opacity-100 transition-opacity duration-300"
+                  priority
+                />
+                <Image
+                  src="/devzitelogo-light.png"
+                  alt="Devzite"
+                  fill
+                  sizes="192px"
+                  className="object-contain object-left opacity-100 dark:opacity-0 transition-opacity duration-300"
                   priority
                 />
               </div>

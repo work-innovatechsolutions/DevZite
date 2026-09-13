@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, type ReactNode, type CSSProperties } from 'react';
 import { motion, useInView } from 'framer-motion';
+import { gsap } from '@/lib/gsap/plugins';
 import { DURATION, EASE } from '@/lib/motion/tokens';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { clsx } from 'clsx';
@@ -23,7 +24,7 @@ interface BlurRevealProps {
 export function BlurReveal({
   children,
   delay = 0,
-  duration = 0.5,
+  duration = 0.8,
   className,
   once = true,
 }: BlurRevealProps) {
@@ -32,10 +33,10 @@ export function BlurReveal({
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 18, filter: 'blur(6px)' }}
+      whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
       viewport={{ once, margin: '-5%' }}
-      transition={{ duration, delay, ease: EASE.premium }}
+      transition={{ duration, delay, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </motion.div>
@@ -138,7 +139,7 @@ interface CountUpProps {
 
 export function CountUp({
   end,
-  duration = 2.4,
+  duration = 2.8,
   prefix = '',
   suffix = '',
   className,
@@ -155,16 +156,20 @@ export function CountUp({
       return;
     }
     const obj = { val: 0 };
-    gsap.to(obj, {
+    const tween = gsap.to(obj, {
       val: end,
       duration,
-      ease: 'power3.out',
+      ease: 'power2.out',
       onUpdate() {
         if (ref.current) {
           ref.current.textContent = `${prefix}${obj.val.toFixed(decimals)}${suffix}`;
         }
       },
     });
+
+    return () => {
+      tween.kill();
+    };
   }, [inView, end, duration, prefix, suffix, reducedMotion, decimals]);
 
   return (
@@ -189,7 +194,7 @@ export function ScrambleText({
   text,
   className,
   delay = 0,
-  duration = 1200,
+  duration = 1800,
   trigger = true,
 }: ScrambleTextProps) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -206,7 +211,9 @@ export function ScrambleText({
       const now = Date.now();
       if (now < startTime) { requestAnimationFrame(animate); return; }
       const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
+      const rawProgress = Math.min(elapsed / duration, 1);
+      // Smooth sinusoidal ease-out for character settling
+      const progress = Math.sin((rawProgress * Math.PI) / 2);
       const settledCount = Math.floor(progress * text.length);
       if (ref.current) {
         ref.current.textContent = text
@@ -218,7 +225,7 @@ export function ScrambleText({
           })
           .join('');
       }
-      if (progress < 1) { frame = requestAnimationFrame(animate); }
+      if (rawProgress < 1) { frame = requestAnimationFrame(animate); }
       else if (ref.current) { ref.current.textContent = text; }
     };
     frame = requestAnimationFrame(animate);
@@ -242,7 +249,7 @@ export function TextReveal({
   className,
   wordClassName,
   delay = 0,
-  stagger = 0.06,
+  stagger = 0.08,
 }: TextRevealProps) {
   const reducedMotion = useReducedMotion();
   const words = text.split(' ');
@@ -253,13 +260,13 @@ export function TextReveal({
         <span key={i} className="inline-block overflow-hidden mr-[0.25em]">
           <motion.span
             className={cn('inline-block', wordClassName)}
-            initial={{ y: '110%', opacity: 0 }}
-            whileInView={{ y: '0%', opacity: 1 }}
+            initial={{ y: '110%', opacity: 0, filter: 'blur(4px)' }}
+            whileInView={{ y: '0%', opacity: 1, filter: 'blur(0px)' }}
             viewport={{ once: true, margin: '-10%' }}
             transition={{
-              duration: DURATION.slow,
+              duration: 0.85,
               delay: delay + i * stagger,
-              ease: EASE.premium,
+              ease: [0.16, 1, 0.3, 1],
             }}
           >
             {word}

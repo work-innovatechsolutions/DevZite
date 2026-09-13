@@ -86,9 +86,8 @@ export function Navbar() {
           'fixed top-0 left-0 right-0 z-[200] transition-all duration-300',
           scrolled ? 'glass-nav' : 'bg-transparent'
         )}
-        initial={{ y: -80, opacity: 0 }}
+        initial={false}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: DURATION.slow, ease: EASE.decelerate, delay: 0.2 }}
       >
         <div className="w-full max-w-[100rem] mx-auto px-4 sm:px-8 lg:px-12 flex items-center justify-between h-20 lg:h-24">
           {/* Logo (Left Column) */}
@@ -100,13 +99,21 @@ export function Navbar() {
                 onMouseEnter={() => setState('hover-link')}
                 onMouseLeave={() => setState('idle')}
               >
-                <div className="relative w-40 sm:w-48 h-10 sm:h-12 group-hover:drop-shadow-[0_0_16px_rgba(59,130,246,0.8)] transition-all duration-300">
+                <div className="relative w-52 sm:w-64 lg:w-72 h-14 sm:h-16 lg:h-20 group-hover:drop-shadow-[0_0_16px_rgba(59,130,246,0.8)] transition-all duration-300">
                   <Image
-                    src="/devzitelogo.svg"
+                    src="/devzitelogo-dark.png"
                     alt="Devzite"
                     fill
-                    sizes="224px"
-                    className="object-contain object-left logo-svg"
+                    sizes="(max-width: 640px) 208px, (max-width: 1024px) 256px, 288px"
+                    className="object-contain object-left opacity-0 dark:opacity-100 transition-opacity duration-300"
+                    priority
+                  />
+                  <Image
+                    src="/devzitelogo-light.png"
+                    alt="Devzite"
+                    fill
+                    sizes="(max-width: 640px) 208px, (max-width: 1024px) 256px, 288px"
+                    className="object-contain object-left opacity-100 dark:opacity-0 transition-opacity duration-300"
                     priority
                   />
                 </div>

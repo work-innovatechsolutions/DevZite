@@ -154,13 +154,21 @@ export default function LoginPage() {
       <header className="fixed top-6 inset-x-0 z-40 px-4 sm:px-8 max-w-7xl mx-auto">
         <div className="glass-nav rounded-full px-6 py-3 border border-[rgba(15,23,42,0.08)] dark:border-[rgba(255,255,255,0.08)] flex items-center justify-between shadow-lg backdrop-blur-2xl bg-white/70 dark:bg-[#0C0D14]/75">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-32 h-8">
+            <div className="relative w-40 sm:w-48 h-10 sm:h-12">
               <Image
-                src="/devzitelogo.svg"
+                src="/devzitelogo-dark.png"
                 alt="DevZite"
                 fill
-                sizes="128px"
-                className="object-contain object-left logo-svg group-hover:scale-105 transition-transform"
+                sizes="(max-width: 640px) 160px, 192px"
+                className="object-contain object-left opacity-0 dark:opacity-100 transition-opacity duration-300 group-hover:scale-105"
+                priority
+              />
+              <Image
+                src="/devzitelogo-light.png"
+                alt="DevZite"
+                fill
+                sizes="(max-width: 640px) 160px, 192px"
+                className="object-contain object-left opacity-100 dark:opacity-0 transition-opacity duration-300 group-hover:scale-105"
                 priority
               />
             </div>

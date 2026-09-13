@@ -30,11 +30,11 @@ export function SceneArrival() {
   const { setState } = useCursorState();
   const [currentWordIdx, setCurrentWordIdx] = useState(0);
 
-  // Rotate specialty headline every 2.6 seconds
+  // Rotate specialty headline gracefully every 4.2 seconds
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentWordIdx((prev) => (prev + 1) % ROTATING_SPECIALTIES.length);
-    }, 2600);
+    }, 4200);
     return () => clearInterval(timer);
   }, []);
 
@@ -77,14 +77,14 @@ export function SceneArrival() {
         {/* Main headline — High-impact, bold & prominent font weight */}
         <h1 className="text-4xl sm:text-6xl lg:text-7xl font-display font-black mb-6 tracking-tight max-w-5xl mx-auto leading-[1.08] text-[#0F172A] dark:text-[#F8FAFC]">
           High-Impact Software &{' '}
-          <span className="inline-flex items-center text-[#3B82F6] font-black">
-            <AnimatePresence mode="wait">
+          <span className="inline-flex items-center text-[#3B82F6] font-black overflow-hidden align-bottom min-h-[1.2em]">
+            <AnimatePresence mode="wait" initial={false}>
               <motion.span
                 key={ROTATING_SPECIALTIES[currentWordIdx]}
-                initial={false}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -14, opacity: 0 }}
-                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                initial={{ y: 28, opacity: 0, filter: 'blur(8px)' }}
+                animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
+                exit={{ y: -28, opacity: 0, filter: 'blur(8px)' }}
+                transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
                 className="inline-block"
               >
                 {ROTATING_SPECIALTIES[currentWordIdx]}

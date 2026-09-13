@@ -28,8 +28,23 @@ export default function RegisterPage() {
           <BlurReveal>
             <div className="rounded-3xl glass p-8 sm:p-10 border border-[rgba(255,255,255,0.08)] shadow-2xl">
               <div className="text-center mb-8">
-                <div className="relative w-12 h-12 mx-auto mb-4">
-                  <Image src="/logo.png" alt="DevZite" fill sizes="48px" className="object-contain" />
+                <div className="relative w-48 h-14 mx-auto mb-4">
+                  <Image
+                    src="/devzitelogo-dark.png"
+                    alt="DevZite"
+                    fill
+                    sizes="192px"
+                    className="object-contain object-center opacity-0 dark:opacity-100 transition-opacity duration-300"
+                    priority
+                  />
+                  <Image
+                    src="/devzitelogo-light.png"
+                    alt="DevZite"
+                    fill
+                    sizes="192px"
+                    className="object-contain object-center opacity-100 dark:opacity-0 transition-opacity duration-300"
+                    priority
+                  />
                 </div>
                 <h1 className="font-display font-bold text-2xl text-[#F8FAFC]">
                   Create Account
