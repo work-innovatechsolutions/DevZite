@@ -33,8 +33,8 @@ export function BlurReveal({
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y: 18, filter: 'blur(6px)' }}
-      whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once, margin: '-5%' }}
       transition={{ duration, delay, ease: [0.16, 1, 0.3, 1] }}
     >
@@ -260,8 +260,8 @@ export function TextReveal({
         <span key={i} className="inline-block overflow-hidden mr-[0.25em]">
           <motion.span
             className={cn('inline-block', wordClassName)}
-            initial={{ y: '110%', opacity: 0, filter: 'blur(4px)' }}
-            whileInView={{ y: '0%', opacity: 1, filter: 'blur(0px)' }}
+            initial={{ y: '110%', opacity: 0 }}
+            whileInView={{ y: '0%', opacity: 1 }}
             viewport={{ once: true, margin: '-10%' }}
             transition={{
               duration: 0.85,

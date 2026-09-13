@@ -5,11 +5,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Command, User, Calendar } from 'lucide-react';
-import { gsap } from '@/lib/gsap/plugins';
+import { DURATION, EASE, SPRING, STAGGER, GSAP_EASE } from '@/lib/motion/tokens';
 import { MagneticWrapper } from '@/components/cursor/MagneticWrapper';
 import { useCursorState } from '@/providers/CursorProvider';
 import { useCommandPalette } from '@/providers/CommandPaletteProvider';
-import { DURATION, EASE, SPRING, STAGGER, GSAP_EASE } from '@/lib/motion/tokens';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
@@ -46,15 +45,16 @@ export function Navbar() {
         const currentY = window.scrollY;
         setScrolled(currentY > 60);
 
-        // Smart hide — only animate when state changes
+        // Smart hide — CSS class toggle instead of GSAP inline style
+        // to avoid forced reflow on mobile
         if (navRef.current) {
           const shouldHide = currentY > lastY && currentY > 200;
           if (shouldHide && !isHidden) {
             isHidden = true;
-            gsap.to(navRef.current, { y: '-100%', duration: 0.35, ease: 'power2.inOut', overwrite: true });
+            navRef.current.style.transform = 'translateY(-100%)';
           } else if (!shouldHide && isHidden) {
             isHidden = false;
-            gsap.to(navRef.current, { y: '0%', duration: 0.35, ease: 'power2.out', overwrite: true });
+            navRef.current.style.transform = 'translateY(0%)';
           }
         }
         lastY = currentY;
@@ -80,14 +80,14 @@ export function Navbar() {
 
   return (
     <>
-      <motion.nav
+      <nav
         ref={navRef}
         className={cn(
-          'fixed top-0 left-0 right-0 z-[200] transition-all duration-300',
+          'fixed top-0 left-0 right-0 z-[200]',
+          // transition-transform for smooth hide/show; transition-[background] for glass fade-in
+          'transition-[transform,background-color,border-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]',
           scrolled ? 'glass-nav' : 'bg-transparent'
         )}
-        initial={false}
-        animate={{ y: 0, opacity: 1 }}
       >
         <div className="w-full max-w-[100rem] mx-auto px-4 sm:px-8 lg:px-12 flex items-center justify-between h-20 lg:h-24">
           {/* Logo (Left Column) */}
@@ -192,7 +192,7 @@ export function Navbar() {
             </button>
           </div>
         </div>
-      </motion.nav>
+      </nav>
 
       {/* Mobile Full-Screen Overlay Menu */}
       <AnimatePresence>

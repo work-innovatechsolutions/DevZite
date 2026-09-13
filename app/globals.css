@@ -198,6 +198,45 @@ body {
   cursor: none;
 }
 
+/* ─── Mobile Scroll Performance ──────────────────────────────────────────
+   Optimizations that eliminate jitter on touch devices.
+   ──────────────────────────────────────────────────────────────────────────── */
+@media (hover: none) and (pointer: coarse) {
+  /* Native momentum scroll on iOS */
+  html, body {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: none;
+  }
+
+  /* Stop the grain animation: it forces a full composite on every frame */
+  .noise-overlay {
+    animation: none !important;
+  }
+
+  /* Freeze aurora blobs: fixed + animated = repaint on every scroll frame */
+  .aurora-blob {
+    animation: none !important;
+  }
+
+  /* Drop backdrop-filter on mobile: costs 2-4ms per frame on mobile GPUs */
+  .glass,
+  .glass-card,
+  .glass-subtle,
+  .glass-strong,
+  .glass-nav,
+  .glass-shimmer {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Isolate fixed decorative layers so they don’t force full-page repaints */
+  .noise-overlay,
+  .aurora-bg {
+    contain: strict;
+    content-visibility: auto;
+  }
+}
+
 /* ─── Theme Transition Freeze ────────────────────────────────────────────────
    Applied for exactly two rAF cycles during a theme swap.
    Kills ALL transitions/animations so no element fights the class change.
@@ -487,6 +526,8 @@ h1, h2, h3, h4, h5, h6 {
   will-change: transform;
   backface-visibility: hidden;
   opacity: 0.5;
+  /* Paint containment: keeps blob repaints inside its own layer */
+  contain: paint;
 }
 
 .aurora-blob-1 {
